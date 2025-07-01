@@ -1,0 +1,17 @@
+**/__pycache__/
+*/migrations/
+
+# Environments
+# .env
+.venv
+env/
+venv/
+ENV/
+myenv/
+pipenv/
+.conda/
+
+.idea
+
+# MacOS
+.DS_Store
