@@ -294,12 +294,12 @@
 
   // 删除用户
   const deleteUser = () => {
-    ElMessageBox.confirm('确定要注销该用户吗？', '注销用户', {
+    ElMessageBox.confirm('确定要删除该用户吗？', '删除用户', {
       confirmButtonText: '确定',
       cancelButtonText: '取消',
       type: 'error'
     }).then(() => {
-      ElMessage.success('注销成功')
+      ElMessage.success('删除成功')
     })
   }
 
@@ -310,25 +310,20 @@
     // { type: 'index', label: '序号', width: 80 }, // 序号列
     {
       prop: 'avatar',
-      label: '用户名',
+      label: '企业名称',
       minWidth: width.value < 500 ? 220 : '',
       formatter: (row: any) => {
         return h('div', { class: 'user', style: 'display: flex; align-items: center' }, [
-          h('img', { class: 'avatar', src: row.avatar }),
-          h('div', {}, [
-            h('p', { class: 'user-name' }, row.userName),
-            h('p', { class: 'email' }, row.userEmail)
-          ])
+          h('div', {}, [h('p', { class: 'user-name' }, row.userName)])
         ])
       }
     },
     {
       prop: 'userGender',
       label: '性别',
-      sortable: true,
       formatter: (row) => (row.userGender === 1 ? '男' : '女')
     },
-    { prop: 'userPhone', label: '手机号' },
+    { prop: 'userPhone', label: '联系电话' },
     {
       prop: 'status',
       label: '状态',
@@ -338,7 +333,7 @@
     },
     {
       prop: 'createTime',
-      label: '创建日期',
+      label: '注册日期',
       sortable: true
     },
     {

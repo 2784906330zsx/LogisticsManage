@@ -11,7 +11,6 @@
     <div class="text">
       <h3 class="box-title">用户概述</h3>
       <p class="subtitle">比上周 <span class="text-success">+23%</span></p>
-      <p class="subtitle">我们为您创建了多个选项，可将它们组合在一起并定制为像素完美的页面</p>
     </div>
     <div class="list">
       <div v-for="(item, index) in list" :key="index">

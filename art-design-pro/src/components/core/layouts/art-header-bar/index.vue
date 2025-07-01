@@ -16,15 +16,13 @@
             <i class="iconfont-sys" @click="visibleMenu">&#xe6ba;</i>
           </div>
         </div>
+
         <!-- 刷新按钮 -->
         <div class="btn-box" v-if="showRefreshButton">
           <div class="btn refresh-btn" :style="{ marginLeft: !isLeftMenu ? '10px' : '0' }">
             <i class="iconfont-sys" @click="reload()"> &#xe6b3; </i>
           </div>
         </div>
-
-        <!-- 快速入口 -->
-        <ArtFastEnter v-if="width >= 1200" />
 
         <!-- 面包屑 -->
         <ArtBreadcrumb v-if="(showCrumbs && isLeftMenu) || (showCrumbs && isDualMenu)" />
@@ -37,21 +35,6 @@
       </div>
 
       <div class="right">
-        <!-- 搜索 -->
-        <div class="search-wrap">
-          <div class="search-input" @click="openSearchDialog">
-            <div class="left">
-              <i class="iconfont-sys">&#xe710;</i>
-              <span>{{ $t('topBar.search.title') }}</span>
-            </div>
-            <div class="search-keydown">
-              <i class="iconfont-sys" v-if="isWindows">&#xeeac;</i>
-              <i class="iconfont-sys" v-else>&#xe9ab;</i>
-              <span>k</span>
-            </div>
-          </div>
-        </div>
-
         <!-- 全屏按钮 -->
         <div class="btn-box screen-box" @click="toggleFullScreen">
           <div
@@ -61,20 +44,7 @@
             <i class="iconfont-sys">{{ isFullscreen ? '&#xe62d;' : '&#xe8ce;' }}</i>
           </div>
         </div>
-        <!-- 通知 -->
-        <div class="btn-box notice-btn" @click="visibleNotice">
-          <div class="btn notice-button">
-            <i class="iconfont-sys notice-btn">&#xe6c2;</i>
-            <span class="count notice-btn"></span>
-          </div>
-        </div>
-        <!-- 聊天 -->
-        <div class="btn-box chat-btn" @click="openChat">
-          <div class="btn chat-button">
-            <i class="iconfont-sys">&#xe89a;</i>
-            <span class="dot"></span>
-          </div>
-        </div>
+
         <!-- 语言 -->
         <div class="btn-box" v-if="showLanguage">
           <el-dropdown @command="changeLanguage" popper-class="langDropDownStyle">
@@ -96,24 +66,7 @@
             </template>
           </el-dropdown>
         </div>
-        <!-- 设置 -->
-        <div class="btn-box" @click="openSetting">
-          <el-popover :visible="showSettingGuide" placement="bottom-start" :width="190" :offset="0">
-            <template #reference>
-              <div class="btn setting-btn">
-                <i class="iconfont-sys">&#xe6d0;</i>
-              </div>
-            </template>
-            <template #default>
-              <p
-                >{{ $t('topBar.guide.title')
-                }}<span :style="{ color: systemThemeColor }"> {{ $t('topBar.guide.theme') }} </span
-                >、 <span :style="{ color: systemThemeColor }"> {{ $t('topBar.guide.menu') }} </span
-                >{{ $t('topBar.guide.description') }}
-              </p>
-            </template>
-          </el-popover>
-        </div>
+
         <!-- 切换主题 -->
         <div class="btn-box" @click="themeAnimation">
           <div class="btn theme-btn">
@@ -143,21 +96,13 @@
                   <img class="cover" src="@imgs/user/avatar.webp" style="float: left" />
                   <div class="user-wrap">
                     <span class="name">{{ userInfo.userName }}</span>
-                    <span class="email">art.design@gmail.com</span>
+                    <span class="email">{{ userInfo.roles }}</span>
                   </div>
                 </div>
                 <ul class="user-menu">
                   <li @click="goPage('/system/user-center')">
                     <i class="menu-icon iconfont-sys">&#xe734;</i>
                     <span class="menu-txt">{{ $t('topBar.user.userCenter') }}</span>
-                  </li>
-                  <li @click="toDocs()">
-                    <i class="menu-icon iconfont-sys" style="font-size: 15px">&#xe828;</i>
-                    <span class="menu-txt">{{ $t('topBar.user.docs') }}</span>
-                  </li>
-                  <li @click="toGithub()">
-                    <i class="menu-icon iconfont-sys">&#xe8d6;</i>
-                    <span class="menu-txt">{{ $t('topBar.user.github') }}</span>
                   </li>
                   <li @click="lockScreen()">
                     <i class="menu-icon iconfont-sys">&#xe817;</i>
@@ -191,7 +136,6 @@
   import { useMenuStore } from '@/store/modules/menu'
   import AppConfig from '@/config'
   import { languageOptions } from '@/locales'
-  const isWindows = navigator.userAgent.includes('Windows')
   const { locale } = useI18n()
 
   const settingStore = useSettingStore()
@@ -204,8 +148,6 @@
     showLanguage,
     menuOpen,
     showCrumbs,
-    systemThemeColor,
-    showSettingGuide,
     menuType,
     isDark,
     tabStyle
@@ -225,7 +167,6 @@
   const isTopLeftMenu = computed(() => menuType.value === MenuTypeEnum.TOP_LEFT)
 
   import { useCommon } from '@/composables/useCommon'
-  import { WEB_LINKS } from '@/utils/constants'
   import { themeAnimation } from '@/utils/theme/animation'
 
   const { t } = useI18n()
@@ -279,14 +220,6 @@
     router.push(path)
   }
 
-  const toDocs = () => {
-    window.open(WEB_LINKS.DOCS)
-  }
-
-  const toGithub = () => {
-    window.open(WEB_LINKS.GITHUB)
-  }
-
   const toHome = () => {
     router.push(useCommon().homePath.value)
   }
@@ -321,21 +254,6 @@
     reload(50)
   }
 
-  const openSetting = () => {
-    mittBus.emit('openSetting')
-
-    // 隐藏设置引导
-    if (showSettingGuide.value) {
-      settingStore.hideSettingGuide()
-    }
-    // 打开设置引导
-    // settingStore.openSettingGuide()
-  }
-
-  const openSearchDialog = () => {
-    mittBus.emit('openSearchDialog')
-  }
-
   const bodyCloseNotice = (e: any) => {
     let { className } = e.target
 
@@ -348,14 +266,6 @@
         showNotice.value = false
       }
     }
-  }
-
-  const visibleNotice = () => {
-    showNotice.value = !showNotice.value
-  }
-
-  const openChat = () => {
-    mittBus.emit('openChat')
   }
 
   const lockScreen = () => {

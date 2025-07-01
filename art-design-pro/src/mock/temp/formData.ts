@@ -203,71 +203,58 @@ export const ROLE_LIST_DATA: Role[] = [
   {
     roleName: '超级管理员',
     roleCode: 'R_SUPER',
-    des: '拥有系统全部权限',
-    date: '2025-05-15 12:30:45',
+    des: '拥有系统最高权限',
+    date: '2025-07-01 12:34:56',
     enable: true
   },
   {
-    roleName: '管理员',
-    roleCode: 'R_ADMIN',
-    des: '拥有系统管理权限',
-    date: '2025-05-15 12:30:45',
+    roleName: '用户信息管理员',
+    roleCode: 'R_USER_INFO',
+    des: '管理用户信息相关权限',
+    date: '2025-07-01 12:34:56',
+    enable: true
+  },
+
+  {
+    roleName: '订单管理员',
+    roleCode: 'R_ORDER',
+    des: '管理订单相关权限',
+    date: '2025-07-01 12:34:56',
     enable: true
   },
   {
-    roleName: '普通用户',
-    roleCode: 'R_USER',
-    des: '拥有系统普通权限',
-    date: '2025-05-15 12:30:45',
+    roleName: '配送运输管理员',
+    roleCode: 'R_DELIVERY',
+    des: '管理配送运输相关权限',
+    date: '2025-07-01 12:34:56',
+    enable: true
+  },
+  {
+    roleName: '仓储作业管理员',
+    roleCode: 'R_STORAGE',
+    des: '管理仓储作业权限',
+    date: '2025-07-01 12:34:56',
+    enable: true
+  },
+  {
+    roleName: '采购与供应商管理员',
+    roleCode: 'R_PURCHASE',
+    des: '管理采购与供应商相关权限',
+    date: '2025-07-01 12:34:56',
     enable: true
   },
   {
     roleName: '财务管理员',
     roleCode: 'R_FINANCE',
     des: '管理财务相关权限',
-    date: '2025-05-16 09:15:30',
+    date: '2025-07-01 12:34:56',
     enable: true
   },
   {
-    roleName: '数据分析师',
-    roleCode: 'R_ANALYST',
-    des: '拥有数据分析权限',
-    date: '2025-05-16 11:45:00',
-    enable: false
-  },
-  {
-    roleName: '客服专员',
-    roleCode: 'R_SUPPORT',
-    des: '处理客户支持请求',
-    date: '2025-05-17 14:30:22',
-    enable: true
-  },
-  {
-    roleName: '营销经理',
-    roleCode: 'R_MARKETING',
-    des: '管理营销活动权限',
-    date: '2025-05-17 15:10:50',
-    enable: true
-  },
-  {
-    roleName: '访客用户',
-    roleCode: 'R_GUEST',
-    des: '仅限浏览权限',
-    date: '2025-05-18 08:25:40',
-    enable: false
-  },
-  {
-    roleName: '系统维护员',
-    roleCode: 'R_MAINTAINER',
-    des: '负责系统维护和更新',
-    date: '2025-05-18 09:50:12',
-    enable: true
-  },
-  {
-    roleName: '项目经理',
-    roleCode: 'R_PM',
-    des: '管理项目相关权限',
-    date: '2025-05-19 13:40:35',
+    roleName: '普通用户',
+    roleCode: 'R_USER',
+    des: '拥有系统普通权限',
+    date: '2025-07-01 12:34:56',
     enable: true
   }
 ]

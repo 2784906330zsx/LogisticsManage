@@ -294,12 +294,12 @@
 
   // 删除用户
   const deleteUser = () => {
-    ElMessageBox.confirm('确定要注销该用户吗？', '注销用户', {
+    ElMessageBox.confirm('确定要删除该用户吗？', '删除用户', {
       confirmButtonText: '确定',
       cancelButtonText: '取消',
       type: 'error'
     }).then(() => {
-      ElMessage.success('注销成功')
+      ElMessage.success('删除成功')
     })
   }
 

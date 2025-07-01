@@ -42,7 +42,7 @@
       change: '+20%'
     },
     {
-      des: '在线访客数',
+      des: '在线用户数',
       icon: '&#xe724;',
       startVal: 0,
       duration: 1000,
@@ -58,7 +58,7 @@
       change: '-12%'
     },
     {
-      des: '新用户',
+      des: '本周新用户',
       icon: '&#xe82a;',
       startVal: 0,
       duration: 1000,

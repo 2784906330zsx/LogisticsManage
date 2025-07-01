@@ -24,12 +24,6 @@
       "github": "Github",
       "lockScreen": "锁定屏幕",
       "logout": "退出登录"
-    },
-    "guide": {
-      "title": "点击这里查看",
-      "theme": "主题风格",
-      "menu": "开启顶栏菜单",
-      "description": "等更多配置"
     }
   },
   "common": {

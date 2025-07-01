@@ -22,8 +22,8 @@
 
   const list = reactive([
     {
-      username: '中小鱼',
-      type: '关注了',
+      username: '张三',
+      type: '下单了',
       target: '誶誶淰'
     },
     {
