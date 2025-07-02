@@ -114,8 +114,7 @@
   },
   "login": {
     "leftView": {
-      "title": "仓储配送信息管理系统",
-      "subTitle": "美观实用的界面，经过视觉优化，确保卓越的用户体验"
+      "title": "仓储配送信息管理系统"
     },
     "title": "欢迎回来",
     "subTitle": "输入您的账号和密码登录",
@@ -200,9 +199,9 @@
     },
     "dashboard": {
       "title": "仪表盘",
-      "console": "工作台",
-      "analysis": "分析页",
-      "ecommerce": "电子商务"
+      "console": "用户动态",
+      "analysis": "仓储配送动态",
+      "ecommerce": "收支动态"
     },
     "user": {
       "title": "用户管理",

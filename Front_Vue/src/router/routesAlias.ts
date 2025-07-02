@@ -12,7 +12,7 @@ export enum RoutesAlias {
   Person = '/user/person', // 个人用户
   Company = '/user/company', // 企业用户
   Role = '/user/role', // 角色管理
-  UserCenter = '/system/user-center', // 用户中心
+  UserCenter = '/user/user-center', // 用户中心
   AllOrder = '/order/all', // 所有订单
   ToConfirmOrder = '/order/to-confirm', // 待确认订单
   ToCheckOrder = '/order/to-check', // 待审核退款订单

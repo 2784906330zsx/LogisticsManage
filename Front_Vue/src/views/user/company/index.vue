@@ -13,7 +13,7 @@
         <!-- 表格头部 -->
         <ArtTableHeader v-model:columns="columnChecks" @refresh="handleRefresh">
           <template #left>
-            <ElButton @click="showDialog('add')">新增用户</ElButton>
+            <ElButton @click="showDialog('add')">新增企业用户</ElButton>
           </template>
         </ArtTableHeader>
 
@@ -38,25 +38,22 @@
 
         <ElDialog
           v-model="dialogVisible"
-          :title="dialogType === 'add' ? '添加用户' : '编辑用户'"
+          :title="dialogType === 'add' ? '添加企业用户' : '编辑企业用户'"
           width="30%"
           align-center
         >
           <ElForm ref="formRef" :model="formData" :rules="rules" label-width="80px">
-            <ElFormItem label="用户名" prop="username">
+            <ElFormItem label="企业名称" prop="username">
               <ElInput v-model="formData.username" />
             </ElFormItem>
-            <ElFormItem label="手机号" prop="phone">
+            <ElFormItem label="联系人" prop="contact">
+              <ElInput v-model="formData.contact" />
+            </ElFormItem>
+            <ElFormItem label="联系电话" prop="phone">
               <ElInput v-model="formData.phone" />
             </ElFormItem>
-            <ElFormItem label="性别" prop="gender">
-              <ElSelect v-model="formData.gender">
-                <ElOption label="男" value="男" />
-                <ElOption label="女" value="女" />
-              </ElSelect>
-            </ElFormItem>
             <ElFormItem label="角色" prop="role">
-              <ElSelect v-model="formData.role" multiple>
+              <ElSelect v-model="formData.role">
                 <ElOption
                   v-for="role in roleList"
                   :key="role.roleCode"
@@ -170,21 +167,6 @@
       onChange: handleFormChange
     },
     {
-      label: '用户等级',
-      prop: 'level',
-      type: 'select',
-      config: {
-        clearable: true
-      },
-      options: () => [
-        { label: '普通用户', value: 'normal' },
-        { label: 'VIP用户', value: 'vip' },
-        { label: '高级VIP', value: 'svip' },
-        { label: '企业用户', value: 'enterprise', disabled: true }
-      ],
-      onChange: handleFormChange
-    },
-    {
       label: '地址',
       prop: 'address',
       type: 'input',
@@ -236,19 +218,13 @@
   ]
 
   // 获取标签类型
-  // 1: 在线 2: 离线 3: 异常 4: 注销
+  // 1: 正常 2: 注销
   const getTagType = (status: string) => {
     switch (status) {
       case '1':
         return 'success'
       case '2':
-        return 'info'
-      case '3':
-        return 'warning'
-      case '4':
         return 'danger'
-      default:
-        return 'info'
     }
   }
 
@@ -256,12 +232,8 @@
   const buildTagText = (status: string) => {
     let text = ''
     if (status === '1') {
-      text = '在线'
-    } else if (status === '2') {
-      text = '离线'
-    } else if (status === '3') {
-      text = '异常'
-    } else if (status === '4') {
+      text = '正常'
+    } else {
       text = '注销'
     }
     return text
@@ -363,6 +335,7 @@
   // 表单数据
   const formData = reactive({
     username: '',
+    contact: '',
     phone: '',
     gender: '',
     role: [] as string[]
@@ -415,11 +388,15 @@
   // 表单验证规则
   const rules = reactive<FormRules>({
     username: [
-      { required: true, message: '请输入用户名', trigger: 'blur' },
+      { required: true, message: '请输入企业名称', trigger: 'blur' },
+      { min: 2, max: 20, message: '长度在 2 到 20 个字符', trigger: 'blur' }
+    ],
+    contact: [
+      { required: true, message: '请输入联系人', trigger: 'blur' },
       { min: 2, max: 20, message: '长度在 2 到 20 个字符', trigger: 'blur' }
     ],
     phone: [
-      { required: true, message: '请输入手机号', trigger: 'blur' },
+      { required: true, message: '请输入联系电话', trigger: 'blur' },
       { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号格式', trigger: 'blur' }
     ],
     gender: [{ required: true, message: '请选择性别', trigger: 'change' }],

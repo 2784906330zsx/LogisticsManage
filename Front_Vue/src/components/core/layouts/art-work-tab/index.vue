@@ -29,14 +29,6 @@
       </ul>
     </div>
 
-    <div class="right">
-      <el-icon
-        class="btn console-box art-custom-card"
-        @click="(e: MouseEvent) => showMenu(e, activeTab)"
-      >
-        <ArrowDown />
-      </el-icon>
-    </div>
     <ArtMenuRight
       ref="menuRef"
       :menu-items="menuItems"

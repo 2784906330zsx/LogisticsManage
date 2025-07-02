@@ -13,7 +13,7 @@
         <!-- 表格头部 -->
         <ArtTableHeader v-model:columns="columnChecks" @refresh="handleRefresh">
           <template #left>
-            <ElButton @click="showDialog('add')">新增用户</ElButton>
+            <ElButton @click="showDialog('add')">新增个人用户</ElButton>
           </template>
         </ArtTableHeader>
 
@@ -38,15 +38,15 @@
 
         <ElDialog
           v-model="dialogVisible"
-          :title="dialogType === 'add' ? '添加用户' : '编辑用户'"
+          :title="dialogType === 'add' ? '添加个人用户' : '编辑个人用户'"
           width="30%"
           align-center
         >
           <ElForm ref="formRef" :model="formData" :rules="rules" label-width="80px">
-            <ElFormItem label="用户名" prop="username">
+            <ElFormItem label="姓名" prop="username">
               <ElInput v-model="formData.username" />
             </ElFormItem>
-            <ElFormItem label="手机号" prop="phone">
+            <ElFormItem label="联系电话" prop="phone">
               <ElInput v-model="formData.phone" />
             </ElFormItem>
             <ElFormItem label="性别" prop="gender">
@@ -56,7 +56,7 @@
               </ElSelect>
             </ElFormItem>
             <ElFormItem label="角色" prop="role">
-              <ElSelect v-model="formData.role" multiple>
+              <ElSelect v-model="formData.role">
                 <ElOption
                   v-for="role in roleList"
                   :key="role.roleCode"

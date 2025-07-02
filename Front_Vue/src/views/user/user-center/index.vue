@@ -6,33 +6,24 @@
           <img class="bg" src="@imgs/user/bg.webp" />
           <img class="avatar" src="@imgs/user/avatar.webp" />
           <h2 class="name">{{ userInfo.userName }}</h2>
-          <p class="des">Art Design Pro 是一款漂亮的后台管理系统模版.</p>
+          <p class="des">好好学习，天天向上</p>
 
           <div class="outer-info">
             <div>
               <i class="iconfont-sys">&#xe72e;</i>
-              <span>jdkjjfnndf@mall.com</span>
+              <span>example@mall.com</span>
             </div>
             <div>
               <i class="iconfont-sys">&#xe608;</i>
-              <span>交互专家</span>
+              <span>超级管理员</span>
             </div>
             <div>
               <i class="iconfont-sys">&#xe736;</i>
-              <span>广东省深圳市</span>
+              <span>上海市 - 浦东新区</span>
             </div>
             <div>
               <i class="iconfont-sys">&#xe811;</i>
-              <span>字节跳动－某某平台部－UED</span>
-            </div>
-          </div>
-
-          <div class="lables">
-            <h3>标签</h3>
-            <div>
-              <div v-for="item in lableList" :key="item">
-                {{ item }}
-              </div>
+              <span>###物流公司——CEO</span>
             </div>
           </div>
         </div>
@@ -160,13 +151,13 @@
   const isEditPwd = ref(false)
   const date = ref('')
   const form = reactive({
-    realName: 'John Snow',
+    realName: 'SuperAdmin',
     nikeName: '皮卡丘',
     email: '59301283@mall.com',
     mobile: '18888888888',
-    address: '广东省深圳市宝安区西乡街道101栋201',
+    address: '上海市浦东新区',
     sex: '2',
-    des: 'Art Design Pro 是一款漂亮的后台管理系统模版.'
+    des: '好好学习，天天向上'
   })
 
   const pwdForm = reactive({
@@ -202,8 +193,6 @@
       label: '女'
     }
   ]
-
-  const lableList: Array<string> = ['专注设计', '很有想法', '辣~', '大长腿', '川妹子', '海纳百川']
 
   onMounted(() => {
     getDate()
