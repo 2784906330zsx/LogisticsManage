@@ -24,9 +24,6 @@
           </div>
         </div>
 
-        <!-- 面包屑 -->
-        <ArtBreadcrumb v-if="(showCrumbs && isLeftMenu) || (showCrumbs && isDualMenu)" />
-
         <!-- 顶部菜单 -->
         <ArtHorizontalMenu v-if="isTopMenu" :list="menuList" :width="menuTopWidth" />
 
@@ -142,16 +139,8 @@
   const userStore = useUserStore()
   const router = useRouter()
 
-  const {
-    showMenuButton,
-    showRefreshButton,
-    showLanguage,
-    menuOpen,
-    showCrumbs,
-    menuType,
-    isDark,
-    tabStyle
-  } = storeToRefs(settingStore)
+  const { showMenuButton, showRefreshButton, showLanguage, menuOpen, menuType, isDark, tabStyle } =
+    storeToRefs(settingStore)
 
   const { language, getUserInfo: userInfo } = storeToRefs(userStore)
 
@@ -162,7 +151,6 @@
   const userMenuPopover = ref()
 
   const isLeftMenu = computed(() => menuType.value === MenuTypeEnum.LEFT)
-  const isDualMenu = computed(() => menuType.value === MenuTypeEnum.DUAL_MENU)
   const isTopMenu = computed(() => menuType.value === MenuTypeEnum.TOP)
   const isTopLeftMenu = computed(() => menuType.value === MenuTypeEnum.TOP_LEFT)
 

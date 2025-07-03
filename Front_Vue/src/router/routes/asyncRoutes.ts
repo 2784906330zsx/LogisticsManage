@@ -31,7 +31,7 @@ export const asyncRoutes: AppRouteRecord[] = [
     component: RoutesAlias.Home,
     meta: {
       title: 'menus.user.title',
-      icon: '&#xe7b9;',
+      icon: '&#xe831;',
       roles: ['R_SUPER', 'R_ADMIN']
     },
     children: [
@@ -84,7 +84,7 @@ export const asyncRoutes: AppRouteRecord[] = [
     component: RoutesAlias.Home,
     meta: {
       title: 'menus.order.title',
-      icon: '&#xe6dd;',
+      icon: '&#xe88c;',
       roles: ['R_SUPER', 'R_ADMIN']
     },
     children: [
@@ -132,7 +132,7 @@ export const asyncRoutes: AppRouteRecord[] = [
     component: RoutesAlias.Home,
     meta: {
       title: 'menus.delivery.title',
-      icon: '&#xe6e8;',
+      icon: '&#xe7fa;',
       roles: ['R_SUPER', 'R_ADMIN']
     },
     children: [
@@ -225,7 +225,7 @@ export const asyncRoutes: AppRouteRecord[] = [
     component: RoutesAlias.Home,
     meta: {
       title: 'menus.storage.title',
-      icon: '&#xe6f7;',
+      icon: '&#xe884;',
       roles: ['R_SUPER', 'R_ADMIN']
     },
     children: [
@@ -273,7 +273,7 @@ export const asyncRoutes: AppRouteRecord[] = [
     component: RoutesAlias.Home,
     meta: {
       title: 'menus.supplier.title',
-      icon: '&#xe70a;',
+      icon: '&#xe764;',
       roles: ['R_SUPER', 'R_ADMIN']
     },
     children: [
