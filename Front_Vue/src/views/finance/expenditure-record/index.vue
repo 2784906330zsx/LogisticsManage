@@ -1,6 +1,6 @@
 <template>
   <ArtTableFullScreen>
-    <div class="inbound-record-page" id="table-full-screen">
+    <div class="expenditure-record-page" id="table-full-screen">
       <!-- 搜索栏 -->
       <ArtSearchBar
         v-model:filter="formFilters"
@@ -14,7 +14,7 @@
         <!-- 表格头部 -->
         <ArtTableHeader v-model:columns="columnChecks" @refresh="handleRefresh">
           <template #left>
-            <ElButton @click="showDialog('add')">新增入库记录</ElButton>
+            <ElButton @click="showDialog('add')">新增支出记录</ElButton>
           </template>
         </ArtTableHeader>
 
@@ -40,40 +40,33 @@
         <!-- 新增/编辑对话框 -->
         <ElDialog
           v-model="dialogVisible"
-          :title="dialogType === 'add' ? '新增入库记录' : '编辑入库记录'"
+          :title="dialogType === 'add' ? '新增支出记录' : '编辑支出记录'"
           width="40%"
           align-center
         >
           <ElForm ref="formRef" :model="formData" :rules="rules" label-width="100px">
-            <ElFormItem label="商品" prop="commodityId">
-              <ElSelect
-                v-model="formData.commodityId"
-                placeholder="请选择商品"
-                @change="handleCommodityChange"
-              >
-                <ElOption
-                  v-for="commodity in COMMODITY_LIST_DATA"
-                  :key="commodity.id"
-                  :label="commodity.name"
-                  :value="commodity.id"
-                />
-              </ElSelect>
+            <ElFormItem label="支出金额" prop="amount">
+              <ElInputNumber
+                v-model="formData.amount"
+                :min="0"
+                :precision="2"
+                placeholder="请输入支出金额"
+              />
             </ElFormItem>
-            <ElFormItem label="入库数量" prop="quantity">
-              <ElInputNumber v-model="formData.quantity" :min="1" />
-            </ElFormItem>
-            <ElFormItem label="入库原因" prop="reason">
-              <ElSelect v-model="formData.reason" placeholder="请选择入库原因">
-                <ElOption label="新品采购" value="新品采购" />
-                <ElOption label="补充库存" value="补充库存" />
-                <ElOption label="季度采购" value="季度采购" />
-                <ElOption label="客户预订" value="客户预订" />
-                <ElOption label="退货入库" value="退货入库" />
+            <ElFormItem label="支出原因" prop="reason">
+              <ElSelect v-model="formData.reason" placeholder="请选择支出原因">
+                <ElOption label="采购支出" value="采购支出" />
+                <ElOption label="运营成本" value="运营成本" />
+                <ElOption label="员工工资" value="员工工资" />
+                <ElOption label="政府税收" value="政府税收" />
                 <ElOption label="其他" value="其他" />
               </ElSelect>
             </ElFormItem>
             <ElFormItem label="关联订单" prop="relatedOrder">
-              <ElInput v-model="formData.relatedOrder" placeholder="请输入关联订单号" />
+              <ElInput v-model="formData.relatedOrder" placeholder="请输入关联订单号（可为空）" />
+            </ElFormItem>
+            <ElFormItem label="备注" prop="remark">
+              <ElInput v-model="formData.remark" type="textarea" placeholder="请输入备注信息" />
             </ElFormItem>
           </ElForm>
           <template #footer>
@@ -90,27 +83,90 @@
 
 <script setup lang="ts">
   import { h } from 'vue'
-  import { INBOUND_RECORD_DATA, COMMODITY_LIST_DATA } from '@/mock/temp/formData'
-  import { ElDialog, FormInstance, ElImage } from 'element-plus'
+  import { ElDialog, FormInstance } from 'element-plus'
   import { ElMessageBox, ElMessage } from 'element-plus'
   import type { FormRules } from 'element-plus'
   import { useCheckedColumns } from '@/composables/useCheckedColumns'
   import ArtButtonTable from '@/components/core/forms/art-button-table/index.vue'
   import { SearchChangeParams, SearchFormItem } from '@/types'
 
-  const { width } = useWindowSize()
-
-  defineOptions({ name: 'InboundRecord' })
+  defineOptions({ name: 'ExpenditureRecord' })
 
   const dialogType = ref('add')
   const dialogVisible = ref(false)
   const loading = ref(false)
 
+  // 支出记录接口
+  interface ExpenditureRecord {
+    id: number
+    amount: number // 支出金额
+    reason: string // 支出原因
+    relatedOrder: string // 关联订单
+    expenditureTime: string // 支出时间
+    operatorName: string // 操作员姓名
+    operatorJobNumber: string // 操作员工号
+    remark: string // 备注
+  }
+
+  // 模拟支出记录数据
+  const EXPENDITURE_RECORD_DATA: ExpenditureRecord[] = [
+    {
+      id: 1,
+      amount: 85000.0,
+      reason: '采购支出',
+      relatedOrder: 'PO202401150001',
+      expenditureTime: '2024-01-15 10:30:00',
+      operatorName: 'Emma Wilson',
+      operatorJobNumber: 'EMP005',
+      remark: 'iPhone 15 Pro 采购付款'
+    },
+    {
+      id: 2,
+      amount: 45000.0,
+      reason: '员工工资',
+      relatedOrder: '',
+      expenditureTime: '2024-01-31 17:00:00',
+      operatorName: 'Emma Wilson',
+      operatorJobNumber: 'EMP005',
+      remark: '1月份员工工资发放'
+    },
+    {
+      id: 3,
+      amount: 12000.0,
+      reason: '运营成本',
+      relatedOrder: '',
+      expenditureTime: '2024-01-18 09:15:00',
+      operatorName: 'Emma Wilson',
+      operatorJobNumber: 'EMP005',
+      remark: '仓库租金及水电费'
+    },
+    {
+      id: 4,
+      amount: 8500.0,
+      reason: '政府税收',
+      relatedOrder: '',
+      expenditureTime: '2024-02-01 16:45:00',
+      operatorName: 'Emma Wilson',
+      operatorJobNumber: 'EMP005',
+      remark: '企业所得税缴纳'
+    },
+    {
+      id: 5,
+      amount: 3200.0,
+      reason: '其他',
+      relatedOrder: '',
+      expenditureTime: '2024-01-20 11:30:00',
+      operatorName: 'Emma Wilson',
+      operatorJobNumber: 'EMP005',
+      remark: '办公用品采购'
+    }
+  ]
+
   // 定义表单搜索初始值
   const initialSearchState = {
-    commodityName: '',
     reason: '',
-    relatedOrder: ''
+    relatedOrder: '',
+    operatorName: ''
   }
 
   // 响应式表单数据
@@ -135,14 +191,14 @@
   const handleReset = () => {
     Object.assign(formFilters, { ...initialSearchState })
     pagination.currentPage = 1
-    getInboundRecordList()
+    getExpenditureRecordList()
   }
 
   // 搜索处理
   const handleSearch = () => {
     console.log('搜索参数:', formFilters)
     pagination.currentPage = 1
-    getInboundRecordList()
+    getExpenditureRecordList()
   }
 
   // 表单项变更处理
@@ -153,27 +209,17 @@
   // 表单配置项
   const formItems: SearchFormItem[] = [
     {
-      label: '商品名称',
-      prop: 'commodityName',
-      type: 'input',
-      config: {
-        clearable: true
-      },
-      onChange: handleFormChange
-    },
-    {
-      label: '入库原因',
+      label: '支出原因',
       prop: 'reason',
       type: 'select',
       config: {
         clearable: true
       },
       options: () => [
-        { label: '新品采购', value: '新品采购' },
-        { label: '补充库存', value: '补充库存' },
-        { label: '季度采购', value: '季度采购' },
-        { label: '客户预订', value: '客户预订' },
-        { label: '退货入库', value: '退货入库' },
+        { label: '采购支出', value: '采购支出' },
+        { label: '运营成本', value: '运营成本' },
+        { label: '员工工资', value: '员工工资' },
+        { label: '政府税收', value: '政府税收' },
         { label: '其他', value: '其他' }
       ],
       onChange: handleFormChange
@@ -181,6 +227,15 @@
     {
       label: '关联订单',
       prop: 'relatedOrder',
+      type: 'input',
+      config: {
+        clearable: true
+      },
+      onChange: handleFormChange
+    },
+    {
+      label: '操作员',
+      prop: 'operatorName',
       type: 'input',
       config: {
         clearable: true
@@ -200,29 +255,21 @@
     }
 
     if (type === 'edit' && row) {
-      formData.commodityId = row.commodityId
-      formData.quantity = row.quantity
+      formData.amount = row.amount
       formData.reason = row.reason
       formData.relatedOrder = row.relatedOrder
+      formData.remark = row.remark
     } else {
-      formData.commodityId = undefined
-      formData.quantity = 1
+      formData.amount = 0
       formData.reason = ''
       formData.relatedOrder = ''
-    }
-  }
-
-  // 处理商品选择变化
-  const handleCommodityChange = (commodityId: number) => {
-    const commodity = COMMODITY_LIST_DATA.find((item) => item.id === commodityId)
-    if (commodity) {
-      // 可以在这里设置一些默认值
+      formData.remark = ''
     }
   }
 
   // 删除记录
   const deleteRecord = () => {
-    ElMessageBox.confirm('确定要删除该入库记录吗？', '删除记录', {
+    ElMessageBox.confirm('确定要删除该支出记录吗？', '删除记录', {
       confirmButtonText: '确定',
       cancelButtonText: '取消',
       type: 'error'
@@ -235,62 +282,56 @@
   const { columnChecks, columns } = useCheckedColumns(() => [
     { type: 'selection' },
     {
-      prop: 'commodityId',
-      label: '商品ID',
+      prop: 'id',
+      label: '记录ID',
       width: 80
     },
     {
-      prop: 'commodityImage',
-      label: '商品信息',
-      minWidth: width.value < 500 ? 250 : 280,
+      prop: 'amount',
+      label: '支出金额',
+      width: 140,
+      sortable: true,
       formatter: (row: any) => {
-        return h('div', { class: 'commodity-info', style: 'display: flex; align-items: center' }, [
-          h(ElImage, {
-            class: 'commodity-image',
-            src: row.commodityImage,
-            style: 'width: 60px; height: 60px; border-radius: 6px; margin-right: 12px',
-            fit: 'cover',
-            lazy: true
-          }),
-          h('div', {}, [
-            h(
-              'p',
-              {
-                class: 'commodity-name',
-                style: 'margin: 0; font-weight: 500; color: var(--art-text-gray-800)'
-              },
-              row.commodityName
-            )
-          ])
-        ])
+        return h('span', { style: 'color: #F56C6C; font-weight: 500' }, `¥${row.amount.toFixed(2)}`)
       }
     },
     {
-      prop: 'quantity',
-      label: '入库数量',
-      sortable: true,
-      formatter: (row: any) => `${row.quantity} 件`
-    },
-    {
       prop: 'reason',
-      label: '入库原因',
+      label: '支出原因',
       width: 120
-    },
-    {
-      prop: 'inboundTime',
-      label: '入库时间',
-      sortable: true,
-      width: 160
     },
     {
       prop: 'relatedOrder',
       label: '关联订单',
-      width: 140
+      width: 140,
+      formatter: (row: any) => {
+        return row.relatedOrder || '-'
+      }
+    },
+    {
+      prop: 'expenditureTime',
+      label: '支出时间',
+      sortable: true,
+      width: 160
     },
     {
       prop: 'operator',
-      label: '操作员',
-      width: 100
+      label: '操作人',
+      width: 120,
+      formatter: (row: any) => {
+        return h('div', { style: 'line-height: 1.2;' }, [
+          h('div', { style: 'font-weight: bold;' }, row.operatorName),
+          h('div', { style: 'font-size: 12px; color: #999;' }, row.operatorJobNumber)
+        ])
+      }
+    },
+    {
+      prop: 'remark',
+      label: '备注',
+      minWidth: 150,
+      formatter: (row: any) => {
+        return row.remark || '-'
+      }
     },
     {
       prop: 'operation',
@@ -316,18 +357,18 @@
 
   // 表单数据
   const formData = reactive({
-    commodityId: undefined as number | undefined,
-    quantity: 1,
+    amount: 0,
     reason: '',
-    relatedOrder: ''
+    relatedOrder: '',
+    remark: ''
   })
 
   onMounted(() => {
-    getInboundRecordList()
+    getExpenditureRecordList()
   })
 
-  // 获取入库记录列表数据
-  const getInboundRecordList = async () => {
+  // 获取支出记录列表数据
+  const getExpenditureRecordList = async () => {
     loading.value = true
     try {
       const { currentPage, pageSize } = pagination
@@ -336,13 +377,7 @@
       await new Promise((resolve) => setTimeout(resolve, 500))
 
       // 过滤数据
-      let filteredData = [...INBOUND_RECORD_DATA]
-
-      if (formFilters.commodityName) {
-        filteredData = filteredData.filter((item) =>
-          item.commodityName.toLowerCase().includes(formFilters.commodityName.toLowerCase())
-        )
-      }
+      let filteredData = [...EXPENDITURE_RECORD_DATA]
 
       if (formFilters.reason) {
         filteredData = filteredData.filter((item) => item.reason === formFilters.reason)
@@ -354,6 +389,12 @@
         )
       }
 
+      if (formFilters.operatorName) {
+        filteredData = filteredData.filter((item) =>
+          item.operatorName.toLowerCase().includes(formFilters.operatorName.toLowerCase())
+        )
+      }
+
       const total = filteredData.length
       const start = (currentPage - 1) * pageSize
       const end = start + pageSize
@@ -361,14 +402,14 @@
       tableData.value = filteredData.slice(start, end)
       pagination.total = total
     } catch (error) {
-      console.error('获取入库记录列表失败:', error)
+      console.error('获取支出记录列表失败:', error)
     } finally {
       loading.value = false
     }
   }
 
   const handleRefresh = () => {
-    getInboundRecordList()
+    getExpenditureRecordList()
   }
 
   // 处理表格行选择变化
@@ -378,9 +419,8 @@
 
   // 表单验证规则
   const rules = reactive<FormRules>({
-    commodityId: [{ required: true, message: '请选择商品', trigger: 'change' }],
-    quantity: [{ required: true, message: '请输入入库数量', trigger: 'blur' }],
-    reason: [{ required: true, message: '请选择入库原因', trigger: 'change' }]
+    amount: [{ required: true, message: '请输入支出金额', trigger: 'blur' }],
+    reason: [{ required: true, message: '请选择支出原因', trigger: 'change' }]
   })
 
   // 提交表单
@@ -391,7 +431,7 @@
       if (valid) {
         ElMessage.success(dialogType.value === 'add' ? '添加成功' : '更新成功')
         dialogVisible.value = false
-        getInboundRecordList()
+        getExpenditureRecordList()
       }
     })
   }
@@ -399,26 +439,17 @@
   // 处理表格分页变化
   const handleSizeChange = (newPageSize: number) => {
     pagination.pageSize = newPageSize
-    getInboundRecordList()
+    getExpenditureRecordList()
   }
 
   const handleCurrentChange = (newCurrentPage: number) => {
     pagination.currentPage = newCurrentPage
-    getInboundRecordList()
+    getExpenditureRecordList()
   }
 </script>
 
 <style lang="scss" scoped>
-  .inbound-record-page {
-    :deep(.commodity-info) {
-      .commodity-image {
-        flex-shrink: 0;
-      }
-
-      .commodity-name {
-        font-weight: 500;
-        color: var(--art-text-gray-800);
-      }
-    }
+  .expenditure-record-page {
+    // 样式可以根据需要添加
   }
 </style>

@@ -13,10 +13,10 @@ export enum RoutesAlias {
   Department = '/user/department', // 部门管理
   UserCenter = '/user/user-center', // 用户中心
   // 订单
-  CreateOrder = '/order/create', // 创建订单
-  AllOrder = '/order/all', // 所有订单
-  ToConfirmOrder = '/order/to-confirm', // 待确认订单
-  ToCheckOrder = '/order/to-check', // 待审核退款订单
+  CreateOrder = '/order/create', // 创建运单
+  AllOrder = '/order/all', // 所有运单
+  ToConfirmOrder = '/order/to-confirm', // 待确认运单
+  ToCheckOrder = '/order/to-check', // 待审核退运单
   //
   DeliveryAnalysis = '/delivery/analysis', // 配送分析
   StaticLine = '/delivery/resource/static-line', // 固定配送线路

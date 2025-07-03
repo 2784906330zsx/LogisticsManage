@@ -19,6 +19,11 @@
       <template #default>
         <ElTableColumn label="角色名称" prop="roleName" />
         <ElTableColumn label="角色编码" prop="roleCode" />
+        <ElTableColumn label="所属部门" prop="departmentCode">
+          <template #default="scope">
+            {{ getDepartmentName(scope.row.departmentCode) }}
+          </template>
+        </ElTableColumn>
         <ElTableColumn label="描述" prop="des" />
         <ElTableColumn label="启用" prop="enable">
           <template #default="scope">
@@ -62,6 +67,16 @@
         </ElFormItem>
         <ElFormItem label="角色编码" prop="roleCode">
           <ElInput v-model="form.roleCode" />
+        </ElFormItem>
+        <ElFormItem label="所属部门" prop="departmentCode">
+          <ElSelect v-model="form.departmentCode" placeholder="请选择部门">
+            <ElOption
+              v-for="dept in departmentList"
+              :key="dept.departmentCode"
+              :label="dept.departmentName"
+              :value="dept.departmentCode"
+            />
+          </ElSelect>
         </ElFormItem>
         <ElFormItem label="描述" prop="roleStatus">
           <ElInput v-model="form.des" type="textarea" :rows="3" />
@@ -124,8 +139,7 @@
   import { ElMessage, ElMessageBox } from 'element-plus'
   import type { FormInstance, FormRules } from 'element-plus'
   import { formatMenuTitle } from '@/router/utils/utils'
-  // import { ButtonMoreItem } from '@/components/core/forms/ArtButtonMore.vue'
-  import { Role, ROLE_LIST_DATA } from '@/mock/temp/formData'
+  import { Role, ROLE_LIST_DATA, Department, DEPARTMENT_LIST_DATA } from '@/mock/temp/formData'
   import { ButtonMoreItem } from '@/components/core/forms/art-button-more/index.vue'
 
   defineOptions({ name: 'Role' })
@@ -170,10 +184,12 @@
   const formRef = ref<FormInstance>()
 
   const rules = reactive<FormRules>({
-    name: [
+    roleName: [
       { required: true, message: '请输入角色名称', trigger: 'blur' },
       { min: 2, max: 20, message: '长度在 2 到 20 个字符', trigger: 'blur' }
     ],
+    roleCode: [{ required: true, message: '请输入角色编码', trigger: 'blur' }],
+    departmentCode: [{ required: true, message: '请选择所属部门', trigger: 'change' }],
     des: [{ required: true, message: '请输入角色描述', trigger: 'blur' }]
   })
 
@@ -182,17 +198,30 @@
     roleCode: '',
     des: '',
     date: '',
-    enable: true
+    enable: true,
+    departmentCode: ''
   })
 
   const roleList = ref<Role[]>([])
+  const departmentList = ref<Department[]>([])
 
   onMounted(() => {
     getTableData()
+    getDepartmentList()
   })
 
   const getTableData = () => {
     roleList.value = ROLE_LIST_DATA
+  }
+
+  const getDepartmentList = () => {
+    departmentList.value = DEPARTMENT_LIST_DATA
+  }
+
+  // 根据部门编码获取部门名称
+  const getDepartmentName = (departmentCode: string) => {
+    const department = departmentList.value.find((dept) => dept.departmentCode === departmentCode)
+    return department ? department.departmentName : '未知部门'
   }
 
   const dialogType = ref('add')
@@ -207,12 +236,14 @@
       form.des = row.des
       form.date = row.date
       form.enable = row.enable
+      form.departmentCode = row.departmentCode
     } else {
       form.roleName = ''
       form.roleCode = ''
       form.des = ''
       form.date = ''
       form.enable = true
+      form.departmentCode = ''
     }
   }
 

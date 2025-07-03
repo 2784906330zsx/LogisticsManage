@@ -381,7 +381,6 @@
     commodityId: [{ required: true, message: '请选择商品', trigger: 'change' }],
     quantity: [{ required: true, message: '请输入出库数量', trigger: 'blur' }],
     reason: [{ required: true, message: '请选择出库原因', trigger: 'change' }]
-    // 移除 relatedOrder 的必填验证
   })
 
   // 提交表单

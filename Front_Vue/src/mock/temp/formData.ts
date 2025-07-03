@@ -212,6 +212,7 @@ export interface Role {
   des: string
   date: string
   enable: boolean
+  departmentCode: string // 新增所属部门编码字段
 }
 
 // 角色列表
@@ -221,57 +222,112 @@ export const ROLE_LIST_DATA: Role[] = [
     roleCode: 'R_SUPER',
     des: '拥有系统最高权限',
     date: '2025-07-01 12:34:56',
-    enable: true
+    enable: true,
+    departmentCode: 'D_GENERAL' // 总经办
   },
   {
-    roleName: '用户信息管理员',
+    roleName: '人事管理员',
     roleCode: 'R_USER_INFO',
     des: '管理用户信息相关权限',
     date: '2025-07-01 12:34:56',
-    enable: true
+    enable: true,
+    departmentCode: 'D_HR' // 人事管理部
   },
-
   {
     roleName: '订单管理员',
     roleCode: 'R_ORDER',
     des: '管理订单相关权限',
     date: '2025-07-01 12:34:56',
-    enable: true
+    enable: true,
+    departmentCode: 'D_ORDER' // 订单管理部
   },
   {
     roleName: '配送运输管理员',
     roleCode: 'R_DELIVERY',
     des: '管理配送运输相关权限',
     date: '2025-07-01 12:34:56',
-    enable: true
+    enable: true,
+    departmentCode: 'D_DELIVERY' // 配送管理部
   },
   {
     roleName: '仓储作业管理员',
     roleCode: 'R_STORAGE',
     des: '管理仓储作业权限',
     date: '2025-07-01 12:34:56',
-    enable: true
+    enable: true,
+    departmentCode: 'D_STORAGE' // 仓储管理部
   },
   {
     roleName: '采购与供应商管理员',
     roleCode: 'R_PURCHASE',
     des: '管理采购与供应商相关权限',
     date: '2025-07-01 12:34:56',
-    enable: true
+    enable: true,
+    departmentCode: 'D_PURCHASE' // 采购管理部
   },
   {
     roleName: '财务管理员',
     roleCode: 'R_FINANCE',
     des: '管理财务相关权限',
     date: '2025-07-01 12:34:56',
-    enable: true
+    enable: true,
+    departmentCode: 'D_FINANCE' // 财务管理部
   },
   {
-    roleName: '普通用户',
-    roleCode: 'R_USER',
+    roleName: '人事管理部员工',
+    roleCode: 'E_USER_INFO',
     des: '拥有系统普通权限',
     date: '2025-07-01 12:34:56',
-    enable: true
+    enable: true,
+    departmentCode: 'D_HR'
+  },
+  {
+    roleName: '客服与售后员工',
+    roleCode: 'E_SERVICE',
+    des: '客服与售后员工权限',
+    date: '2025-07-01 12:34:56',
+    enable: true,
+    departmentCode: 'D_SERVICE' // 客服售后部
+  },
+  {
+    roleName: '财务员工',
+    roleCode: 'E_FINANCE',
+    des: '财务员工权限',
+    date: '2025-07-01 12:34:56',
+    enable: true,
+    departmentCode: 'D_FINANCE' // 财务管理部
+  },
+  {
+    roleName: '订单员',
+    roleCode: 'E_ORDER',
+    des: '订单员权限',
+    date: '2025-07-01 12:34:56',
+    enable: true,
+    departmentCode: 'D_ORDER' // 订单管理部
+  },
+  {
+    roleName: '配送员',
+    roleCode: 'E_DELIVERY',
+    des: '配送员权限',
+    date: '2025-07-01 12:34:56',
+    enable: true,
+    departmentCode: 'D_DELIVERY' // 配送管理部
+  },
+  {
+    roleName: '仓储员',
+    roleCode: 'E_STORAGE',
+    des: '仓储员权限',
+    date: '2025-07-01 12:34:56',
+    enable: true,
+    departmentCode: 'D_STORAGE' // 仓储管理部
+  },
+  {
+    roleName: '采购员',
+    roleCode: 'E_PURCHASE',
+    des: '采购员权限',
+    date: '2025-07-01 12:34:56',
+    enable: true,
+    departmentCode: 'D_PURCHASE' // 采购管理部
   }
 ]
 
@@ -286,48 +342,6 @@ export interface Department {
 // 部门列表
 export const DEPARTMENT_LIST_DATA: Department[] = [
   {
-    departmentName: '研发部',
-    departmentCode: 'D_DEV',
-    des: '负责产品研发和技术创新',
-    date: '2025-07-01 12:34:56',
-    enable: true
-  },
-  {
-    departmentName: '产品部',
-    departmentCode: 'D_PRODUCT',
-    des: '负责产品规划和设计',
-    date: '2025-07-01 12:34:56',
-    enable: true
-  },
-  {
-    departmentName: '运营部',
-    departmentCode: 'D_OPERATION',
-    des: '负责业务运营和推广',
-    date: '2025-07-01 12:34:56',
-    enable: true
-  },
-  {
-    departmentName: '财务部',
-    departmentCode: 'D_FINANCE',
-    des: '负责财务管理和会计核算',
-    date: '2025-07-01 12:34:56',
-    enable: true
-  },
-  {
-    departmentName: '人事部',
-    departmentCode: 'D_HR',
-    des: '负责人力资源管理',
-    date: '2025-07-01 12:34:56',
-    enable: true
-  },
-  {
-    departmentName: '客服部',
-    departmentCode: 'D_SERVICE',
-    des: '负责客户服务和支持',
-    date: '2025-07-01 12:34:56',
-    enable: true
-  },
-  {
     departmentName: '总经办',
     departmentCode: 'D_GENERAL',
     des: '负责公司整体管理和决策',
@@ -335,7 +349,57 @@ export const DEPARTMENT_LIST_DATA: Department[] = [
     enable: true
   },
   {
-    departmentName: '电商部',
+    departmentName: '人事管理部',
+    departmentCode: 'D_HR',
+    des: '负责人事管理和员工招聘',
+    date: '2025-07-01 12:34:56',
+    enable: true
+  },
+  {
+    departmentName: '订单管理部',
+    departmentCode: 'D_ORDER',
+    des: '负责订单管理和处理',
+    date: '2025-07-01 12:34:56',
+    enable: true
+  },
+  {
+    departmentName: '配送管理部',
+    departmentCode: 'D_DELIVERY',
+    des: '负责配送管理和运输',
+    date: '2025-07-01 12:34:56',
+    enable: true
+  },
+  {
+    departmentName: '仓储管理部',
+    departmentCode: 'D_STORAGE',
+    des: '负责仓储资源管理',
+    date: '2025-07-01 12:34:56',
+    enable: true
+  },
+  {
+    departmentName: '采购管理部',
+    departmentCode: 'D_PURCHASE',
+    des: '负责采购管理和供应商对接',
+    date: '2025-07-01 12:34:56',
+    enable: true
+  },
+  {
+    departmentName: '财务管理部',
+    departmentCode: 'D_FINANCE',
+    des: '负责财务管理和会计核算',
+    date: '2025-07-01 12:34:56',
+    enable: true
+  },
+  {
+    departmentName: '客服售后部',
+    departmentCode: 'D_SERVICE',
+    des: '负责客户服务和支持',
+    date: '2025-07-01 12:34:56',
+    enable: false
+  },
+
+  {
+    departmentName: '电商运营部',
     departmentCode: 'D_ECOMMERCE',
     des: '负责电商平台运营',
     date: '2025-07-01 12:34:56',
@@ -975,5 +1039,182 @@ export const PURCHASE_ORDER_DATA: PurchaseOrder[] = [
     purchaserJobNumber: 'EMP011',
     warehouseKeeperName: 'Mia Clark',
     warehouseKeeperJobNumber: 'EMP009'
+  }
+]
+
+// 运单接口
+export interface ShippingOrder {
+  id: number
+  orderNumber: string // 运单号（自动生成）
+  commodityId: number // 商品ID
+  commodityImage: string // 商品图片
+  commodityName: string // 商品名称
+  quantity: number // 商品数量
+  receiverName: string // 收货人姓名
+  receiverPhone: string // 联系方式
+  receiverAddress: string // 收货地址
+  status: string // 订单状态：1-待审核，2-审核未通过，3-审核通过/待配送，4-配送中，5-已送达，6-已确认收货，7-已取消
+  createTime: string // 运单创建时间
+  completeTime: string | null // 运单完成时间
+  creatorName: string // 创建人姓名
+  creatorJobNumber: string // 创建人工号
+  deliveryPersonName?: string // 配送员姓名
+  deliveryPersonPhone?: string // 配送员电话
+  trackingInfo?: string // 物流跟踪信息
+}
+
+// 运单列表模拟数据
+export const SHIPPING_ORDER_DATA: ShippingOrder[] = [
+  {
+    id: 1,
+    orderNumber: 'SO202501150001',
+    commodityId: 1,
+    commodityImage:
+      'https://ts3.tc.mm.bing.net/th/id/OIP-C.pnIPiPhSJs-mIQlpbmB1iQHaHa?rs=1&pid=ImgDetMain&o=7&rm=3',
+    commodityName: 'iPhone 15 Pro',
+    quantity: 2,
+    receiverName: '张三',
+    receiverPhone: '13800138001',
+    receiverAddress: '北京市朝阳区建国门外大街1号国贸大厦A座1001室',
+    status: '6',
+    createTime: '2025-01-15 10:30:00',
+    completeTime: '2025-01-18 16:45:00',
+    creatorName: 'Sophia Baker',
+    creatorJobNumber: 'EMP002',
+    deliveryPersonName: '李配送',
+    deliveryPersonPhone: '13900139001',
+    trackingInfo: '已签收'
+  },
+  {
+    id: 2,
+    orderNumber: 'SO202501160002',
+    commodityId: 2,
+    commodityImage:
+      'https://tse1-mm.cn.bing.net/th/id/OIP-C.qdxvw-wo5BgJhIjI8D_l4AHaDv?w=318&h=176&c=7&r=0&o=7&dpr=1.1&pid=1.7&rm=3',
+    commodityName: 'MacBook Pro 14英寸',
+    quantity: 1,
+    receiverName: '李四',
+    receiverPhone: '13800138002',
+    receiverAddress: '上海市浦东新区陆家嘴环路1000号恒生银行大厦20楼',
+    status: '4',
+    createTime: '2025-01-16 14:20:00',
+    completeTime: null,
+    creatorName: 'Alex Morgan',
+    creatorJobNumber: 'EMP001',
+    deliveryPersonName: '王配送',
+    deliveryPersonPhone: '13900139002',
+    trackingInfo: '配送中，预计今日18:00前送达'
+  },
+  {
+    id: 3,
+    orderNumber: 'SO202501170003',
+    commodityId: 3,
+    commodityImage:
+      'https://tse2-mm.cn.bing.net/th/id/OIP-C.mFldcGeGvtJIDXRJta_-UQHaGz?w=183&h=180&c=7&r=0&o=7&dpr=1.1&pid=1.7&rm=3',
+    commodityName: 'AirPods Pro 2',
+    quantity: 3,
+    receiverName: '王五',
+    receiverPhone: '13800138003',
+    receiverAddress: '广州市天河区珠江新城花城大道85号高德置地广场A座3001室',
+    status: '3',
+    createTime: '2025-01-17 09:15:00',
+    completeTime: null,
+    creatorName: 'Ethan Harris',
+    creatorJobNumber: 'EMP010',
+    trackingInfo: '已审核通过，等待配送'
+  },
+  {
+    id: 4,
+    orderNumber: 'SO202501180004',
+    commodityId: 4,
+    commodityImage:
+      'https://tse2-mm.cn.bing.net/th/id/OIP-C.dLQKHaF3aUxCK7LAeWJyJgHaFj?w=234&h=180&c=7&r=0&o=7&dpr=1.1&pid=1.7&rm=3',
+    commodityName: 'Samsung Galaxy S24',
+    quantity: 1,
+    receiverName: '赵六',
+    receiverPhone: '13800138004',
+    receiverAddress: '深圳市南山区科技园南区深南大道9988号',
+    status: '5',
+    createTime: '2025-01-18 16:45:00',
+    completeTime: null,
+    creatorName: 'Sophia Baker',
+    creatorJobNumber: 'EMP002',
+    deliveryPersonName: '陈配送',
+    deliveryPersonPhone: '13900139003',
+    trackingInfo: '已送达，等待客户确认收货'
+  },
+  {
+    id: 5,
+    orderNumber: 'SO202501190005',
+    commodityId: 5,
+    commodityImage:
+      'https://tse1-mm.cn.bing.net/th/id/OIP-C.BCLBIGqjqsAzjOi7OHt6KQHaFj?w=287&h=180&c=7&r=0&o=7&dpr=1.1&pid=1.7&rm=3',
+    commodityName: 'Dell XPS 13',
+    quantity: 1,
+    receiverName: '孙七',
+    receiverPhone: '13800138005',
+    receiverAddress: '杭州市西湖区文三路259号昌地火炬大厦1号楼17楼',
+    status: '1',
+    createTime: '2025-01-19 11:30:00',
+    completeTime: null,
+    creatorName: 'Mia Clark',
+    creatorJobNumber: 'EMP009',
+    trackingInfo: '等待审核'
+  },
+  {
+    id: 6,
+    orderNumber: 'SO202501200006',
+    commodityId: 6,
+    commodityImage:
+      'https://tse1-mm.cn.bing.net/th/id/OIP-C.Vo4zscjAo2A-40QsVFqujwAAAA?w=260&h=195&c=7&r=0&o=7&dpr=1.1&pid=1.7&rm=3',
+    commodityName: 'Sony WH-1000XM5',
+    quantity: 2,
+    receiverName: '周八',
+    receiverPhone: '13800138006',
+    receiverAddress: '成都市高新区天府大道中段1388号美年广场A座2001室',
+    status: '2',
+    createTime: '2025-01-20 13:20:00',
+    completeTime: null,
+    creatorName: 'Isabella Moore',
+    creatorJobNumber: 'EMP011',
+    trackingInfo: '审核未通过：收货地址不详细'
+  },
+  {
+    id: 7,
+    orderNumber: 'SO202501210007',
+    commodityId: 7,
+    commodityImage:
+      'https://tse2-mm.cn.bing.net/th/id/OIP-C.VUVnS_dCXuDM_soOgq_EawHaFj?w=247&h=186&c=7&r=0&o=7&dpr=1.1&pid=1.7&rm=3',
+    commodityName: 'iPad Air 5',
+    quantity: 1,
+    receiverName: '吴九',
+    receiverPhone: '13800138007',
+    receiverAddress: '武汉市江汉区中山大道818号平安大厦25楼',
+    status: '7',
+    createTime: '2025-01-21 15:10:00',
+    completeTime: '2025-01-21 15:30:00',
+    creatorName: 'Alex Morgan',
+    creatorJobNumber: 'EMP001',
+    trackingInfo: '订单已取消'
+  },
+  {
+    id: 8,
+    orderNumber: 'SO202501220008',
+    commodityId: 8,
+    commodityImage:
+      'https://tse1-mm.cn.bing.net/th/id/OIP-C.fAuoy-0RFYkQphSIsbjGvQHaFj?w=227&h=180&c=7&r=0&o=7&dpr=1.1&pid=1.7&rm=3',
+    commodityName: 'Xiaomi 14 Pro',
+    quantity: 1,
+    receiverName: '郑十',
+    receiverPhone: '13800138008',
+    receiverAddress: '西安市雁塔区科技路33号高新国际商务中心17楼',
+    status: '6',
+    createTime: '2025-01-22 08:40:00',
+    completeTime: '2025-01-25 14:20:00',
+    creatorName: 'Ethan Harris',
+    creatorJobNumber: 'EMP010',
+    deliveryPersonName: '刘配送',
+    deliveryPersonPhone: '13900139004',
+    trackingInfo: '已签收'
   }
 ]

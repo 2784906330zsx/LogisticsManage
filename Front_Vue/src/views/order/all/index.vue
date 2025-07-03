@@ -1,6 +1,6 @@
 <template>
   <ArtTableFullScreen>
-    <div class="return-review-page" id="table-full-screen">
+    <div class="shipping-order-page" id="table-full-screen">
       <!-- 搜索栏 -->
       <ArtSearchBar
         v-model:filter="formFilters"
@@ -15,7 +15,7 @@
         <ArtTableHeader v-model:columns="columnChecks" @refresh="handleRefresh">
           <template #left>
             <div class="flex items-center gap-2">
-              <ElTag type="info">退货审核</ElTag>
+              <ElTag type="primary">运单管理</ElTag>
               <span class="text-sm text-gray-500">共 {{ pagination.total }} 条</span>
             </div>
           </template>
@@ -40,60 +40,76 @@
           </template>
         </ArtTable>
 
-        <!-- 审核对话框 -->
-        <ElDialog
-          v-model="reviewDialogVisible"
-          :title="reviewType === 'approve' ? '退货审核通过' : '退货审核不通过'"
-          width="500px"
-          align-center
-        >
-          <div class="review-content">
-            <div class="order-info mb-4">
-              <h4 class="text-lg font-semibold mb-2">退货运单信息</h4>
-              <div class="grid grid-cols-2 gap-4 text-sm">
-                <div
-                  ><span class="font-medium">运单号：</span
-                  >{{ currentReviewOrder?.orderNumber }}</div
-                >
-                <div
-                  ><span class="font-medium">商品名称：</span
-                  >{{ currentReviewOrder?.commodityName }}</div
-                >
-                <div
-                  ><span class="font-medium">收货人：</span
-                  >{{ currentReviewOrder?.receiverName }}</div
-                >
-                <div
-                  ><span class="font-medium">数量：</span>{{ currentReviewOrder?.quantity }} 件</div
-                >
-              </div>
-            </div>
-
-            <ElForm ref="reviewFormRef" :model="reviewForm" :rules="reviewRules" label-width="80px">
-              <ElFormItem label="审核意见" prop="reviewComment">
-                <ElInput
-                  v-model="reviewForm.reviewComment"
-                  type="textarea"
-                  :rows="4"
-                  :placeholder="
-                    reviewType === 'approve'
-                      ? '请输入退货审核通过的意见（可选）'
-                      : '请输入退货审核不通过的原因'
-                  "
-                />
-              </ElFormItem>
-            </ElForm>
-          </div>
-
+        <!-- 编辑运单对话框 -->
+        <ElDialog v-model="dialogVisible" title="编辑运单" width="600px" align-center>
+          <ElForm ref="formRef" :model="formData" :rules="rules" label-width="120px">
+            <ElRow :gutter="20">
+              <ElCol :span="12">
+                <ElFormItem label="商品" prop="commodityId">
+                  <ElSelect
+                    v-model="formData.commodityId"
+                    placeholder="请选择商品"
+                    @change="handleCommodityChange"
+                  >
+                    <ElOption
+                      v-for="commodity in COMMODITY_LIST_DATA"
+                      :key="commodity.id"
+                      :label="commodity.name"
+                      :value="commodity.id"
+                    />
+                  </ElSelect>
+                </ElFormItem>
+              </ElCol>
+              <ElCol :span="12">
+                <ElFormItem label="商品数量" prop="quantity">
+                  <ElInputNumber v-model="formData.quantity" :min="1" style="width: 100%" />
+                </ElFormItem>
+              </ElCol>
+            </ElRow>
+            <ElRow :gutter="20">
+              <ElCol :span="12">
+                <ElFormItem label="收货人姓名" prop="receiverName">
+                  <ElInput v-model="formData.receiverName" placeholder="请输入收货人姓名" />
+                </ElFormItem>
+              </ElCol>
+              <ElCol :span="12">
+                <ElFormItem label="联系方式" prop="receiverPhone">
+                  <ElInput v-model="formData.receiverPhone" placeholder="请输入联系方式" />
+                </ElFormItem>
+              </ElCol>
+            </ElRow>
+            <ElFormItem label="收货地址" prop="receiverAddress">
+              <ElInput
+                v-model="formData.receiverAddress"
+                type="textarea"
+                :rows="3"
+                placeholder="请输入详细收货地址"
+              />
+            </ElFormItem>
+            <ElFormItem label="订单状态" prop="status">
+              <ElSelect v-model="formData.status" placeholder="请选择订单状态">
+                <ElOption label="待确认" value="1" />
+                <ElOption label="确认未通过" value="2" />
+                <ElOption label="待配送" value="3" />
+                <ElOption label="配送中" value="4" />
+                <ElOption label="已送达" value="5" />
+                <ElOption label="已确认收货" value="6" />
+                <ElOption label="已取消" value="7" />
+              </ElSelect>
+            </ElFormItem>
+            <ElFormItem label="物流跟踪信息" prop="trackingInfo">
+              <ElInput
+                v-model="formData.trackingInfo"
+                type="textarea"
+                :rows="2"
+                placeholder="请输入物流跟踪信息"
+              />
+            </ElFormItem>
+          </ElForm>
           <template #footer>
             <div class="dialog-footer">
-              <ElButton @click="reviewDialogVisible = false">取消</ElButton>
-              <ElButton
-                :type="reviewType === 'approve' ? 'success' : 'danger'"
-                @click="handleReviewSubmit"
-              >
-                {{ reviewType === 'approve' ? '审核通过' : '审核不通过' }}
-              </ElButton>
+              <ElButton @click="dialogVisible = false">取消</ElButton>
+              <ElButton type="primary" @click="handleSubmit">提交</ElButton>
             </div>
           </template>
         </ElDialog>
@@ -104,28 +120,27 @@
 
 <script setup lang="ts">
   import { h } from 'vue'
-  import { SHIPPING_ORDER_DATA } from '@/mock/temp/formData'
-  //   import { SHIPPING_ORDER_DATA, COMMODITY_LIST_DATA } from '@/mock/temp/formData'
+  import { SHIPPING_ORDER_DATA, COMMODITY_LIST_DATA } from '@/mock/temp/formData'
   import { ElDialog, FormInstance, ElImage, ElTag, ElButton } from 'element-plus'
-  import { ElMessage } from 'element-plus'
+  import { ElMessageBox, ElMessage } from 'element-plus'
   import type { FormRules } from 'element-plus'
   import { useCheckedColumns } from '@/composables/useCheckedColumns'
+  import ArtButtonTable from '@/components/core/forms/art-button-table/index.vue'
   import { SearchChangeParams, SearchFormItem } from '@/types'
 
   const { width } = useWindowSize()
 
-  defineOptions({ name: 'OrderToCheck' })
+  defineOptions({ name: 'ShippingOrderAll' })
 
+  const dialogVisible = ref(false)
   const loading = ref(false)
-  const reviewDialogVisible = ref(false)
-  const reviewType = ref<'approve' | 'reject'>('approve')
-  const currentReviewOrder = ref<any>(null)
 
   // 定义表单搜索初始值
   const initialSearchState = {
     orderNumber: '',
     commodityName: '',
-    receiverName: ''
+    receiverName: '',
+    status: ''
   }
 
   // 响应式表单数据
@@ -146,40 +161,18 @@
   // 选中的行数据
   const selectedRows = ref<any[]>([])
 
-  // 审核表单
-  const reviewFormRef = ref<FormInstance>()
-  const reviewForm = reactive({
-    reviewComment: ''
-  })
-
-  // 审核表单验证规则
-  const reviewRules = reactive<FormRules>({
-    reviewComment: [
-      {
-        validator: (rule: any, value: any, callback: any) => {
-          if (reviewType.value === 'reject' && !value.trim()) {
-            callback(new Error('审核不通过时必须填写原因'))
-          } else {
-            callback()
-          }
-        },
-        trigger: 'blur'
-      }
-    ]
-  })
-
   // 重置表单
   const handleReset = () => {
     Object.assign(formFilters, { ...initialSearchState })
     pagination.currentPage = 1
-    getReturnOrderList()
+    getShippingOrderList()
   }
 
   // 搜索处理
   const handleSearch = () => {
     console.log('搜索参数:', formFilters)
     pagination.currentPage = 1
-    getReturnOrderList()
+    getShippingOrderList()
   }
 
   // 表单项变更处理
@@ -215,43 +208,61 @@
         clearable: true
       },
       onChange: handleFormChange
+    },
+    {
+      label: '订单状态',
+      prop: 'status',
+      type: 'select',
+      config: {
+        clearable: true
+      },
+      options: () => [
+        { label: '待确认', value: '1' },
+        { label: '确认未通过', value: '2' },
+        { label: '待配送', value: '3' },
+        { label: '配送中', value: '4' },
+        { label: '已送达', value: '5' },
+        { label: '已确认收货', value: '6' },
+        { label: '已取消', value: '7' }
+      ],
+      onChange: handleFormChange
     }
   ]
 
-  // 显示审核对话框
-  const showReviewDialog = (type: 'approve' | 'reject', row: any) => {
-    reviewType.value = type
-    currentReviewOrder.value = row
-    reviewForm.reviewComment = ''
-    reviewDialogVisible.value = true
+  // 显示编辑对话框
+  const showDialog = (row: any) => {
+    dialogVisible.value = true
 
     // 重置表单验证状态
-    if (reviewFormRef.value) {
-      reviewFormRef.value.resetFields()
+    if (formRef.value) {
+      formRef.value.resetFields()
+    }
+
+    formData.commodityId = row.commodityId
+    formData.quantity = row.quantity
+    formData.receiverName = row.receiverName
+    formData.receiverPhone = row.receiverPhone
+    formData.receiverAddress = row.receiverAddress
+    formData.status = row.status
+    formData.trackingInfo = row.trackingInfo || ''
+  }
+
+  // 处理商品选择变化
+  const handleCommodityChange = (commodityId: number) => {
+    const commodity = COMMODITY_LIST_DATA.find((item) => item.id === commodityId)
+    if (commodity) {
+      // 可以在这里设置一些默认值
     }
   }
 
-  // 提交审核
-  const handleReviewSubmit = async () => {
-    if (!reviewFormRef.value) return
-
-    await reviewFormRef.value.validate((valid) => {
-      if (valid) {
-        const action = reviewType.value === 'approve' ? '退货审核通过' : '退货审核不通过'
-        const newStatus = reviewType.value === 'approve' ? '9' : '8' // 9: 已取消, 8: 审核未通过
-
-        // 这里应该调用API更新订单状态
-        console.log('审核操作:', {
-          orderId: currentReviewOrder.value.id,
-          action,
-          newStatus,
-          comment: reviewForm.reviewComment
-        })
-
-        ElMessage.success(`${action}成功`)
-        reviewDialogVisible.value = false
-        getReturnOrderList() // 刷新列表
-      }
+  // 删除运单
+  const deleteShippingOrder = () => {
+    ElMessageBox.confirm('确定要删除该运单吗？', '删除运单', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'error'
+    }).then(() => {
+      ElMessage.success('删除成功')
     })
   }
 
@@ -333,7 +344,7 @@
     },
     {
       prop: 'receiverInfo',
-      label: '取货信息',
+      label: '收货信息',
       minWidth: 300,
       formatter: (row: any) => {
         return h('div', { style: 'line-height: 1.4;' }, [
@@ -379,40 +390,50 @@
       }
     },
     {
+      prop: 'completeTime',
+      label: '完成时间',
+      width: 160,
+      formatter: (row: any) => row.completeTime || '-'
+    },
+    {
       prop: 'operation',
       label: '操作',
-      width: 180,
+      width: 150,
       formatter: (row: any) => {
-        return h('div', { class: 'flex gap-2' }, [
-          h(
-            ElButton,
-            {
-              type: 'success',
-              size: 'small',
-              onClick: () => showReviewDialog('approve', row)
-            },
-            () => '通过'
-          ),
-          h(
-            ElButton,
-            {
-              type: 'danger',
-              size: 'small',
-              onClick: () => showReviewDialog('reject', row)
-            },
-            () => '不通过'
-          )
+        return h('div', [
+          h(ArtButtonTable, {
+            type: 'edit',
+            onClick: () => showDialog(row)
+          }),
+          h(ArtButtonTable, {
+            type: 'delete',
+            onClick: () => deleteShippingOrder()
+          })
         ])
       }
     }
   ])
 
-  onMounted(() => {
-    getReturnOrderList()
+  // 表单实例
+  const formRef = ref<FormInstance>()
+
+  // 表单数据
+  const formData = reactive({
+    commodityId: undefined as number | undefined,
+    quantity: 1,
+    receiverName: '',
+    receiverPhone: '',
+    receiverAddress: '',
+    status: '1',
+    trackingInfo: ''
   })
 
-  // 获取退货审核订单列表数据
-  const getReturnOrderList = async () => {
+  onMounted(() => {
+    getShippingOrderList()
+  })
+
+  // 获取运单列表数据
+  const getShippingOrderList = async () => {
     loading.value = true
     try {
       const { currentPage, pageSize } = pagination
@@ -420,10 +441,9 @@
       // 模拟API调用
       await new Promise((resolve) => setTimeout(resolve, 500))
 
-      // 只获取状态为'7'（待退货审核）的订单
-      let filteredData = SHIPPING_ORDER_DATA.filter((item) => item.status === '7')
+      // 过滤数据
+      let filteredData = [...SHIPPING_ORDER_DATA]
 
-      // 应用搜索过滤
       if (formFilters.orderNumber) {
         filteredData = filteredData.filter((item) =>
           item.orderNumber.toLowerCase().includes(formFilters.orderNumber.toLowerCase())
@@ -442,6 +462,10 @@
         )
       }
 
+      if (formFilters.status) {
+        filteredData = filteredData.filter((item) => item.status === formFilters.status)
+      }
+
       const total = filteredData.length
       const start = (currentPage - 1) * pageSize
       const end = start + pageSize
@@ -449,14 +473,14 @@
       tableData.value = filteredData.slice(start, end)
       pagination.total = total
     } catch (error) {
-      console.error('获取退货审核订单列表失败:', error)
+      console.error('获取运单列表失败:', error)
     } finally {
       loading.value = false
     }
   }
 
   const handleRefresh = () => {
-    getReturnOrderList()
+    getShippingOrderList()
   }
 
   // 处理表格行选择变化
@@ -464,32 +488,46 @@
     selectedRows.value = selection
   }
 
+  // 表单验证规则
+  const rules = reactive<FormRules>({
+    commodityId: [{ required: true, message: '请选择商品', trigger: 'change' }],
+    quantity: [{ required: true, message: '请输入商品数量', trigger: 'blur' }],
+    receiverName: [{ required: true, message: '请输入收货人姓名', trigger: 'blur' }],
+    receiverPhone: [
+      { required: true, message: '请输入联系方式', trigger: 'blur' },
+      { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号码', trigger: 'blur' }
+    ],
+    receiverAddress: [{ required: true, message: '请输入收货地址', trigger: 'blur' }]
+  })
+
+  // 提交表单
+  const handleSubmit = async () => {
+    if (!formRef.value) return
+
+    await formRef.value.validate((valid) => {
+      if (valid) {
+        ElMessage.success('更新成功')
+        dialogVisible.value = false
+        getShippingOrderList()
+      }
+    })
+  }
+
   // 处理表格分页变化
   const handleSizeChange = (newPageSize: number) => {
     pagination.pageSize = newPageSize
-    getReturnOrderList()
+    getShippingOrderList()
   }
 
   const handleCurrentChange = (newCurrentPage: number) => {
     pagination.currentPage = newCurrentPage
-    getReturnOrderList()
+    getShippingOrderList()
   }
 </script>
 
 <style scoped>
-  .return-review-page {
+  .shipping-order-page {
     height: 100%;
-  }
-
-  .review-content {
-    padding: 16px 0;
-  }
-
-  .order-info {
-    background-color: #f8f9fa;
-    padding: 16px;
-    border-radius: 8px;
-    border: 1px solid #e9ecef;
   }
 
   .flex {
@@ -510,38 +548,6 @@
 
   .text-gray-500 {
     color: #6b7280;
-  }
-
-  .grid {
-    display: grid;
-  }
-
-  .grid-cols-2 {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .gap-4 {
-    gap: 16px;
-  }
-
-  .mb-2 {
-    margin-bottom: 8px;
-  }
-
-  .mb-4 {
-    margin-bottom: 16px;
-  }
-
-  .text-lg {
-    font-size: 18px;
-  }
-
-  .font-semibold {
-    font-weight: 600;
-  }
-
-  .font-medium {
-    font-weight: 500;
   }
 
   .commodity-info {

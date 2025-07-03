@@ -1,6 +1,6 @@
 <template>
   <ArtTableFullScreen>
-    <div class="return-review-page" id="table-full-screen">
+    <div class="order-confirm-page" id="table-full-screen">
       <!-- 搜索栏 -->
       <ArtSearchBar
         v-model:filter="formFilters"
@@ -15,7 +15,7 @@
         <ArtTableHeader v-model:columns="columnChecks" @refresh="handleRefresh">
           <template #left>
             <div class="flex items-center gap-2">
-              <ElTag type="info">退货审核</ElTag>
+              <ElTag type="warning">待确认订单</ElTag>
               <span class="text-sm text-gray-500">共 {{ pagination.total }} 条</span>
             </div>
           </template>
@@ -43,13 +43,13 @@
         <!-- 审核对话框 -->
         <ElDialog
           v-model="reviewDialogVisible"
-          :title="reviewType === 'approve' ? '退货审核通过' : '退货审核不通过'"
+          :title="reviewType === 'approve' ? '确认通过' : '确认不通过'"
           width="500px"
           align-center
         >
           <div class="review-content">
             <div class="order-info mb-4">
-              <h4 class="text-lg font-semibold mb-2">退货运单信息</h4>
+              <h4 class="text-lg font-semibold mb-2">运单信息</h4>
               <div class="grid grid-cols-2 gap-4 text-sm">
                 <div
                   ><span class="font-medium">运单号：</span
@@ -77,8 +77,8 @@
                   :rows="4"
                   :placeholder="
                     reviewType === 'approve'
-                      ? '请输入退货审核通过的意见（可选）'
-                      : '请输入退货审核不通过的原因'
+                      ? '请输入确认通过的意见（可选）'
+                      : '请输入确认不通过的原因'
                   "
                 />
               </ElFormItem>
@@ -92,7 +92,7 @@
                 :type="reviewType === 'approve' ? 'success' : 'danger'"
                 @click="handleReviewSubmit"
               >
-                {{ reviewType === 'approve' ? '审核通过' : '审核不通过' }}
+                {{ reviewType === 'approve' ? '确认通过' : '确认不通过' }}
               </ElButton>
             </div>
           </template>
@@ -114,7 +114,7 @@
 
   const { width } = useWindowSize()
 
-  defineOptions({ name: 'OrderToCheck' })
+  defineOptions({ name: 'OrderToConfirm' })
 
   const loading = ref(false)
   const reviewDialogVisible = ref(false)
@@ -158,7 +158,7 @@
       {
         validator: (rule: any, value: any, callback: any) => {
           if (reviewType.value === 'reject' && !value.trim()) {
-            callback(new Error('审核不通过时必须填写原因'))
+            callback(new Error('确认不通过时必须填写原因'))
           } else {
             callback()
           }
@@ -172,14 +172,14 @@
   const handleReset = () => {
     Object.assign(formFilters, { ...initialSearchState })
     pagination.currentPage = 1
-    getReturnOrderList()
+    getPendingOrderList()
   }
 
   // 搜索处理
   const handleSearch = () => {
     console.log('搜索参数:', formFilters)
     pagination.currentPage = 1
-    getReturnOrderList()
+    getPendingOrderList()
   }
 
   // 表单项变更处理
@@ -237,8 +237,8 @@
 
     await reviewFormRef.value.validate((valid) => {
       if (valid) {
-        const action = reviewType.value === 'approve' ? '退货审核通过' : '退货审核不通过'
-        const newStatus = reviewType.value === 'approve' ? '9' : '8' // 9: 已取消, 8: 审核未通过
+        const action = reviewType.value === 'approve' ? '确认通过' : '确认不通过'
+        const newStatus = reviewType.value === 'approve' ? '3' : '2' // 3: 待配送, 2: 确认未通过
 
         // 这里应该调用API更新订单状态
         console.log('审核操作:', {
@@ -250,7 +250,7 @@
 
         ElMessage.success(`${action}成功`)
         reviewDialogVisible.value = false
-        getReturnOrderList() // 刷新列表
+        getPendingOrderList() // 刷新列表
       }
     })
   }
@@ -333,7 +333,7 @@
     },
     {
       prop: 'receiverInfo',
-      label: '取货信息',
+      label: '收货信息',
       minWidth: 300,
       formatter: (row: any) => {
         return h('div', { style: 'line-height: 1.4;' }, [
@@ -408,11 +408,11 @@
   ])
 
   onMounted(() => {
-    getReturnOrderList()
+    getPendingOrderList()
   })
 
-  // 获取退货审核订单列表数据
-  const getReturnOrderList = async () => {
+  // 获取待确认订单列表数据
+  const getPendingOrderList = async () => {
     loading.value = true
     try {
       const { currentPage, pageSize } = pagination
@@ -420,8 +420,8 @@
       // 模拟API调用
       await new Promise((resolve) => setTimeout(resolve, 500))
 
-      // 只获取状态为'7'（待退货审核）的订单
-      let filteredData = SHIPPING_ORDER_DATA.filter((item) => item.status === '7')
+      // 只获取状态为'1'（待确认）的订单
+      let filteredData = SHIPPING_ORDER_DATA.filter((item) => item.status === '1')
 
       // 应用搜索过滤
       if (formFilters.orderNumber) {
@@ -449,14 +449,14 @@
       tableData.value = filteredData.slice(start, end)
       pagination.total = total
     } catch (error) {
-      console.error('获取退货审核订单列表失败:', error)
+      console.error('获取待确认订单列表失败:', error)
     } finally {
       loading.value = false
     }
   }
 
   const handleRefresh = () => {
-    getReturnOrderList()
+    getPendingOrderList()
   }
 
   // 处理表格行选择变化
@@ -467,17 +467,17 @@
   // 处理表格分页变化
   const handleSizeChange = (newPageSize: number) => {
     pagination.pageSize = newPageSize
-    getReturnOrderList()
+    getPendingOrderList()
   }
 
   const handleCurrentChange = (newCurrentPage: number) => {
     pagination.currentPage = newCurrentPage
-    getReturnOrderList()
+    getPendingOrderList()
   }
 </script>
 
 <style scoped>
-  .return-review-page {
+  .order-confirm-page {
     height: 100%;
   }
 
