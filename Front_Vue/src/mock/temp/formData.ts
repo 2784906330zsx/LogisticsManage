@@ -749,7 +749,7 @@ export const SUPPLIER_LIST_DATA: Supplier[] = [
     id: 1,
     name: '苹果官方授权经销商',
     type: '企业',
-    address: '北京市朝阳区建国门外大街1号国贸大厦A座',
+    address: '北沪市朝阳区建国门外大街1号国贸大厦A座',
     contactPerson: '张经理',
     contactPhone: '010-85123456',
     contactEmail: 'zhang.manager@apple-dealer.com',
@@ -760,7 +760,7 @@ export const SUPPLIER_LIST_DATA: Supplier[] = [
     id: 2,
     name: '小米科技有限责任公司',
     type: '企业',
-    address: '北京市海淀区清河中街68号华润五彩城购物中心',
+    address: '北沪市海淀区清河中街68号华润五彩城购物中心',
     contactPerson: '李总监',
     contactPhone: '010-56781234',
     contactEmail: 'li.director@xiaomi.com',
@@ -793,7 +793,7 @@ export const SUPPLIER_LIST_DATA: Supplier[] = [
     id: 5,
     name: '索尼（中国）有限公司',
     type: '企业',
-    address: '北京市朝阳区太阳宫中路16号院1号楼冠捷大厦',
+    address: '北沪市朝阳区太阳宫中路16号院1号楼冠捷大厦',
     contactPerson: '田主管',
     contactPhone: '010-65432109',
     contactEmail: 'tian.supervisor@sony.com.cn',
@@ -815,7 +815,7 @@ export const SUPPLIER_LIST_DATA: Supplier[] = [
     id: 7,
     name: '中关村科技发展有限公司',
     type: '事业单位',
-    address: '北京市海淀区中关村大街27号中关村大厦',
+    address: '北沪市海淀区中关村大街27号中关村大厦',
     contactPerson: '赵处长',
     contactPhone: '010-62345678',
     contactEmail: 'zhao.director@zgc.gov.cn',
@@ -1075,7 +1075,7 @@ export const SHIPPING_ORDER_DATA: ShippingOrder[] = [
     quantity: 2,
     receiverName: '张三',
     receiverPhone: '13800138001',
-    receiverAddress: '北京市朝阳区建国门外大街1号国贸大厦A座1001室',
+    receiverAddress: '北沪市朝阳区建国门外大街1号国贸大厦A座1001室',
     status: '6',
     createTime: '2025-01-15 10:30:00',
     completeTime: '2025-01-18 16:45:00',
@@ -1216,5 +1216,213 @@ export const SHIPPING_ORDER_DATA: ShippingOrder[] = [
     deliveryPersonName: '刘配送',
     deliveryPersonPhone: '13900139004',
     trackingInfo: '已签收'
+  }
+]
+
+// 车辆接口
+export interface Vehicle {
+  id: number
+  type: string // 车辆类型：电动三轮车/面包车/小型卡车/中型卡车/大型卡车
+  currentLoad: number // 当前载货量
+  maxLoad: number // 最大载货量
+  healthStatus: string // 健康状态：正常/小破/大破
+  plateNumber: string // 车牌号
+  purchaseTime: string // 购入时间
+  storageStatus: string // 在库状态：在库待命/在库维修/外出送货/外出维修
+  currentRoute?: string // 当前运行线路（仅外出送货时有值）
+  isEnabled: boolean // 是否启用
+}
+
+// 车辆列表模拟数据
+export const VEHICLE_LIST_DATA: Vehicle[] = [
+  {
+    id: 1,
+    type: '电动三轮车',
+    currentLoad: 0,
+    maxLoad: 2,
+    healthStatus: '正常',
+    plateNumber: '沪A12345',
+    purchaseTime: '2025-03-15 09:30:00',
+    storageStatus: '在库待命',
+    isEnabled: true
+  },
+  {
+    id: 2,
+    type: '面包车',
+    currentLoad: 2,
+    maxLoad: 4,
+    healthStatus: '正常',
+    plateNumber: '沪B67890',
+    purchaseTime: '2025-05-20 14:20:00',
+    storageStatus: '外出送货',
+    currentRoute: '上海市浦东新区总部 → 浙江省杭州市西湖区分部',
+    isEnabled: true
+  },
+  {
+    id: 3,
+    type: '小型卡车',
+    currentLoad: 0,
+    maxLoad: 8,
+    healthStatus: '小破',
+    plateNumber: '沪C11111',
+    purchaseTime: '2025-01-10 11:15:00',
+    storageStatus: '在库维修',
+    isEnabled: true
+  },
+  {
+    id: 4,
+    type: '中型卡车',
+    currentLoad: 10,
+    maxLoad: 16,
+    healthStatus: '正常',
+    plateNumber: '沪D22222',
+    purchaseTime: '2022-11-08 16:45:00',
+    storageStatus: '外出送货',
+    currentRoute: '上海市浦东新区总部 → 北京市朝阳区分部',
+    isEnabled: true
+  },
+  {
+    id: 5,
+    type: '大型卡车',
+    currentLoad: 0,
+    maxLoad: 32,
+    healthStatus: '大破',
+    plateNumber: '沪E33333',
+    purchaseTime: '2022-08-25 10:30:00',
+    storageStatus: '外出维修',
+    isEnabled: false
+  },
+  {
+    id: 6,
+    type: '电动三轮车',
+    currentLoad: 1,
+    maxLoad: 2,
+    healthStatus: '正常',
+    plateNumber: '沪F44444',
+    purchaseTime: '2025-07-12 13:20:00',
+    storageStatus: '外出送货',
+    currentRoute: '短途/市内配送中，无固定线路',
+    isEnabled: true
+  },
+  {
+    id: 7,
+    type: '面包车',
+    currentLoad: 0,
+    maxLoad: 4,
+    healthStatus: '小破',
+    plateNumber: '沪G55555',
+    purchaseTime: '2025-04-18 15:10:00',
+    storageStatus: '在库待命',
+    isEnabled: true
+  },
+  {
+    id: 8,
+    type: '小型卡车',
+    currentLoad: 5,
+    maxLoad: 8,
+    healthStatus: '正常',
+    plateNumber: '沪H66666',
+    purchaseTime: '2025-06-30 12:00:00',
+    storageStatus: '外出送货',
+    currentRoute: '上海市浦东新区总部 → 江苏省苏州市姑苏区分部',
+    isEnabled: true
+  }
+]
+
+// ... existing code ...
+
+// 固定线路接口
+export interface StaticRoute {
+  id: number
+  departure: string // 出发地
+  destination: string // 目的地
+  totalDistance: number // 总距离（公里）
+  estimatedTime: number // 预计耗时（小时）
+  scheduleInfo: string // 班次信息
+  isActive: boolean // 是否启用
+  createTime: string // 创建时间
+}
+
+// 固定线路列表模拟数据
+export const STATIC_ROUTE_LIST_DATA: StaticRoute[] = [
+  {
+    id: 1,
+    departure: '上海市浦东新区总部',
+    destination: '北京市朝阳区分部',
+    totalDistance: 1213,
+    estimatedTime: 14,
+    scheduleInfo: '每日发车：08:00, 14:00, 20:00',
+    isActive: true,
+    createTime: '2025-01-15 10:30:00'
+  },
+  {
+    id: 2,
+    departure: '上海市浦东新区总部',
+    destination: '广东省广州市天河区分部',
+    totalDistance: 1456,
+    estimatedTime: 16,
+    scheduleInfo: '每日发车：09:00, 15:00',
+    isActive: true,
+    createTime: '2025-02-20 14:20:00'
+  },
+  {
+    id: 3,
+    departure: '上海市浦东新区总部',
+    destination: '广东省深圳市南山区分部',
+    totalDistance: 1478,
+    estimatedTime: 17,
+    scheduleInfo: '每日发车：10:00, 16:00, 22:00',
+    isActive: true,
+    createTime: '2025-03-10 11:15:00'
+  },
+  {
+    id: 4,
+    departure: '上海市浦东新区总部',
+    destination: '浙江省杭州市西湖区分部',
+    totalDistance: 175,
+    estimatedTime: 2,
+    scheduleInfo: '每小时发车：07:00-19:00',
+    isActive: true,
+    createTime: '2025-04-08 16:45:00'
+  },
+  {
+    id: 5,
+    departure: '上海市浦东新区总部',
+    destination: '江苏省南京市鼓楼区分部',
+    totalDistance: 295,
+    estimatedTime: 4,
+    scheduleInfo: '每日发车：08:30, 13:30, 18:30',
+    isActive: false,
+    createTime: '2025-05-25 10:30:00'
+  },
+  {
+    id: 6,
+    departure: '上海市浦东新区总部',
+    destination: '江苏省苏州市姑苏区分部',
+    totalDistance: 102,
+    estimatedTime: 1.5,
+    scheduleInfo: '每30分钟发车：06:00-22:00',
+    isActive: true,
+    createTime: '2025-06-12 13:20:00'
+  },
+  {
+    id: 7,
+    departure: '上海市浦东新区总部',
+    destination: '湖北省武汉市江汉区分部',
+    totalDistance: 695,
+    estimatedTime: 8,
+    scheduleInfo: '每日发车：07:00, 19:00',
+    isActive: true,
+    createTime: '2025-07-18 15:10:00'
+  },
+  {
+    id: 8,
+    departure: '上海市浦东新区总部',
+    destination: '四川省成都市高新区分部',
+    totalDistance: 1965,
+    estimatedTime: 22,
+    scheduleInfo: '每日发车：20:00',
+    isActive: true,
+    createTime: '2025-08-30 12:00:00'
   }
 ]

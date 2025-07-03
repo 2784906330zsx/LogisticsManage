@@ -32,22 +32,12 @@
       </div>
 
       <div class="right">
-        <!-- 全屏按钮 -->
-        <div class="btn-box screen-box" @click="toggleFullScreen">
-          <div
-            class="btn"
-            :class="{ 'full-screen-btn': !isFullscreen, 'exit-full-screen-btn': isFullscreen }"
-          >
-            <i class="iconfont-sys">{{ isFullscreen ? '&#xe62d;' : '&#xe8ce;' }}</i>
-          </div>
-        </div>
-
         <!-- 语言 -->
         <div class="btn-box" v-if="showLanguage">
           <el-dropdown @command="changeLanguage" popper-class="langDropDownStyle">
-            <div class="btn language-btn">
+            <!-- <div class="btn language-btn">
               <i class="iconfont-sys">&#xe611;</i>
-            </div>
+            </div> -->
             <template #dropdown>
               <el-dropdown-menu>
                 <div v-for="item in languageOptions" :key="item.value" class="lang-btn-item">
@@ -62,6 +52,16 @@
               </el-dropdown-menu>
             </template>
           </el-dropdown>
+        </div>
+
+        <!-- 全屏按钮 -->
+        <div class="btn-box screen-box" @click="toggleFullScreen">
+          <div
+            class="btn"
+            :class="{ 'full-screen-btn': !isFullscreen, 'exit-full-screen-btn': isFullscreen }"
+          >
+            <i class="iconfont-sys">{{ isFullscreen ? '&#xe62d;' : '&#xe8ce;' }}</i>
+          </div>
         </div>
 
         <!-- 切换主题 -->
