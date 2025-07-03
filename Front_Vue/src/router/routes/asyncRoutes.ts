@@ -23,37 +23,7 @@ export const asyncRoutes: AppRouteRecord[] = [
       title: 'menus.dashboard.title',
       icon: '&#xe721;',
       roles: ['R_SUPER']
-    },
-    children: [
-      {
-        path: 'console',
-        name: 'Console',
-        component: RoutesAlias.Dashboard,
-        meta: {
-          title: 'menus.dashboard.console',
-          keepAlive: true,
-          fixedTab: true
-        }
-      },
-      {
-        path: 'analysis',
-        name: 'Analysis',
-        component: RoutesAlias.Analysis,
-        meta: {
-          title: 'menus.dashboard.analysis',
-          keepAlive: false
-        }
-      },
-      {
-        path: 'ecommerce',
-        name: 'Ecommerce',
-        component: RoutesAlias.Ecommerce,
-        meta: {
-          title: 'menus.dashboard.ecommerce',
-          keepAlive: false
-        }
-      }
-    ]
+    }
   },
   {
     path: '/user',
@@ -68,19 +38,9 @@ export const asyncRoutes: AppRouteRecord[] = [
       {
         path: 'person',
         name: 'Person',
-        component: RoutesAlias.Person,
+        component: RoutesAlias.User,
         meta: {
           title: 'menus.user.person',
-          keepAlive: true,
-          roles: ['R_SUPER', 'R_ADMIN']
-        }
-      },
-      {
-        path: 'company',
-        name: 'Company',
-        component: RoutesAlias.Company,
-        meta: {
-          title: 'menus.user.company',
           keepAlive: true,
           roles: ['R_SUPER', 'R_ADMIN']
         }
@@ -93,6 +53,16 @@ export const asyncRoutes: AppRouteRecord[] = [
           title: 'menus.user.role',
           keepAlive: true,
           roles: ['R_SUPER']
+        }
+      },
+      {
+        path: 'department',
+        name: 'Department',
+        component: RoutesAlias.Department,
+        meta: {
+          title: 'menus.user.department',
+          keepAlive: true,
+          roles: ['R_SUPER', 'R_ADMIN']
         }
       },
       {
@@ -128,6 +98,15 @@ export const asyncRoutes: AppRouteRecord[] = [
         }
       },
       {
+        path: 'create',
+        name: 'CreateOrder',
+        component: RoutesAlias.CreateOrder,
+        meta: {
+          title: 'menus.order.create',
+          keepAlive: true
+        }
+      },
+      {
         path: 'to-confirm',
         name: 'ToConfirmOrder',
         component: RoutesAlias.ToConfirmOrder,
@@ -157,6 +136,15 @@ export const asyncRoutes: AppRouteRecord[] = [
       roles: ['R_SUPER', 'R_ADMIN']
     },
     children: [
+      {
+        path: 'delivery-analysis',
+        name: 'DeliveryAnalysis',
+        component: RoutesAlias.DeliveryAnalysis,
+        meta: {
+          title: 'menus.delivery.analysis',
+          keepAlive: false
+        }
+      },
       {
         path: 'resource',
         name: 'DeliveryResource',
@@ -242,6 +230,15 @@ export const asyncRoutes: AppRouteRecord[] = [
     },
     children: [
       {
+        path: 'commodity',
+        name: 'Commodity',
+        component: RoutesAlias.Commodity,
+        meta: {
+          title: 'menus.storage.commodity',
+          keepAlive: true
+        }
+      },
+      {
         path: 'inventory',
         name: 'Inventory',
         component: RoutesAlias.Inventory,
@@ -311,6 +308,24 @@ export const asyncRoutes: AppRouteRecord[] = [
     },
     children: [
       {
+        path: 'analysis',
+        name: 'FinanceAnalysis',
+        component: RoutesAlias.FinanceAnalysis,
+        meta: {
+          title: 'menus.finance.analysis',
+          keepAlive: true
+        }
+      },
+      {
+        path: 'order-review',
+        name: 'OrderReview',
+        component: RoutesAlias.OrderReview,
+        meta: {
+          title: 'menus.finance.orderReview',
+          keepAlive: true
+        }
+      },
+      {
         path: 'income-record',
         name: 'IncomeRecord',
         component: RoutesAlias.IncomeRecord,
@@ -325,15 +340,6 @@ export const asyncRoutes: AppRouteRecord[] = [
         component: RoutesAlias.ExpenditureRecord,
         meta: {
           title: 'menus.finance.expenditureRecord',
-          keepAlive: true
-        }
-      },
-      {
-        path: 'analysis',
-        name: 'FinanceAnalysis',
-        component: RoutesAlias.FinanceAnalysis,
-        meta: {
-          title: 'menus.finance.analysis',
           keepAlive: true
         }
       }

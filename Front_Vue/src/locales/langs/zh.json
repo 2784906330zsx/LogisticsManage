@@ -205,19 +205,21 @@
     },
     "user": {
       "title": "用户管理",
-      "person": "个人用户",
-      "company": "企业用户",
+      "person": "用户信息",
       "role": "角色管理",
+      "department": "部门管理",
       "userCenter": "个人中心"
     },
     "order": {
       "title": "订单管理",
       "all": "所有订单",
+      "create": "创建订单",
       "toConfirm": "待确认订单",
-      "toCheck": "待审核退款订单"
+      "toCheck": "退货订单"
     },
     "delivery": {
       "title": "配送管理",
+      "analysis": "配送动态",
       "resource": {
         "title": "配送资源",
         "staticLine": "固定配送线路",
@@ -233,6 +235,7 @@
     },
     "storage": {
       "title": "仓储管理",
+      "commodity": "商品管理",
       "inventory": "查看库存",
       "inboundRecord": "入库记录",
       "outboundRecord": "出库记录"
@@ -246,7 +249,8 @@
       "title": "财务管理",
       "incomeRecord": "收入记录",
       "expenditureRecord": "支出记录",
-      "analysis": "收支分析"
+      "analysis": "收支分析",
+      "orderReview": "财务审核"
     }
   },
   "table": {

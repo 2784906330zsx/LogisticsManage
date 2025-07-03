@@ -5,8 +5,23 @@
         <div class="user-wrap box-style">
           <img class="bg" src="@imgs/user/bg.webp" />
           <img class="avatar" src="@imgs/user/avatar.webp" />
-          <h2 class="name">{{ userInfo.userName }}</h2>
-          <p class="des">好好学习，天天向上</p>
+          <div class="name-container">
+            <h2 class="name">{{ userInfo.userName }}</h2>
+            <div class="tags-container">
+              <el-tag
+                size="small"
+                :type="form.sex === '1' ? 'primary' : 'danger'"
+                effect="light"
+                class="gender-tag"
+              >
+                <i class="iconfont-sys">{{ form.sex === '1' ? '&#xe81f;' : '&#xe81e;' }}</i>
+                {{ form.sex === '1' ? '男' : '女' }}
+              </el-tag>
+              <el-tag size="small" type="success" effect="light" class="position-tag">
+                {{ form.position }}
+              </el-tag>
+            </div>
+          </div>
 
           <div class="outer-info">
             <div>
@@ -14,28 +29,19 @@
               <span>example@mall.com</span>
             </div>
             <div>
-              <i class="iconfont-sys">&#xe608;</i>
-              <span>超级管理员</span>
-            </div>
-            <div>
               <i class="iconfont-sys">&#xe736;</i>
-              <span>上海市 - 浦东新区</span>
+              <span>{{ form.jobNumber }}</span>
             </div>
             <div>
-              <i class="iconfont-sys">&#xe811;</i>
-              <span>###物流公司——CEO</span>
+              <i class="iconfont-sys">&#xe608;</i>
+              <span>{{ form.position }}</span>
+            </div>
+            <div>
+              <i class="iconfont-sys">&#xe608;</i>
+              <span>{{ form.department }}</span>
             </div>
           </div>
         </div>
-
-        <!-- <el-carousel class="gallery" height="160px"
-          :interval="5000"
-          indicator-position="none"
-        >
-          <el-carousel-item class="item" v-for="item in galleryList" :key="item">
-            <img :src="item"/>
-          </el-carousel-item>
-        </el-carousel> -->
       </div>
       <div class="right-wrap">
         <div class="info box-style">
@@ -66,26 +72,13 @@
             </ElRow>
 
             <ElRow>
-              <ElFormItem label="昵称" prop="nikeName">
-                <ElInput v-model="form.nikeName" :disabled="!isEdit" />
+              <ElFormItem label="手机" prop="mobile">
+                <ElInput v-model="form.mobile" :disabled="!isEdit" />
               </ElFormItem>
               <ElFormItem label="邮箱" prop="email" class="right-input">
                 <ElInput v-model="form.email" :disabled="!isEdit" />
               </ElFormItem>
             </ElRow>
-
-            <ElRow>
-              <ElFormItem label="手机" prop="mobile">
-                <ElInput v-model="form.mobile" :disabled="!isEdit" />
-              </ElFormItem>
-              <ElFormItem label="地址" prop="address" class="right-input">
-                <ElInput v-model="form.address" :disabled="!isEdit" />
-              </ElFormItem>
-            </ElRow>
-
-            <ElFormItem label="个人介绍" prop="des" :style="{ height: '130px' }">
-              <ElInput type="textarea" :rows="4" v-model="form.des" :disabled="!isEdit" />
-            </ElFormItem>
 
             <div class="el-form-item-right">
               <ElButton type="primary" style="width: 90px" v-ripple @click="edit">
@@ -140,7 +133,7 @@
 
 <script setup lang="ts">
   import { useUserStore } from '@/store/modules/user'
-  import { ElForm, FormInstance, FormRules } from 'element-plus'
+  import { ElForm, ElTag, FormInstance, FormRules } from 'element-plus'
 
   defineOptions({ name: 'UserCenter' })
 
@@ -149,15 +142,14 @@
 
   const isEdit = ref(false)
   const isEditPwd = ref(false)
-  const date = ref('')
   const form = reactive({
     realName: 'SuperAdmin',
-    nikeName: '皮卡丘',
     email: '59301283@mall.com',
     mobile: '18888888888',
-    address: '上海市浦东新区',
-    sex: '2',
-    des: '好好学习，天天向上'
+    sex: '1',
+    jobNumber: 'EMP001',
+    position: '系统管理员',
+    department: '信息技术部'
   })
 
   const pwdForm = reactive({
@@ -170,16 +162,11 @@
 
   const rules = reactive<FormRules>({
     realName: [
-      { required: true, message: '请输入昵称', trigger: 'blur' },
+      { required: true, message: '请输入姓名', trigger: 'blur' },
       { min: 2, max: 50, message: '长度在 2 到 30 个字符', trigger: 'blur' }
     ],
-    nikeName: [
-      { required: true, message: '请输入昵称', trigger: 'blur' },
-      { min: 2, max: 50, message: '长度在 2 到 30 个字符', trigger: 'blur' }
-    ],
-    email: [{ required: true, message: '请输入昵称', trigger: 'blur' }],
+    email: [{ required: true, message: '请输入邮箱', trigger: 'blur' }],
     mobile: [{ required: true, message: '请输入手机号码', trigger: 'blur' }],
-    address: [{ required: true, message: '请输入地址', trigger: 'blur' }],
     sex: [{ type: 'array', required: true, message: '请选择性别', trigger: 'blur' }]
   })
 
@@ -193,32 +180,6 @@
       label: '女'
     }
   ]
-
-  onMounted(() => {
-    getDate()
-  })
-
-  const getDate = () => {
-    const d = new Date()
-    const h = d.getHours()
-    let text = ''
-
-    if (h >= 6 && h < 9) {
-      text = '早上好'
-    } else if (h >= 9 && h < 11) {
-      text = '上午好'
-    } else if (h >= 11 && h < 13) {
-      text = '中午好'
-    } else if (h >= 13 && h < 18) {
-      text = '下午好'
-    } else if (h >= 18 && h < 24) {
-      text = '晚上好'
-    } else if (h >= 0 && h < 6) {
-      text = '很晚了，早点睡'
-    }
-
-    date.value = text
-  }
 
   const edit = () => {
     isEdit.value = !isEdit.value
@@ -295,10 +256,42 @@
             border-radius: 50%;
           }
 
-          .name {
+          .name-container {
             margin-top: 20px;
-            font-size: 22px;
-            font-weight: 400;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+
+            .name {
+              margin: 0;
+              font-size: 22px;
+              font-weight: 400;
+            }
+
+            .tags-container {
+              display: flex;
+              gap: 8px;
+              align-items: center;
+              flex-wrap: wrap;
+              justify-content: center;
+
+              .gender-tag {
+                display: flex;
+                align-items: center;
+                gap: 4px;
+                border-radius: 12px;
+
+                i {
+                  font-size: 12px;
+                }
+              }
+
+              .position-tag {
+                border-radius: 12px;
+                font-weight: 500;
+              }
+            }
           }
 
           .des {
