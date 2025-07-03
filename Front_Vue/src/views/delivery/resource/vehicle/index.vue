@@ -92,7 +92,7 @@
               prop="currentRoute"
             >
               <ElSelect v-model="formData.currentRoute" placeholder="请选择运行线路">
-                <ElOption label="短途/市内配送中，无固定线路" value="短途/市内配送中，无固定线路" />
+                <ElOption label="短途配送无固定线路" value="短途配送无固定线路" />
                 <ElOption
                   v-for="route in availableRoutes"
                   :key="route.id"

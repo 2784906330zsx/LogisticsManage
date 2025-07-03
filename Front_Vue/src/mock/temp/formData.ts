@@ -1301,7 +1301,7 @@ export const VEHICLE_LIST_DATA: Vehicle[] = [
     plateNumber: '沪F44444',
     purchaseTime: '2025-07-12 13:20:00',
     storageStatus: '外出送货',
-    currentRoute: '短途/市内配送中，无固定线路',
+    currentRoute: '短途配送无固定线路',
     isEnabled: true
   },
   {

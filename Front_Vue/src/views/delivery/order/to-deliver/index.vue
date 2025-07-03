@@ -273,10 +273,11 @@
     {
       prop: 'status',
       label: '订单状态',
-      width: 120,
-      formatter: (row: any) => {
-        return h(ElTag, { type: 'info' }, () => '待配送')
-      }
+      width: 120
+      // ,
+      // formatter: (row: any) => {
+      //   return h(ElTag, { type: 'info' }, () => '待配送')
+      // }
     },
     {
       prop: 'createTime',
