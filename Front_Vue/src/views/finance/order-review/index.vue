@@ -7,7 +7,8 @@
         :items="formItems"
         @reset="handleReset"
         @search="handleSearch"
-      ></ArtSearchBar>
+      >
+      </ArtSearchBar>
 
       <ElCard shadow="never" class="art-table-card">
         <!-- 表格头部 -->
