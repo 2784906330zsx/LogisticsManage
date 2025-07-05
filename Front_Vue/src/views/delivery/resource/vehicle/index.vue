@@ -69,6 +69,22 @@
             <ElFormItem label="车牌号" prop="plateNumber">
               <ElInput v-model="formData.plateNumber" placeholder="请输入车牌号" />
             </ElFormItem>
+            <ElFormItem label="随车司机" prop="driverName">
+              <ElSelect
+                v-model="formData.driverName"
+                @change="handleDriverChange"
+                placeholder="请选择司机"
+              >
+                <ElOption
+                  v-for="driver in ACCOUNT_TABLE_DATA.filter(
+                    (user) => user.position.includes('配送') || user.position.includes('司机')
+                  )"
+                  :key="driver.id"
+                  :label="`${driver.username} (${driver.jobNumber})`"
+                  :value="driver.username"
+                />
+              </ElSelect>
+            </ElFormItem>
             <ElFormItem label="购入时间" prop="purchaseTime">
               <ElDatePicker
                 v-model="formData.purchaseTime"
@@ -119,7 +135,7 @@
 
 <script setup lang="ts">
   import { h } from 'vue'
-  import { VEHICLE_LIST_DATA, STATIC_ROUTE_LIST_DATA } from '@/mock/temp/formData'
+  import { VEHICLE_LIST_DATA, STATIC_ROUTE_LIST_DATA, ACCOUNT_TABLE_DATA } from '@/mock/formData'
   import { ElDialog, FormInstance, ElTag, ElProgress } from 'element-plus'
   import { ElMessageBox, ElMessage } from 'element-plus'
   import type { FormRules } from 'element-plus'
@@ -293,6 +309,22 @@
     }
   }
 
+  // 处理司机选择变更
+  const handleDriverChange = (driverName: string) => {
+    const selectedDriver = ACCOUNT_TABLE_DATA.find(
+      (user) =>
+        user.username === driverName &&
+        (user.position.includes('配送') || user.position.includes('司机'))
+    )
+    if (selectedDriver) {
+      formData.driverJobNumber = selectedDriver.jobNumber
+      formData.driverAvatar = selectedDriver.avatar
+    } else {
+      formData.driverJobNumber = ''
+      formData.driverAvatar = ''
+    }
+  }
+
   // 显示对话框
   const showDialog = (type: string, row?: any) => {
     dialogVisible.value = true
@@ -309,6 +341,9 @@
       formData.maxLoad = row.maxLoad
       formData.healthStatus = row.healthStatus
       formData.plateNumber = row.plateNumber
+      formData.driverName = row.driverName
+      formData.driverJobNumber = row.driverJobNumber
+      formData.driverAvatar = row.driverAvatar
       formData.purchaseTime = row.purchaseTime
       formData.storageStatus = row.storageStatus
       formData.currentRoute = row.currentRoute || ''
@@ -319,6 +354,9 @@
       formData.maxLoad = 0
       formData.healthStatus = '正常'
       formData.plateNumber = ''
+      formData.driverName = ''
+      formData.driverJobNumber = ''
+      formData.driverAvatar = ''
       formData.purchaseTime = ''
       formData.storageStatus = '在库待命'
       formData.currentRoute = ''
@@ -378,6 +416,35 @@
       prop: 'plateNumber',
       label: '车牌号',
       width: 120
+    },
+    // 新增随车司机列
+    {
+      prop: 'driver',
+      label: '随车司机',
+      minWidth: 180,
+      formatter: (row: any) => {
+        return h('div', { style: 'display: flex; align-items: center' }, [
+          h('img', {
+            src: row.driverAvatar,
+            style: 'width: 40px; height: 40px; border-radius: 6px; margin-right: 10px'
+          }),
+          h('div', {}, [
+            h(
+              'p',
+              {
+                style:
+                  'font-weight: 500; color: var(--art-text-gray-800); margin: 0; line-height: 1.2'
+              },
+              row.driverName
+            ),
+            h(
+              'p',
+              { style: 'font-size: 12px; color: #666; margin: 0; line-height: 1.2' },
+              row.driverJobNumber
+            )
+          ])
+        ])
+      }
     },
     {
       prop: 'purchaseTime',
@@ -445,6 +512,9 @@
     maxLoad: 0,
     healthStatus: '正常',
     plateNumber: '',
+    driverName: '',
+    driverJobNumber: '',
+    driverAvatar: '',
     purchaseTime: '',
     storageStatus: '在库待命',
     currentRoute: '',

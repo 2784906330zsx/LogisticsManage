@@ -98,7 +98,7 @@
 
 <script setup lang="ts">
   import { h } from 'vue'
-  import { SHIPPING_ORDER_DATA } from '@/mock/temp/formData'
+  import { SHIPPING_ORDER_DATA } from '@/mock/formData'
   import { ElDialog, FormInstance, ElImage, ElTag, ElButton } from 'element-plus'
   import { ElMessage } from 'element-plus'
   import type { FormRules } from 'element-plus'

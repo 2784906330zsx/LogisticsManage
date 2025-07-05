@@ -204,8 +204,8 @@
       "ecommerce": "收支动态"
     },
     "user": {
-      "title": "用户管理",
-      "person": "用户信息",
+      "title": "员工管理",
+      "person": "员工信息",
       "role": "角色管理",
       "department": "部门管理",
       "userCenter": "个人中心"
@@ -221,9 +221,9 @@
       "title": "配送管理",
       "analysis": "数据大屏",
       "resource": {
-        "title": "配送资源",
+        "title": "配送资源管理",
         "staticLine": "固定配送线路",
-        "vehicle": "车辆管理"
+        "vehicle": "配送车辆管理"
       },
       "order": {
         "title": "配送状态",

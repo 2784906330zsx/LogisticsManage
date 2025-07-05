@@ -104,7 +104,7 @@
 
 <script setup lang="ts">
   import { h } from 'vue'
-  import { SUPPLIER_LIST_DATA } from '@/mock/temp/formData'
+  import { SUPPLIER_LIST_DATA } from '@/mock/formData'
   import { ElDialog, FormInstance, ElTag } from 'element-plus'
   import { ElMessageBox, ElMessage } from 'element-plus'
   import type { FormRules } from 'element-plus'

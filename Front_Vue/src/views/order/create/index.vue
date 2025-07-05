@@ -132,7 +132,7 @@
 
 <script setup lang="ts">
   import { Plus } from '@element-plus/icons-vue'
-  import { COMMODITY_LIST_DATA } from '@/mock/temp/formData'
+  import { COMMODITY_LIST_DATA } from '@/mock/formData'
   import { FormInstance, ElMessage } from 'element-plus'
   import type { FormRules } from 'element-plus'
   import { useRouter } from 'vue-router'

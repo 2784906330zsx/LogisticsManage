@@ -183,7 +183,7 @@
     COMMODITY_LIST_DATA,
     SUPPLIER_LIST_DATA,
     ACCOUNT_TABLE_DATA
-  } from '@/mock/temp/formData'
+  } from '@/mock/formData'
   import { ElDialog, FormInstance, ElTag, ElImage } from 'element-plus'
   import { ElMessageBox, ElMessage } from 'element-plus'
   import type { FormRules } from 'element-plus'

@@ -63,7 +63,7 @@ export const ACCOUNT_TABLE_DATA: User[] = [
   {
     id: 4,
     username: 'oliviagrant',
-    gender: 0,
+    gender: 1,
     mobile: '18670001596',
     email: 'oliviagrant@company.com',
     dep: '产品部',
@@ -75,11 +75,11 @@ export const ACCOUNT_TABLE_DATA: User[] = [
   {
     id: 5,
     username: 'emmawilson',
-    gender: 0,
+    gender: 1,
     mobile: '18670001595',
     email: 'emmawilson@company.com',
     dep: '财务部',
-    status: '1',
+    status: '3',
     jobNumber: 'EMP005',
     position: '财务管理员',
     avatar: avatar5
@@ -212,7 +212,7 @@ export interface Role {
   des: string
   date: string
   enable: boolean
-  departmentCode: string // 新增所属部门编码字段
+  departmentCode: string // 所属部门编码
 }
 
 // 角色列表
@@ -428,139 +428,85 @@ export interface Commodity {
 export const COMMODITY_LIST_DATA: Commodity[] = [
   {
     id: 1,
-    name: 'iPhone 15 Pro',
+    name: '海尔冰箱',
     image:
-      'https://ts3.tc.mm.bing.net/th/id/OIP-C.pnIPiPhSJs-mIQlpbmB1iQHaHa?rs=1&pid=ImgDetMain&o=7&rm=3',
-    brand: 'Apple',
-    description: '全新iPhone 15 Pro，搭载A17 Pro芯片，钛金属设计',
+      'https://ts1.tc.mm.bing.net/th/id/OIP-C.CjbS9TqwMegLcwaTA7pCAgHaHa?rs=1&pid=ImgDetMain&o=7&rm=3',
+    brand: 'Haier',
+    description: '海尔冰箱，遥遥领先',
     status: '1',
-    createTime: '2024-01-15 10:30:00',
-    price: 7999,
+    createTime: '2025-01-15 10:30:00',
+    price: 3999,
     stock: 50,
     totalInbound: 200,
     totalOutbound: 150,
-    supplier: '苹果官方授权经销商',
-    lastUpdateTime: '2024-01-20 14:30:00',
+    supplier: '海尔集团公司',
+    lastUpdateTime: '2025-01-20 14:30:00',
     storageArea: 'A区-L1层-01号'
   },
   {
     id: 2,
-    name: 'MacBook Pro 14英寸',
-    image:
-      'https://tse1-mm.cn.bing.net/th/id/OIP-C.qdxvw-wo5BgJhIjI8D_l4AHaDv?w=318&h=176&c=7&r=0&o=7&dpr=1.1&pid=1.7&rm=3',
-    brand: 'Apple',
-    description: 'M3芯片MacBook Pro，专业级性能',
+    name: '海尔空调',
+    image: 'https://imgservice.suning.cn/uimg1/b2c/image/ofgTnG1XQh9fdeaGhs0wnA.jpg_800w_800h_4e',
+    brand: 'Haier',
+    description: '海尔空调，遥遥领先',
     status: '1',
-    createTime: '2024-01-10 14:20:00',
-    price: 14999,
+    createTime: '2025-01-10 14:20:00',
+    price: 2999,
     stock: 30,
     totalInbound: 80,
     totalOutbound: 50,
-    supplier: '苹果官方授权经销商',
-    lastUpdateTime: '2024-01-18 16:45:00',
+    supplier: '海尔集团公司',
+    lastUpdateTime: '2025-01-18 16:45:00',
     storageArea: 'A区-L2层-03号'
   },
   {
     id: 3,
-    name: 'AirPods Pro 2',
-    image:
-      'https://tse2-mm.cn.bing.net/th/id/OIP-C.mFldcGeGvtJIDXRJta_-UQHaGz?w=183&h=180&c=7&r=0&o=7&dpr=1.1&pid=1.7&rm=3',
-    brand: 'Apple',
-    description: '主动降噪无线耳机，空间音频体验',
+    name: '海尔电视',
+    image: 'https://imgservice.suning.cn/uimg1/b2c/image/TJqCFOY9MhPSXJab_76Ceg.jpg_800w_800h_4e',
+    brand: 'Haier',
+    description: '海尔电视，遥遥领先',
     status: '2',
-    createTime: '2024-01-08 09:15:00',
-    price: 1899,
+    createTime: '2025-01-08 09:15:00',
+    price: 3999,
     stock: 0,
     totalInbound: 300,
     totalOutbound: 300,
-    supplier: '苹果官方授权经销商',
-    lastUpdateTime: '2024-01-19 11:20:00',
+    supplier: '海尔集团公司',
+    lastUpdateTime: '2025-01-19 11:20:00',
     storageArea: 'B区-L1层-05号'
   },
   {
     id: 4,
-    name: 'Samsung Galaxy S24',
-    image:
-      'https://tse2-mm.cn.bing.net/th/id/OIP-C.dLQKHaF3aUxCK7LAeWJyJgHaFj?w=234&h=180&c=7&r=0&o=7&dpr=1.1&pid=1.7&rm=3',
-    brand: 'Samsung',
-    description: '三星旗舰手机，AI摄影功能',
+    name: '海尔洗衣机',
+    image: 'https://imgservice.suning.cn/uimg1/b2c/image/2jOBNNCQdMN2C5VkFaPIjg.png_800w_800h_4e',
+    brand: 'Haier',
+    description: '海尔洗衣机，遥遥领先',
     status: '3',
-    createTime: '2024-02-01 16:45:00',
-    price: 5999,
+    createTime: '2025-02-01 16:45:00',
+    price: 1999,
     stock: 100,
     totalInbound: 150,
     totalOutbound: 50,
-    supplier: '三星电子有限公司',
-    lastUpdateTime: '2024-02-05 09:30:00',
+    supplier: '海尔集团公司',
+    lastUpdateTime: '2025-02-05 09:30:00',
     storageArea: 'B区-L2层-07号'
   },
   {
     id: 5,
-    name: 'Dell XPS 13',
+    name: '海尔热水器',
     image:
-      'https://tse1-mm.cn.bing.net/th/id/OIP-C.BCLBIGqjqsAzjOi7OHt6KQHaFj?w=287&h=180&c=7&r=0&o=7&dpr=1.1&pid=1.7&rm=3',
-    brand: 'Dell',
-    description: '轻薄商务笔记本，13英寸4K显示屏',
+      'https://ts1.tc.mm.bing.net/th/id/OIP-C.0E-HDX7AMbNspKcsWq9SPgHaHa?rs=1&pid=ImgDetMain&o=7&rm=3',
+    brand: 'Haier',
+    description: '海尔热水器，遥遥领先',
     status: '1',
-    createTime: '2024-01-20 11:30:00',
-    price: 8999,
+    createTime: '2025-01-20 11:30:00',
+    price: 999,
     stock: 25,
     totalInbound: 60,
     totalOutbound: 35,
-    supplier: '戴尔科技集团',
-    lastUpdateTime: '2024-01-22 13:15:00',
+    supplier: '海尔集团公司',
+    lastUpdateTime: '2025-01-22 13:15:00',
     storageArea: 'C区-L1层-02号'
-  },
-  {
-    id: 6,
-    name: 'Sony WH-1000XM5',
-    image:
-      'https://tse1-mm.cn.bing.net/th/id/OIP-C.Vo4zscjAo2A-40QsVFqujwAAAA?w=260&h=195&c=7&r=0&o=7&dpr=1.1&pid=1.7&rm=3',
-    brand: 'Sony',
-    description: '顶级降噪头戴式耳机',
-    status: '4',
-    createTime: '2024-01-12 13:20:00',
-    price: 2399,
-    stock: 0,
-    totalInbound: 120,
-    totalOutbound: 120,
-    supplier: '索尼中国有限公司',
-    lastUpdateTime: '2024-01-21 10:45:00',
-    storageArea: 'C区-L3层-08号'
-  },
-  {
-    id: 7,
-    name: 'iPad Air 5',
-    image:
-      'https://tse2-mm.cn.bing.net/th/id/OIP-C.VUVnS_dCXuDM_soOgq_EawHaFj?w=247&h=186&c=7&r=0&o=7&dpr=1.1&pid=1.7&rm=3',
-    brand: 'Apple',
-    description: 'M1芯片iPad Air，10.9英寸液体视网膜显示屏',
-    status: '1',
-    createTime: '2024-01-18 15:10:00',
-    price: 4399,
-    stock: 40,
-    totalInbound: 100,
-    totalOutbound: 60,
-    supplier: '苹果官方授权经销商',
-    lastUpdateTime: '2024-01-23 08:20:00',
-    storageArea: 'A区-L3层-04号'
-  },
-  {
-    id: 8,
-    name: 'Xiaomi 14 Pro',
-    image:
-      'https://tse1-mm.cn.bing.net/th/id/OIP-C.fAuoy-0RFYkQphSIsbjGvQHaFj?w=227&h=180&c=7&r=0&o=7&dpr=1.1&pid=1.7&rm=3',
-    brand: 'Xiaomi',
-    description: '小米旗舰手机，徕卡影像系统',
-    status: '1',
-    createTime: '2024-01-25 12:00:00',
-    price: 4999,
-    stock: 60,
-    totalInbound: 120,
-    totalOutbound: 60,
-    supplier: '小米科技有限责任公司',
-    lastUpdateTime: '2024-01-26 15:30:00',
-    storageArea: 'B区-L3层-10号'
   }
 ]
 
@@ -595,61 +541,61 @@ export const INBOUND_RECORD_DATA: InboundRecord[] = [
   {
     inboundRecordId: 1,
     commodityId: 1,
-    commodityName: 'iPhone 15 Pro',
+    commodityName: '海尔冰箱',
     commodityImage:
-      'https://ts3.tc.mm.bing.net/th/id/OIP-C.pnIPiPhSJs-mIQlpbmB1iQHaHa?rs=1&pid=ImgDetMain&o=7&rm=3',
+      'https://ts1.tc.mm.bing.net/th/id/OIP-C.CjbS9TqwMegLcwaTA7pCAgHaHa?rs=1&pid=ImgDetMain&o=7&rm=3',
     quantity: 50,
     reason: '新品采购',
-    inboundTime: '2024-01-15 10:30:00',
-    relatedOrder: 'PO202401150001',
+    inboundTime: '2025-01-15 10:30:00',
+    relatedOrder: 'PO202501150001',
     operator: 'alexmorgan'
   },
   {
     inboundRecordId: 2,
     commodityId: 2,
-    commodityName: 'MacBook Pro 14英寸',
+    commodityName: '海尔空调',
     commodityImage:
-      'https://tse1-mm.cn.bing.net/th/id/OIP-C.qdxvw-wo5BgJhIjI8D_l4AHaDv?w=318&h=176&c=7&r=0&o=7&dpr=1.1&pid=1.7&rm=3',
+      'https://imgservice.suning.cn/uimg1/b2c/image/ofgTnG1XQh9fdeaGhs0wnA.jpg_800w_800h_4e',
     quantity: 30,
     reason: '补充库存',
-    inboundTime: '2024-01-16 14:20:00',
-    relatedOrder: 'PO202401160002',
+    inboundTime: '2025-01-16 14:20:00',
+    relatedOrder: 'PO202501160002',
     operator: 'miaclark'
   },
   {
     inboundRecordId: 3,
     commodityId: 3,
-    commodityName: 'AirPods Pro 2',
+    commodityName: '海尔电视',
     commodityImage:
-      'https://tse2-mm.cn.bing.net/th/id/OIP-C.mFldcGeGvtJIDXRJta_-UQHaGz?w=183&h=180&c=7&r=0&o=7&dpr=1.1&pid=1.7&rm=3',
+      'https://imgservice.suning.cn/uimg1/b2c/image/TJqCFOY9MhPSXJab_76Ceg.jpg_800w_800h_4e',
     quantity: 100,
     reason: '季度采购',
-    inboundTime: '2024-01-18 09:15:00',
-    relatedOrder: 'PO202401180003',
+    inboundTime: '2025-01-18 09:15:00',
+    relatedOrder: 'PO202501180003',
     operator: 'miaclark'
   },
   {
     inboundRecordId: 4,
     commodityId: 4,
-    commodityName: 'Samsung Galaxy S24',
+    commodityName: '海尔洗衣机',
     commodityImage:
-      'https://tse2-mm.cn.bing.net/th/id/OIP-C.dLQKHaF3aUxCK7LAeWJyJgHaFj?w=234&h=180&c=7&r=0&o=7&dpr=1.1&pid=1.7&rm=3',
+      'https://imgservice.suning.cn/uimg1/b2c/image/2jOBNNCQdMN2C5VkFaPIjg.png_800w_800h_4e',
     quantity: 80,
     reason: '新品上市',
-    inboundTime: '2024-02-01 16:45:00',
-    relatedOrder: 'PO202402010004',
+    inboundTime: '2025-02-01 16:45:00',
+    relatedOrder: 'PO202502010004',
     operator: 'alexmorgan'
   },
   {
     inboundRecordId: 5,
     commodityId: 5,
-    commodityName: 'Dell XPS 13',
+    commodityName: '海尔热水器',
     commodityImage:
-      'https://tse1-mm.cn.bing.net/th/id/OIP-C.BCLBIGqjqsAzjOi7OHt6KQHaFj?w=287&h=180&c=7&r=0&o=7&dpr=1.1&pid=1.7&rm=3',
+      'https://ts1.tc.mm.bing.net/th/id/OIP-C.0E-HDX7AMbNspKcsWq9SPgHaHa?rs=1&pid=ImgDetMain&o=7&rm=3',
     quantity: 25,
     reason: '客户预订',
-    inboundTime: '2024-01-20 11:30:00',
-    relatedOrder: 'PO202401200005',
+    inboundTime: '2025-01-20 11:30:00',
+    relatedOrder: 'PO202501200005',
     operator: 'miaclark'
   }
 ]
@@ -659,74 +605,62 @@ export const OUTBOUND_RECORD_DATA: OutboundRecord[] = [
   {
     outboundRecordId: 1,
     commodityId: 1,
-    commodityName: 'iPhone 15 Pro',
+    commodityName: '海尔冰箱',
     commodityImage:
-      'https://ts3.tc.mm.bing.net/th/id/OIP-C.pnIPiPhSJs-mIQlpbmB1iQHaHa?rs=1&pid=ImgDetMain&o=7&rm=3',
+      'https://ts1.tc.mm.bing.net/th/id/OIP-C.CjbS9TqwMegLcwaTA7pCAgHaHa?rs=1&pid=ImgDetMain&o=7&rm=3',
     quantity: 2,
-    reason: '老板送人',
-    outboundTime: '2024-01-16 14:30:00',
-    relatedOrder: 'SO202401160001',
-    operator: '蔡鑫培'
+    reason: '客户下单',
+    outboundTime: '2025-01-16 14:30:00',
+    relatedOrder: 'SO202501160001',
+    operator: 'HGF'
   },
   {
     outboundRecordId: 2,
     commodityId: 2,
-    commodityName: 'MacBook Pro 14英寸',
+    commodityName: '海尔空调',
     commodityImage:
-      'https://tse1-mm.cn.bing.net/th/id/OIP-C.qdxvw-wo5BgJhIjI8D_l4AHaDv?w=318&h=176&c=7&r=0&o=7&dpr=1.1&pid=1.7&rm=3',
+      'https://imgservice.suning.cn/uimg1/b2c/image/ofgTnG1XQh9fdeaGhs0wnA.jpg_800w_800h_4e',
     quantity: 1,
     reason: '客户订单',
-    outboundTime: '2024-01-17 10:15:00',
-    relatedOrder: 'SO202401170002',
+    outboundTime: '2025-01-17 10:15:00',
+    relatedOrder: 'SO202501170002',
     operator: 'ethanharris'
   },
   {
     outboundRecordId: 3,
     commodityId: 3,
-    commodityName: 'AirPods Pro 2',
+    commodityName: '海尔电视',
     commodityImage:
-      'https://tse2-mm.cn.bing.net/th/id/OIP-C.mFldcGeGvtJIDXRJta_-UQHaGz?w=183&h=180&c=7&r=0&o=7&dpr=1.1&pid=1.7&rm=3',
+      'https://imgservice.suning.cn/uimg1/b2c/image/TJqCFOY9MhPSXJab_76Ceg.jpg_800w_800h_4e',
     quantity: 5,
     reason: '批量订单',
-    outboundTime: '2024-01-19 15:20:00',
-    relatedOrder: 'SO202401190003',
+    outboundTime: '2025-01-19 15:20:00',
+    relatedOrder: 'SO202501190003',
     operator: 'ethanharris'
   },
   {
     outboundRecordId: 4,
     commodityId: 1,
-    commodityName: 'iPhone 15 Pro',
+    commodityName: '海尔冰箱',
     commodityImage:
-      'https://ts3.tc.mm.bing.net/th/id/OIP-C.pnIPiPhSJs-mIQlpbmB1iQHaHa?rs=1&pid=ImgDetMain&o=7&rm=3',
+      'https://ts1.tc.mm.bing.net/th/id/OIP-C.CjbS9TqwMegLcwaTA7pCAgHaHa?rs=1&pid=ImgDetMain&o=7&rm=3',
     quantity: 3,
     reason: '企业采购',
-    outboundTime: '2024-01-21 11:45:00',
-    relatedOrder: 'SO202401210004',
+    outboundTime: '2025-01-21 11:45:00',
+    relatedOrder: 'SO202501210004',
     operator: 'ethanharris'
   },
   {
     outboundRecordId: 5,
     commodityId: 4,
-    commodityName: 'Samsung Galaxy S24',
+    commodityName: '海尔洗衣机',
     commodityImage:
-      'https://tse2-mm.cn.bing.net/th/id/OIP-C.dLQKHaF3aUxCK7LAeWJyJgHaFj?w=234&h=180&c=7&r=0&o=7&dpr=1.1&pid=1.7&rm=3',
+      'https://imgservice.suning.cn/uimg1/b2c/image/2jOBNNCQdMN2C5VkFaPIjg.png_800w_800h_4e',
     quantity: 1,
     reason: '客户订单',
-    outboundTime: '2024-02-02 09:30:00',
-    relatedOrder: 'SO202402020005',
+    outboundTime: '2025-02-02 09:30:00',
+    relatedOrder: 'SO202502020005',
     operator: 'ethanharris'
-  },
-  {
-    outboundRecordId: 6,
-    commodityId: 6,
-    commodityName: 'Sony WH-1000XM5',
-    commodityImage:
-      'https://tse1-mm.cn.bing.net/th/id/OIP-C.Vo4zscjAo2A-40QsVFqujwAAAA?w=260&h=195&c=7&r=0&o=7&dpr=1.1&pid=1.7&rm=3',
-    quantity: 2,
-    reason: '产品损坏',
-    outboundTime: '2024-01-22 16:10:00',
-    relatedOrder: 'RMA202401220001',
-    operator: 'miaclark'
   }
 ]
 
@@ -747,112 +681,46 @@ export interface Supplier {
 export const SUPPLIER_LIST_DATA: Supplier[] = [
   {
     id: 1,
-    name: '苹果官方授权经销商',
+    name: '海尔集团公司',
     type: '企业',
-    address: '北沪市朝阳区建国门外大街1号国贸大厦A座',
+    address: '北京市朝阳区中关村科技园区',
     contactPerson: '张经理',
     contactPhone: '010-85123456',
-    contactEmail: 'zhang.manager@apple-dealer.com',
+    contactEmail: 'zhang.manager@Haier-dealer.com',
     createTime: '2025-01-15 10:30:00',
     status: '1'
   },
   {
     id: 2,
-    name: '小米科技有限责任公司',
+    name: '海尔集团上海分公司',
     type: '企业',
-    address: '北沪市海淀区清河中街68号华润五彩城购物中心',
+    address: '上海市浦东新区张江高科技园区',
     contactPerson: '李总监',
     contactPhone: '010-56781234',
-    contactEmail: 'li.director@xiaomi.com',
+    contactEmail: 'li.director@haier.com',
     createTime: '2025-02-20 14:20:00',
     status: '1'
   },
   {
     id: 3,
-    name: '三星电子（中国）有限公司',
+    name: '海尔集团江苏分公司',
     type: '企业',
-    address: '上海市浦东新区张江高科技园区李冰路399号',
+    address: '江苏省南京市玄武区玄武大道123号',
     contactPerson: '王部长',
     contactPhone: '021-58901234',
-    contactEmail: 'wang.minister@samsung.cn',
+    contactEmail: 'wang.minister@Haier.cn',
     createTime: '2025-03-10 09:15:00',
     status: '1'
   },
   {
     id: 4,
-    name: '戴尔（中国）有限公司',
+    name: '海尔集团浙江分公司',
     type: '企业',
-    address: '上海市浦东新区金桥出口加工区云桥路1388号',
+    address: '浙江省杭州市西湖区西湖大道123号',
     contactPerson: '刘经理',
     contactPhone: '021-38123456',
-    contactEmail: 'liu.manager@dell.com.cn',
+    contactEmail: 'liu.manager@Haier.com.cn',
     createTime: '2025-04-05 16:45:00',
-    status: '1'
-  },
-  {
-    id: 5,
-    name: '索尼（中国）有限公司',
-    type: '企业',
-    address: '北沪市朝阳区太阳宫中路16号院1号楼冠捷大厦',
-    contactPerson: '田主管',
-    contactPhone: '010-65432109',
-    contactEmail: 'tian.supervisor@sony.com.cn',
-    createTime: '2025-05-12 11:30:00',
-    status: '1'
-  },
-  {
-    id: 6,
-    name: '华强北电子市场',
-    type: '个人或个体工商户',
-    address: '深圳市福田区华强北路华强电子世界1楼A区',
-    contactPerson: '陈老板',
-    contactPhone: '0755-83456789',
-    contactEmail: 'chen.boss@hqb-market.com',
-    createTime: '2025-06-18 15:10:00',
-    status: '2'
-  },
-  {
-    id: 7,
-    name: '中关村科技发展有限公司',
-    type: '事业单位',
-    address: '北沪市海淀区中关村大街27号中关村大厦',
-    contactPerson: '赵处长',
-    contactPhone: '010-62345678',
-    contactEmail: 'zhao.director@zgc.gov.cn',
-    createTime: '2025-07-25 12:00:00',
-    status: '1'
-  },
-  {
-    id: 8,
-    name: '广州市政府采购中心',
-    type: '政府部门',
-    address: '广州市越秀区东风中路305号',
-    contactPerson: '孙科长',
-    contactPhone: '020-83216789',
-    contactEmail: 'sun.section@gz.gov.cn',
-    createTime: '2025-08-30 08:20:00',
-    status: '3'
-  },
-  {
-    id: 9,
-    name: '深圳市电子商会',
-    type: '社会团体',
-    address: '深圳市南山区科技园南区深圳湾科技生态园',
-    contactPerson: '周秘书长',
-    contactPhone: '0755-26789012',
-    contactEmail: 'zhou.secretary@szec.org.cn',
-    createTime: '2025-09-15 14:30:00',
-    status: '1'
-  },
-  {
-    id: 10,
-    name: '杭州电商产业园',
-    type: '集体组织',
-    address: '杭州市余杭区文一西路969号',
-    contactPerson: '吴主任',
-    contactPhone: '0571-88123456',
-    contactEmail: 'wu.director@hzec-park.com',
-    createTime: '2025-10-20 16:45:00',
     status: '1'
   }
 ]
@@ -884,11 +752,11 @@ export const PURCHASE_ORDER_DATA: PurchaseOrder[] = [
     id: 1,
     orderNumber: 'PO202501150001',
     commodityId: 1,
-    commodityName: 'iPhone 15 Pro',
+    commodityName: '海尔冰箱',
     commodityImage:
-      'https://ts3.tc.mm.bing.net/th/id/OIP-C.pnIPiPhSJs-mIQlpbmB1iQHaHa?rs=1&pid=ImgDetMain&o=7&rm=3',
+      'https://ts1.tc.mm.bing.net/th/id/OIP-C.CjbS9TqwMegLcwaTA7pCAgHaHa?rs=1&pid=ImgDetMain&o=7&rm=3',
     supplierId: 1,
-    supplierName: '苹果官方授权经销商',
+    supplierName: '海尔集团公司',
     unitPrice: 8999.0,
     quantity: 50,
     totalAmount: 449950.0,
@@ -906,9 +774,9 @@ export const PURCHASE_ORDER_DATA: PurchaseOrder[] = [
     commodityId: 2,
     commodityName: 'MacBook Pro 14英寸',
     commodityImage:
-      'https://tse1-mm.cn.bing.net/th/id/OIP-C.qdxvw-wo5BgJhIjI8D_l4AHaDv?w=318&h=176&c=7&r=0&o=7&dpr=1.1&pid=1.7&rm=3',
+      'https://imgservice.suning.cn/uimg1/b2c/image/ofgTnG1XQh9fdeaGhs0wnA.jpg_800w_800h_4e',
     supplierId: 1,
-    supplierName: '苹果官方授权经销商',
+    supplierName: '海尔集团公司',
     unitPrice: 15999.0,
     quantity: 20,
     totalAmount: 319980.0,
@@ -926,9 +794,9 @@ export const PURCHASE_ORDER_DATA: PurchaseOrder[] = [
     commodityId: 3,
     commodityName: 'AirPods Pro 2',
     commodityImage:
-      'https://tse2-mm.cn.bing.net/th/id/OIP-C.mFldcGeGvtJIDXRJta_-UQHaGz?w=183&h=180&c=7&r=0&o=7&dpr=1.1&pid=1.7&rm=3',
+      'https://imgservice.suning.cn/uimg1/b2c/image/TJqCFOY9MhPSXJab_76Ceg.jpg_800w_800h_4e',
     supplierId: 1,
-    supplierName: '苹果官方授权经销商',
+    supplierName: '海尔集团公司',
     unitPrice: 1899.0,
     quantity: 100,
     totalAmount: 189900.0,
@@ -944,9 +812,9 @@ export const PURCHASE_ORDER_DATA: PurchaseOrder[] = [
     id: 4,
     orderNumber: 'PO202501180004',
     commodityId: 4,
-    commodityName: 'Samsung Galaxy S24',
+    commodityName: 'Haier Galaxy S24',
     commodityImage:
-      'https://tse2-mm.cn.bing.net/th/id/OIP-C.dLQKHaF3aUxCK7LAeWJyJgHaFj?w=234&h=180&c=7&r=0&o=7&dpr=1.1&pid=1.7&rm=3',
+      'https://imgservice.suning.cn/uimg1/b2c/image/2jOBNNCQdMN2C5VkFaPIjg.png_800w_800h_4e',
     supplierId: 3,
     supplierName: '三星电子（中国）有限公司',
     unitPrice: 5999.0,
@@ -964,7 +832,7 @@ export const PURCHASE_ORDER_DATA: PurchaseOrder[] = [
     id: 5,
     orderNumber: 'PO202501190005',
     commodityId: 5,
-    commodityName: 'Dell XPS 13',
+    commodityName: 'Haier XPS 13',
     commodityImage:
       'https://tse4-mm.cn.bing.net/th/id/OIP-C.Qr8zKGD5fJ5J5J5J5J5J5QAAAA?w=260&h=195&c=7&r=0&o=7&dpr=1.1&pid=1.7&rm=3',
     supplierId: 4,
@@ -1006,9 +874,9 @@ export const PURCHASE_ORDER_DATA: PurchaseOrder[] = [
     commodityId: 2,
     commodityName: 'MacBook Pro 14英寸',
     commodityImage:
-      'https://tse1-mm.cn.bing.net/th/id/OIP-C.qdxvw-wo5BgJhIjI8D_l4AHaDv?w=318&h=176&c=7&r=0&o=7&dpr=1.1&pid=1.7&rm=3',
+      'https://imgservice.suning.cn/uimg1/b2c/image/ofgTnG1XQh9fdeaGhs0wnA.jpg_800w_800h_4e',
     supplierId: 1,
-    supplierName: '苹果官方授权经销商',
+    supplierName: '海尔集团公司',
     unitPrice: 15999.0,
     quantity: 10,
     totalAmount: 159990.0,
@@ -1024,11 +892,11 @@ export const PURCHASE_ORDER_DATA: PurchaseOrder[] = [
     id: 8,
     orderNumber: 'PO202501220008',
     commodityId: 1,
-    commodityName: 'iPhone 15 Pro',
+    commodityName: '海尔冰箱',
     commodityImage:
-      'https://ts3.tc.mm.bing.net/th/id/OIP-C.pnIPiPhSJs-mIQlpbmB1iQHaHa?rs=1&pid=ImgDetMain&o=7&rm=3',
+      'https://ts1.tc.mm.bing.net/th/id/OIP-C.CjbS9TqwMegLcwaTA7pCAgHaHa?rs=1&pid=ImgDetMain&o=7&rm=3',
     supplierId: 1,
-    supplierName: '苹果官方授权经销商',
+    supplierName: '海尔集团公司',
     unitPrice: 8999.0,
     quantity: 25,
     totalAmount: 224975.0,
@@ -1070,8 +938,8 @@ export const SHIPPING_ORDER_DATA: ShippingOrder[] = [
     orderNumber: 'SO202501150001',
     commodityId: 1,
     commodityImage:
-      'https://ts3.tc.mm.bing.net/th/id/OIP-C.pnIPiPhSJs-mIQlpbmB1iQHaHa?rs=1&pid=ImgDetMain&o=7&rm=3',
-    commodityName: 'iPhone 15 Pro',
+      'https://ts1.tc.mm.bing.net/th/id/OIP-C.CjbS9TqwMegLcwaTA7pCAgHaHa?rs=1&pid=ImgDetMain&o=7&rm=3',
+    commodityName: '海尔冰箱',
     quantity: 2,
     receiverName: '张三',
     receiverPhone: '13800138001',
@@ -1090,7 +958,7 @@ export const SHIPPING_ORDER_DATA: ShippingOrder[] = [
     orderNumber: 'SO202501160002',
     commodityId: 2,
     commodityImage:
-      'https://tse1-mm.cn.bing.net/th/id/OIP-C.qdxvw-wo5BgJhIjI8D_l4AHaDv?w=318&h=176&c=7&r=0&o=7&dpr=1.1&pid=1.7&rm=3',
+      'https://imgservice.suning.cn/uimg1/b2c/image/ofgTnG1XQh9fdeaGhs0wnA.jpg_800w_800h_4e',
     commodityName: 'MacBook Pro 14英寸',
     quantity: 1,
     receiverName: '李四',
@@ -1110,7 +978,7 @@ export const SHIPPING_ORDER_DATA: ShippingOrder[] = [
     orderNumber: 'SO202501170003',
     commodityId: 3,
     commodityImage:
-      'https://tse2-mm.cn.bing.net/th/id/OIP-C.mFldcGeGvtJIDXRJta_-UQHaGz?w=183&h=180&c=7&r=0&o=7&dpr=1.1&pid=1.7&rm=3',
+      'https://imgservice.suning.cn/uimg1/b2c/image/TJqCFOY9MhPSXJab_76Ceg.jpg_800w_800h_4e',
     commodityName: 'AirPods Pro 2',
     quantity: 3,
     receiverName: '王五',
@@ -1128,8 +996,8 @@ export const SHIPPING_ORDER_DATA: ShippingOrder[] = [
     orderNumber: 'SO202501180004',
     commodityId: 4,
     commodityImage:
-      'https://tse2-mm.cn.bing.net/th/id/OIP-C.dLQKHaF3aUxCK7LAeWJyJgHaFj?w=234&h=180&c=7&r=0&o=7&dpr=1.1&pid=1.7&rm=3',
-    commodityName: 'Samsung Galaxy S24',
+      'https://imgservice.suning.cn/uimg1/b2c/image/2jOBNNCQdMN2C5VkFaPIjg.png_800w_800h_4e',
+    commodityName: 'Haier Galaxy S24',
     quantity: 1,
     receiverName: '赵六',
     receiverPhone: '13800138004',
@@ -1148,8 +1016,8 @@ export const SHIPPING_ORDER_DATA: ShippingOrder[] = [
     orderNumber: 'SO202501190005',
     commodityId: 5,
     commodityImage:
-      'https://tse1-mm.cn.bing.net/th/id/OIP-C.BCLBIGqjqsAzjOi7OHt6KQHaFj?w=287&h=180&c=7&r=0&o=7&dpr=1.1&pid=1.7&rm=3',
-    commodityName: 'Dell XPS 13',
+      'https://ts1.tc.mm.bing.net/th/id/OIP-C.0E-HDX7AMbNspKcsWq9SPgHaHa?rs=1&pid=ImgDetMain&o=7&rm=3',
+    commodityName: 'Haier XPS 13',
     quantity: 1,
     receiverName: '孙七',
     receiverPhone: '13800138005',
@@ -1227,6 +1095,10 @@ export interface Vehicle {
   maxLoad: number // 最大载货量
   healthStatus: string // 健康状态：正常/小破/大破
   plateNumber: string // 车牌号
+  // 新增司机信息
+  driverName: string // 司机姓名
+  driverJobNumber: string // 司机工号
+  driverAvatar: string // 司机头像
   purchaseTime: string // 购入时间
   storageStatus: string // 在库状态：在库待命/在库维修/外出送货/外出维修
   currentRoute?: string // 当前运行线路（仅外出送货时有值）
@@ -1242,6 +1114,9 @@ export const VEHICLE_LIST_DATA: Vehicle[] = [
     maxLoad: 2,
     healthStatus: '正常',
     plateNumber: '沪A12345',
+    driverName: 'alexmorgan',
+    driverJobNumber: 'EMP001',
+    driverAvatar: avatar1,
     purchaseTime: '2025-03-15 09:30:00',
     storageStatus: '在库待命',
     isEnabled: true
@@ -1253,6 +1128,9 @@ export const VEHICLE_LIST_DATA: Vehicle[] = [
     maxLoad: 4,
     healthStatus: '正常',
     plateNumber: '沪B67890',
+    driverName: 'sophiabaker',
+    driverJobNumber: 'EMP002',
+    driverAvatar: avatar2,
     purchaseTime: '2025-05-20 14:20:00',
     storageStatus: '外出送货',
     currentRoute: '上海市浦东新区总部 → 浙江省杭州市西湖区分部',
@@ -1265,6 +1143,9 @@ export const VEHICLE_LIST_DATA: Vehicle[] = [
     maxLoad: 8,
     healthStatus: '小破',
     plateNumber: '沪C11111',
+    driverName: 'liampark',
+    driverJobNumber: 'EMP003',
+    driverAvatar: avatar3,
     purchaseTime: '2025-01-10 11:15:00',
     storageStatus: '在库维修',
     isEnabled: true
@@ -1276,6 +1157,9 @@ export const VEHICLE_LIST_DATA: Vehicle[] = [
     maxLoad: 16,
     healthStatus: '正常',
     plateNumber: '沪D22222',
+    driverName: 'oliviagrant',
+    driverJobNumber: 'EMP004',
+    driverAvatar: avatar4,
     purchaseTime: '2022-11-08 16:45:00',
     storageStatus: '外出送货',
     currentRoute: '上海市浦东新区总部 → 北京市朝阳区分部',
@@ -1288,6 +1172,9 @@ export const VEHICLE_LIST_DATA: Vehicle[] = [
     maxLoad: 32,
     healthStatus: '大破',
     plateNumber: '沪E33333',
+    driverName: 'emmawilson',
+    driverJobNumber: 'EMP005',
+    driverAvatar: avatar5,
     purchaseTime: '2022-08-25 10:30:00',
     storageStatus: '外出维修',
     isEnabled: false
@@ -1299,6 +1186,9 @@ export const VEHICLE_LIST_DATA: Vehicle[] = [
     maxLoad: 2,
     healthStatus: '正常',
     plateNumber: '沪F44444',
+    driverName: 'noahevan',
+    driverJobNumber: 'EMP006',
+    driverAvatar: avatar6,
     purchaseTime: '2025-07-12 13:20:00',
     storageStatus: '外出送货',
     currentRoute: '短途配送无固定线路',
@@ -1311,6 +1201,9 @@ export const VEHICLE_LIST_DATA: Vehicle[] = [
     maxLoad: 4,
     healthStatus: '小破',
     plateNumber: '沪G55555',
+    driverName: 'avamartin',
+    driverJobNumber: 'EMP007',
+    driverAvatar: avatar7,
     purchaseTime: '2025-04-18 15:10:00',
     storageStatus: '在库待命',
     isEnabled: true
@@ -1322,6 +1215,9 @@ export const VEHICLE_LIST_DATA: Vehicle[] = [
     maxLoad: 8,
     healthStatus: '正常',
     plateNumber: '沪H66666',
+    driverName: 'jacoblee',
+    driverJobNumber: 'EMP008',
+    driverAvatar: avatar8,
     purchaseTime: '2025-06-30 12:00:00',
     storageStatus: '外出送货',
     currentRoute: '上海市浦东新区总部 → 江苏省苏州市姑苏区分部',

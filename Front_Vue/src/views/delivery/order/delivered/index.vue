@@ -109,7 +109,7 @@
 
 <script setup lang="ts">
   import { h } from 'vue'
-  import { SHIPPING_ORDER_DATA } from '@/mock/temp/formData'
+  import { SHIPPING_ORDER_DATA } from '@/mock/formData'
   import { ElDialog, ElImage, ElTag, ElButton } from 'element-plus'
   import { useCheckedColumns } from '@/composables/useCheckedColumns'
   import ArtButtonTable from '@/components/core/forms/art-button-table/index.vue'

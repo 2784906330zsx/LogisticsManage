@@ -82,7 +82,7 @@
 <script setup lang="ts">
   import { ElMessage, ElMessageBox } from 'element-plus'
   import type { FormInstance, FormRules } from 'element-plus'
-  import { Department, DEPARTMENT_LIST_DATA } from '@/mock/temp/formData'
+  import { Department, DEPARTMENT_LIST_DATA } from '@/mock/formData'
   import { ButtonMoreItem } from '@/components/core/forms/art-button-more/index.vue'
 
   defineOptions({ name: 'Department' })

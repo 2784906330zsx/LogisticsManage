@@ -13,7 +13,7 @@
         <!-- 表格头部 -->
         <ArtTableHeader v-model:columns="columnChecks" @refresh="handleRefresh">
           <template #left>
-            <ElButton @click="showDialog('add')">新增用户</ElButton>
+            <ElButton @click="showDialog('add')">新增员工</ElButton>
           </template>
         </ArtTableHeader>
 
@@ -38,7 +38,7 @@
 
         <ElDialog
           v-model="dialogVisible"
-          :title="dialogType === 'add' ? '添加用户' : '编辑用户'"
+          :title="dialogType === 'add' ? '添加员工' : '编辑员工'"
           width="30%"
           align-center
         >
@@ -49,7 +49,7 @@
             <ElFormItem label="工号" prop="jobNumber">
               <ElInput v-model="formData.jobNumber" />
             </ElFormItem>
-            <ElFormItem label="联系电话" prop="phone">
+            <ElFormItem label="联系手机号" prop="phone">
               <ElInput v-model="formData.phone" />
             </ElFormItem>
             <ElFormItem label="邮箱" prop="email">
@@ -103,7 +103,7 @@
 
 <script setup lang="ts">
   import { h } from 'vue'
-  import { ROLE_LIST_DATA, ACCOUNT_TABLE_DATA, DEPARTMENT_LIST_DATA } from '@/mock/temp/formData'
+  import { ROLE_LIST_DATA, ACCOUNT_TABLE_DATA, DEPARTMENT_LIST_DATA } from '@/mock/formData'
 
   import { ElDialog, FormInstance, ElTag } from 'element-plus'
   import { ElMessageBox, ElMessage } from 'element-plus'
@@ -174,7 +174,7 @@
   // 表单配置项
   const formItems: SearchFormItem[] = [
     {
-      label: '用户名',
+      label: '姓名',
       prop: 'name',
       type: 'input',
       config: {
@@ -183,7 +183,7 @@
       onChange: handleFormChange
     },
     {
-      label: '电话',
+      label: '手机号',
       prop: 'phone',
       type: 'input',
       config: {
@@ -316,9 +316,9 @@
     }
   }
 
-  // 删除用户
+  // 删除员工
   const deleteUser = () => {
-    ElMessageBox.confirm('确定要删除该用户吗？', '删除用户', {
+    ElMessageBox.confirm('确定要删除该员工吗？', '删除员工', {
       confirmButtonText: '确定',
       cancelButtonText: '取消',
       type: 'error'
@@ -332,7 +332,7 @@
     { type: 'selection' }, // 勾选列
     {
       prop: 'avatar',
-      label: '用户名',
+      label: '姓名',
       minWidth: width.value < 500 ? 220 : '',
       formatter: (row: any) => {
         return h('div', { class: 'user', style: 'display: flex; align-items: center' }, [
@@ -412,7 +412,7 @@
     getDepartmentList()
   })
 
-  // 获取用户列表数据
+  // 获取员工列表数据
   const getUserList = async () => {
     loading.value = true
     try {
@@ -435,7 +435,7 @@
       // 更新分页信息
       Object.assign(pagination, { currentPage: current, pageSize: size, total })
     } catch (error) {
-      console.error('获取用户列表失败:', error)
+      console.error('获取员工列表失败:', error)
     } finally {
       loading.value = false
     }
@@ -461,7 +461,7 @@
   // 表单验证规则
   const rules = reactive<FormRules>({
     username: [
-      { required: true, message: '请输入用户名', trigger: 'blur' },
+      { required: true, message: '请输入姓名', trigger: 'blur' },
       { min: 2, max: 20, message: '长度在 2 到 20 个字符', trigger: 'blur' }
     ],
     jobNumber: [{ required: true, message: '请输入工号', trigger: 'blur' }],

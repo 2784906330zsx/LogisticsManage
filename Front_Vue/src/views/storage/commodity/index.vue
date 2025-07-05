@@ -85,7 +85,7 @@
 
 <script setup lang="ts">
   import { h } from 'vue'
-  import { COMMODITY_LIST_DATA } from '@/mock/temp/formData'
+  import { COMMODITY_LIST_DATA } from '@/mock/formData'
   import { ElDialog, FormInstance, ElTag, ElImage } from 'element-plus'
   import { ElMessageBox, ElMessage } from 'element-plus'
   import type { FormRules } from 'element-plus'

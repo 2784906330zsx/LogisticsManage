@@ -90,7 +90,7 @@
 
 <script setup lang="ts">
   import { h } from 'vue'
-  import { INBOUND_RECORD_DATA, COMMODITY_LIST_DATA } from '@/mock/temp/formData'
+  import { INBOUND_RECORD_DATA, COMMODITY_LIST_DATA } from '@/mock/formData'
   import { ElDialog, FormInstance, ElImage } from 'element-plus'
   import { ElMessageBox, ElMessage } from 'element-plus'
   import type { FormRules } from 'element-plus'
