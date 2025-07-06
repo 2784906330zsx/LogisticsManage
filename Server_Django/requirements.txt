@@ -2,3 +2,5 @@ Django
 dj_database_url
 dotenv
 mysqlclient
+PyJWT
+django-cors-headers

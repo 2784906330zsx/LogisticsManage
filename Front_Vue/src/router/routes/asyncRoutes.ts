@@ -15,16 +15,6 @@ import { AppRouteRecord } from '@/types/router'
  * 路由元数据（meta）：异步路由在 asyncRoutes 中配置，静态路由在 staticRoutes 中配置
  */
 export const asyncRoutes: AppRouteRecord[] = [
-  // {
-  //   name: 'Dashboard',
-  //   path: '/dashboard',
-  //   component: RoutesAlias.Home,
-  //   meta: {
-  //     title: 'menus.dashboard.title',
-  //     icon: '&#xe721;',
-  //     roles: ['R_SUPER']
-  //   }
-  // },
   {
     path: '/user',
     name: 'User',
@@ -38,7 +28,7 @@ export const asyncRoutes: AppRouteRecord[] = [
       {
         path: 'person',
         name: 'Person',
-        component: RoutesAlias.User,
+        component: RoutesAlias.User, // 指向 '/user/user'
         meta: {
           title: 'menus.user.person',
           keepAlive: true,

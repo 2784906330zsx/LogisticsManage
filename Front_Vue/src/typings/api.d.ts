@@ -51,12 +51,16 @@ declare namespace Api {
     /** 用户信息 */
     interface UserInfo {
       userId: number
+      gender: number
       userName: string
+      jobNumber: string
+      position: string
+      department: string
       roles: string[]
       buttons: string[]
-      avatar?: string
-      email?: string
-      phone?: string
+      avatar: string
+      email: string
+      phone: string
     }
 
     /** 用户列表数据 */
@@ -65,6 +69,19 @@ declare namespace Api {
       current: number
       size: number
       total: number
+    }
+
+    /** 角色 */
+    interface Role {
+      roleId: number
+      roleName: string
+      roleCode: string
+      roleDesc: string
+      createBy: string
+      createTime: string
+      updateBy: string
+      updateTime: string
+      delFlag: number
     }
   }
 }

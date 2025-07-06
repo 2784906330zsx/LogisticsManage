@@ -6,205 +6,23 @@ import avatar5 from '@/assets/img/avatar/avatar5.webp'
 import avatar6 from '@/assets/img/avatar/avatar6.webp'
 import avatar7 from '@/assets/img/avatar/avatar7.webp'
 import avatar8 from '@/assets/img/avatar/avatar8.webp'
-import avatar9 from '@/assets/img/avatar/avatar9.webp'
-import avatar10 from '@/assets/img/avatar/avatar10.webp'
+// import avatar9 from '@/assets/img/avatar/avatar9.webp'
+// import avatar10 from '@/assets/img/avatar/avatar10.webp'
 
 export interface User {
-  id: number
-  username: string
-  gender: 1 | 0
-  mobile: string
-  email: string
-  dep: string
-  status: string
-  jobNumber: string // 工号
+  userId: number //员工工号
+  username: string //员工姓名
+  gender: 1 | 0 //性别
+  mobile: string //手机号
+  email: string //邮箱
+  department: string //所属部门
   position: string // 职务
-  avatar: string
+  status: 1 | 2 | 3 // 1: 在职, 2: 休假, 3: 离职
+  avatar: string //头像
 }
 
 // 用户列表
-export const ACCOUNT_TABLE_DATA: User[] = [
-  {
-    id: 1,
-    username: 'alexmorgan',
-    gender: 1,
-    mobile: '18670001591',
-    email: 'alexmorgan@company.com',
-    dep: '研发部',
-    status: '1', // 1: 在职, 2: 休假, 3: 离职
-    jobNumber: 'EMP001',
-    position: '超级管理员',
-    avatar: avatar1
-  },
-  {
-    id: 2,
-    username: 'sophiabaker',
-    gender: 1,
-    mobile: '17766664444',
-    email: 'sophiabaker@company.com',
-    dep: '电商部',
-    status: '1',
-    jobNumber: 'EMP002',
-    position: '订单管理员',
-    avatar: avatar2
-  },
-  {
-    id: 3,
-    username: 'liampark',
-    gender: 1,
-    mobile: '18670001597',
-    email: 'liampark@company.com',
-    dep: '人事部',
-    status: '2',
-    jobNumber: 'EMP003',
-    position: '用户信息管理员',
-    avatar: avatar3
-  },
-  {
-    id: 4,
-    username: 'oliviagrant',
-    gender: 1,
-    mobile: '18670001596',
-    email: 'oliviagrant@company.com',
-    dep: '产品部',
-    status: '1',
-    jobNumber: 'EMP004',
-    position: '普通用户',
-    avatar: avatar4
-  },
-  {
-    id: 5,
-    username: 'emmawilson',
-    gender: 1,
-    mobile: '18670001595',
-    email: 'emmawilson@company.com',
-    dep: '财务部',
-    status: '3',
-    jobNumber: 'EMP005',
-    position: '财务管理员',
-    avatar: avatar5
-  },
-  {
-    id: 6,
-    username: 'noahevan',
-    gender: 1,
-    mobile: '18670001594',
-    email: 'noahevan@company.com',
-    dep: '运营部',
-    status: '3',
-    jobNumber: 'EMP006',
-    position: '普通用户',
-    avatar: avatar6
-  },
-  {
-    id: 7,
-    username: 'avamartin',
-    gender: 1,
-    mobile: '18123820191',
-    email: 'avamartin@company.com',
-    dep: '客服部',
-    status: '2',
-    jobNumber: 'EMP007',
-    position: '普通用户',
-    avatar: avatar7
-  },
-  {
-    id: 8,
-    username: 'jacoblee',
-    gender: 1,
-    mobile: '18670001592',
-    email: 'jacoblee@company.com',
-    dep: '总经办',
-    status: '1',
-    jobNumber: 'EMP008',
-    position: '超级管理员',
-    avatar: avatar8
-  },
-  {
-    id: 9,
-    username: 'miaclark',
-    gender: 0,
-    mobile: '18670001581',
-    email: 'miaclark@company.com',
-    dep: '研发部',
-    status: '1',
-    jobNumber: 'EMP009',
-    position: '仓储作业管理员',
-    avatar: avatar9
-  },
-  {
-    id: 10,
-    username: 'ethanharris',
-    gender: 1,
-    mobile: '13755554444',
-    email: 'ethanharris@company.com',
-    dep: '研发部',
-    status: '1',
-    jobNumber: 'EMP010',
-    position: '配送运输管理员',
-    avatar: avatar10
-  },
-  {
-    id: 11,
-    username: 'isabellamoore',
-    gender: 1,
-    mobile: '13766660000',
-    email: 'isabellamoore@company.com',
-    dep: '研发部',
-    status: '1',
-    jobNumber: 'EMP011',
-    position: '采购与供应商管理员',
-    avatar: avatar6
-  },
-  {
-    id: 12,
-    username: 'masonwhite',
-    gender: 1,
-    mobile: '18670001502',
-    email: 'masonwhite@company.com',
-    dep: '研发部',
-    status: '1',
-    jobNumber: 'EMP012',
-    position: '普通用户',
-    avatar: avatar7
-  },
-  {
-    id: 13,
-    username: 'charlottehall',
-    gender: 1,
-    mobile: '13006644977',
-    email: 'charlottehall@company.com',
-    dep: '研发部',
-    status: '1',
-    jobNumber: 'EMP013',
-    position: '普通用户',
-    avatar: avatar8
-  },
-  {
-    id: 14,
-    username: 'benjaminscott',
-    gender: 0,
-    mobile: '13599998888',
-    email: 'benjaminscott@company.com',
-    dep: '研发部',
-    status: '1',
-    jobNumber: 'EMP014',
-    position: '普通用户',
-    avatar: avatar9
-  },
-  {
-    id: 15,
-    username: 'ameliaking',
-    gender: 1,
-    mobile: '13799998888',
-    email: 'ameliaking@company.com',
-    dep: '研发部',
-    status: '1',
-    jobNumber: 'EMP015',
-    position: '普通用户',
-    avatar: avatar10
-  }
-]
+export const ACCOUNT_TABLE_DATA: User[] = []
 
 export interface Role {
   roleName: string
@@ -340,72 +158,7 @@ export interface Department {
 }
 
 // 部门列表
-export const DEPARTMENT_LIST_DATA: Department[] = [
-  {
-    departmentName: '总经办',
-    departmentCode: 'D_GENERAL',
-    des: '负责公司整体管理和决策',
-    date: '2025-07-01 12:34:56',
-    enable: true
-  },
-  {
-    departmentName: '人事管理部',
-    departmentCode: 'D_HR',
-    des: '负责人事管理和员工招聘',
-    date: '2025-07-01 12:34:56',
-    enable: true
-  },
-  {
-    departmentName: '订单管理部',
-    departmentCode: 'D_ORDER',
-    des: '负责订单管理和处理',
-    date: '2025-07-01 12:34:56',
-    enable: true
-  },
-  {
-    departmentName: '配送管理部',
-    departmentCode: 'D_DELIVERY',
-    des: '负责配送管理和运输',
-    date: '2025-07-01 12:34:56',
-    enable: true
-  },
-  {
-    departmentName: '仓储管理部',
-    departmentCode: 'D_STORAGE',
-    des: '负责仓储资源管理',
-    date: '2025-07-01 12:34:56',
-    enable: true
-  },
-  {
-    departmentName: '采购管理部',
-    departmentCode: 'D_PURCHASE',
-    des: '负责采购管理和供应商对接',
-    date: '2025-07-01 12:34:56',
-    enable: true
-  },
-  {
-    departmentName: '财务管理部',
-    departmentCode: 'D_FINANCE',
-    des: '负责财务管理和会计核算',
-    date: '2025-07-01 12:34:56',
-    enable: true
-  },
-  {
-    departmentName: '客服售后部',
-    departmentCode: 'D_SERVICE',
-    des: '负责客户服务和支持',
-    date: '2025-07-01 12:34:56',
-    enable: false
-  },
-
-  {
-    departmentName: '电商运营部',
-    departmentCode: 'D_ECOMMERCE',
-    des: '负责电商平台运营',
-    date: '2025-07-01 12:34:56',
-    enable: false
-  }
-]
+export const DEPARTMENT_LIST_DATA: Department[] = []
 
 export interface Commodity {
   id: number

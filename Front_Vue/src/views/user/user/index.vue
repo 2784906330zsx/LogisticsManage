@@ -103,7 +103,7 @@
 
 <script setup lang="ts">
   import { h } from 'vue'
-  import { ROLE_LIST_DATA, ACCOUNT_TABLE_DATA, DEPARTMENT_LIST_DATA } from '@/mock/formData'
+  import { ROLE_LIST_DATA, DEPARTMENT_LIST_DATA } from '@/mock/formData'
 
   import { ElDialog, FormInstance, ElTag } from 'element-plus'
   import { ElMessageBox, ElMessage } from 'element-plus'
@@ -418,24 +418,29 @@
     try {
       const { currentPage, pageSize } = pagination
 
-      const { records, current, size, total } = await UserService.getUserList({
+      // 构建请求参数，包含搜索条件
+      const params = {
         current: currentPage,
-        size: pageSize
-      })
+        size: pageSize,
+        ...formFilters // 添加搜索条件
+      }
 
-      // 使用本地头像和新增字段替换接口返回的数据
-      tableData.value = records.map((item: any, index: number) => ({
-        ...item,
-        avatar: ACCOUNT_TABLE_DATA[index % ACCOUNT_TABLE_DATA.length].avatar,
-        jobNumber: ACCOUNT_TABLE_DATA[index % ACCOUNT_TABLE_DATA.length].jobNumber,
-        position: ACCOUNT_TABLE_DATA[index % ACCOUNT_TABLE_DATA.length].position,
-        dep: ACCOUNT_TABLE_DATA[index % ACCOUNT_TABLE_DATA.length].dep
-      }))
+      const response = await UserService.getUserList(params)
 
-      // 更新分页信息
-      Object.assign(pagination, { currentPage: current, pageSize: size, total })
+      if (response.code === 200) {
+        const { records, current, size, total } = response.data
+
+        // 直接使用后端返回的数据
+        tableData.value = records
+
+        // 更新分页信息
+        Object.assign(pagination, { currentPage: current, pageSize: size, total })
+      } else {
+        ElMessage.error(response.msg || '获取用户列表失败')
+      }
     } catch (error) {
       console.error('获取员工列表失败:', error)
+      ElMessage.error('获取用户列表失败')
     } finally {
       loading.value = false
     }

@@ -42,11 +42,21 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    # CORS
+    "corsheaders",
     # MyApps
+    "Auth.apps.AuthConfig",
     "Core.apps.CoreConfig",
+    "Delivery.apps.DeliveryConfig",
+    "Finance.apps.FinanceConfig",
+    "Order.apps.OrderConfig",
+    "Purchase.apps.PurchaseConfig",
+    "Storage.apps.StorageConfig",
+    "User.apps.UserConfig",
 ]
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -54,7 +64,20 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    # "Auth.views.middleware.JWTAuthenticationMiddleware",  # 可选：启用JWT中间件
 ]
+
+# CORS配置
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://localhost:3006",  # 添加这一行
+    "http://127.0.0.1:3006",  # 添加这一行
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+]
+
+CORS_ALLOW_CREDENTIALS = True
 
 ROOT_URLCONF = "Server_Django.urls"
 

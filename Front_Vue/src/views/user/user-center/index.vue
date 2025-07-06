@@ -4,18 +4,18 @@
       <div class="left-wrap">
         <div class="user-wrap box-style">
           <img class="bg" src="@imgs/user/bg.webp" />
-          <img class="avatar" src="@imgs/user/avatar.webp" />
+          <img class="avatar" :src="form.avatar" />
           <div class="name-container">
             <h2 class="name">{{ userInfo.userName }}</h2>
             <div class="tags-container">
               <el-tag
                 size="small"
-                :type="form.sex === '1' ? 'primary' : 'danger'"
+                :type="form.gender === 1 ? 'primary' : 'danger'"
                 effect="light"
                 class="gender-tag"
               >
-                <i class="iconfont-sys">{{ form.sex === '1' ? '&#xe81f;' : '&#xe81e;' }}</i>
-                {{ form.sex === '1' ? '男' : '女' }}
+                <i class="iconfont-sys">{{ form.gender === 1 ? '&#xe81f;' : '&#xe81e;' }}</i>
+                {{ form.gender === 1 ? '男' : '女' }}
               </el-tag>
               <el-tag size="small" type="success" effect="light" class="position-tag">
                 {{ form.position }}
@@ -25,20 +25,21 @@
 
           <div class="outer-info">
             <div>
+              <i class="iconfont-sys">&#xe82f;</i>
+              <span>工号：{{ form.jobNumber }}</span>
+            </div>
+            <div>
               <i class="iconfont-sys">&#xe72e;</i>
-              <span>example@mall.com</span>
+              <span>邮箱：{{ form.email }}</span>
+            </div>
+
+            <div>
+              <i class="iconfont-sys">&#xe776;</i>
+              <span>电话：{{ form.phone }}</span>
             </div>
             <div>
-              <i class="iconfont-sys">&#xe736;</i>
-              <span>{{ form.jobNumber }}</span>
-            </div>
-            <div>
-              <i class="iconfont-sys">&#xe608;</i>
-              <span>{{ form.position }}</span>
-            </div>
-            <div>
-              <i class="iconfont-sys">&#xe608;</i>
-              <span>{{ form.department }}</span>
+              <i class="iconfont-sys">&#xe884;</i>
+              <span>部门：{{ form.department }}</span>
             </div>
           </div>
         </div>
@@ -56,11 +57,11 @@
             label-position="top"
           >
             <ElRow>
-              <ElFormItem label="姓名" prop="realName">
-                <el-input v-model="form.realName" :disabled="!isEdit" />
+              <ElFormItem label="姓名" prop="userName">
+                <el-input v-model="form.userName" :disabled="!isEdit" />
               </ElFormItem>
-              <ElFormItem label="性别" prop="sex" class="right-input">
-                <ElSelect v-model="form.sex" placeholder="Select" :disabled="!isEdit">
+              <ElFormItem label="性别" prop="gender" class="right-input">
+                <ElSelect v-model="form.gender" placeholder="Select" :disabled="!isEdit">
                   <ElOption
                     v-for="item in options"
                     :key="item.value"
@@ -72,8 +73,8 @@
             </ElRow>
 
             <ElRow>
-              <ElFormItem label="手机" prop="mobile">
-                <ElInput v-model="form.mobile" :disabled="!isEdit" />
+              <ElFormItem label="手机" prop="phone">
+                <ElInput v-model="form.phone" :disabled="!isEdit" />
               </ElFormItem>
               <ElFormItem label="邮箱" prop="email" class="right-input">
                 <ElInput v-model="form.email" :disabled="!isEdit" />
@@ -133,6 +134,7 @@
 
 <script setup lang="ts">
   import { useUserStore } from '@/store/modules/user'
+  import { UserService } from '@/api/usersApi'
   import { ElForm, ElTag, FormInstance, FormRules } from 'element-plus'
 
   defineOptions({ name: 'UserCenter' })
@@ -142,51 +144,121 @@
 
   const isEdit = ref(false)
   const isEditPwd = ref(false)
+  const loading = ref(false)
+
+  // 修改form数据结构，与UserInfo类型完全一致
   const form = reactive({
-    realName: 'SuperAdmin',
-    email: '59301283@mall.com',
-    mobile: '18888888888',
-    sex: '1',
-    jobNumber: 'EMP001',
-    position: '系统管理员',
-    department: '信息技术部'
+    userId: 0,
+    gender: 1,
+    userName: '',
+    jobNumber: '',
+    position: '',
+    department: '',
+    roles: [] as string[],
+    buttons: [] as string[],
+    avatar: '',
+    email: '',
+    phone: ''
   })
 
   const pwdForm = reactive({
-    password: '123456',
-    newPassword: '123456',
-    confirmPassword: '123456'
+    password: '',
+    newPassword: '',
+    confirmPassword: ''
   })
+
+  // 初始化用户信息
+  const initUserInfo = () => {
+    const info = userInfo.value
+    if (info) {
+      form.userId = info.userId || 0
+      form.gender = info.gender || 1
+      form.userName = info.userName || ''
+      form.jobNumber = info.jobNumber || ''
+      form.position = info.position || ''
+      form.department = info.department || ''
+      form.roles = info.roles || []
+      form.buttons = info.buttons || []
+      form.avatar = info.avatar || ''
+      form.email = info.email || ''
+      form.phone = info.phone || ''
+    }
+  }
+
+  // 获取用户信息
+  const fetchUserInfo = async () => {
+    try {
+      loading.value = true
+      const response = await UserService.getUserInfo()
+      if (response.code === 200) {
+        userStore.setUserInfo(response.data)
+        initUserInfo()
+      }
+    } catch (error) {
+      console.error('获取用户信息失败:', error)
+    } finally {
+      loading.value = false
+    }
+  }
+
+  // 页面加载时获取用户信息
+  onMounted(() => {
+    if (!userInfo.value || !userInfo.value.userId) {
+      fetchUserInfo()
+    } else {
+      initUserInfo()
+    }
+  })
+
+  // 监听userInfo变化
+  watch(
+    userInfo,
+    () => {
+      initUserInfo()
+    },
+    { deep: true }
+  )
 
   const ruleFormRef = ref<FormInstance>()
 
   const rules = reactive<FormRules>({
-    realName: [
+    userName: [
       { required: true, message: '请输入姓名', trigger: 'blur' },
       { min: 2, max: 50, message: '长度在 2 到 30 个字符', trigger: 'blur' }
     ],
     email: [{ required: true, message: '请输入邮箱', trigger: 'blur' }],
-    mobile: [{ required: true, message: '请输入手机号码', trigger: 'blur' }],
-    sex: [{ type: 'array', required: true, message: '请选择性别', trigger: 'blur' }]
+    phone: [{ required: true, message: '请输入手机号码', trigger: 'blur' }],
+    gender: [{ required: true, message: '请选择性别', trigger: 'blur' }]
   })
 
   const options = [
-    {
-      value: '1',
-      label: '男'
-    },
-    {
-      value: '2',
-      label: '女'
-    }
+    { value: 1, label: '男' },
+    { value: 2, label: '女' }
   ]
 
-  const edit = () => {
-    isEdit.value = !isEdit.value
+  const edit = async () => {
+    if (isEdit.value) {
+      // 保存逻辑
+      if (!ruleFormRef.value) return
+      const valid = await ruleFormRef.value.validate()
+      if (valid) {
+        // TODO: 调用更新用户信息API
+        console.log('保存用户信息:', form)
+        isEdit.value = false
+      }
+    } else {
+      isEdit.value = true
+    }
   }
 
   const editPwd = () => {
-    isEditPwd.value = !isEditPwd.value
+    if (isEditPwd.value) {
+      // TODO: 调用修改密码API
+      console.log('修改密码:', pwdForm)
+      isEditPwd.value = false
+    } else {
+      isEditPwd.value = true
+    }
   }
 </script>
 
@@ -290,6 +362,7 @@
               .position-tag {
                 border-radius: 12px;
                 font-weight: 500;
+                color: #2d5a27; /* 添加深绿色字体颜色 */
               }
             }
           }
