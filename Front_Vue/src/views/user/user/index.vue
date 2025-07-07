@@ -312,6 +312,7 @@
   }
 
   // 显示对话框
+  // 显示对话框
   const showDialog = (type: string, row?: any) => {
     dialogVisible.value = true
     dialogType.value = type
@@ -321,18 +322,20 @@
       formRef.value.resetFields()
     }
 
+    // 在 showDialog 函数中，修复性别赋值逻辑
     if (type === 'edit' && row) {
       currentEditUserId.value = row.userId
       formData.username = row.userName
       formData.jobNumber = row.jobNumber
-      formData.phone = row.userPhone
-      formData.email = row.userEmail
+      formData.phone = row.phone
+      formData.email = row.email
       formData.avatar = row.avatar || ''
-      formData.gender = row.userGender === 1 ? '男' : '女'
+      // 修复性别赋值逻辑，确保正确转换数字到字符串
+      formData.gender = row.gender === 1 ? '男' : '女'
       formData.department = row.dep
       formData.position = row.position
       formData.status = row.status
-      formData.password = '' // 编辑时不显示密码
+      formData.password = ''
     } else {
       formData.username = ''
       formData.jobNumber = ''
@@ -340,7 +343,7 @@
       formData.email = ''
       formData.password = ''
       formData.avatar = ''
-      formData.gender = '男'
+      formData.gender = ''
       formData.department = ''
       formData.position = ''
       formData.status = '1'
@@ -393,16 +396,16 @@
       sortable: true
     },
     {
-      prop: 'userEmail',
+      prop: 'email', // 改为使用 email
       label: '邮箱'
     },
     {
-      prop: 'userGender',
+      prop: 'gender', // 改为使用 gender
       label: '性别',
       sortable: true,
-      formatter: (row) => (row.userGender === 1 ? '男' : '女')
+      formatter: (row) => (row.gender === 1 || row.gender === '1' ? '男' : '女') // 改为使用 row.gender
     },
-    { prop: 'userPhone', label: '手机号' },
+    { prop: 'phone', label: '手机号' }, // 改为使用 phone
     {
       prop: 'dep',
       label: '部门'

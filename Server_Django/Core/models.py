@@ -6,12 +6,12 @@ from decimal import Decimal
 class User(AbstractUser):
     # username、password、email由AbstractUser提供
     job_number = models.CharField(max_length=20, verbose_name='员工工号')
-    gender = models.IntegerField(null=True, verbose_name='性别')
-    mobile = models.CharField(null=True, max_length=20, verbose_name='手机号')
+    gender = models.IntegerField(verbose_name='性别')
+    mobile = models.CharField(max_length=20, verbose_name='手机号')
     # department = models.IntegerField(verbose_name='所属部门的ID')
-    position = models.IntegerField(null=True, verbose_name='职务的ID')
-    status = models.IntegerField(null=True, verbose_name='状态')
-    avatar = models.URLField(null=True, verbose_name='头像')
+    position = models.IntegerField(verbose_name='职务的ID')
+    status = models.IntegerField(verbose_name='状态')
+    avatar = models.URLField(verbose_name='头像')
 
     class Meta:
         db_table = 'User'

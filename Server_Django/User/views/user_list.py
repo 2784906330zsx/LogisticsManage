@@ -91,21 +91,17 @@ class UserListView(View):
 
                 user_data = {
                     'userId': user.id,
-                    'gender': user.gender or 1,
+                    'gender': user.gender,
                     'userName': user.username,
                     'jobNumber': user.job_number or '',
                     'position': position_name,
                     'department': department_name,
-                    'roles': ['user'],  # 默认角色
-                    'buttons': [],  # 按钮权限
+                    'roles': ['user'],
+                    'buttons': [],
                     'avatar': user.avatar or '',
                     'email': user.email or '',
                     'phone': user.mobile or '',
-                    'registerTime': user.date_joined.strftime('%Y-%m-%d %H:%M:%S') if user.date_joined else '',  # 添加注册时间
-                    # 额外字段用于前端表格显示
-                    'userEmail': user.email or '',
-                    'userGender': user.gender or 1,
-                    'userPhone': user.mobile or '',
+                    'registerTime': user.date_joined.strftime('%Y-%m-%d %H:%M:%S') if user.date_joined else '',
                     'dep': department_name,
                     'status': str(user.status or 1)
                 }
