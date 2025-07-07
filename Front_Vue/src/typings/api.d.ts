@@ -40,10 +40,10 @@ declare namespace Api {
     }
 
     /** 登录响应 */
-    interface LoginResponse {
+    type LoginResponse = Api.Http.BaseResponse<{
       token: string
       refreshToken: string
-    }
+    }>
   }
 
   /** 用户类型 */
@@ -69,19 +69,6 @@ declare namespace Api {
       current: number
       size: number
       total: number
-    }
-
-    /** 角色 */
-    interface Role {
-      roleId: number
-      roleName: string
-      roleCode: string
-      roleDesc: string
-      createBy: string
-      createTime: string
-      updateBy: string
-      updateTime: string
-      delFlag: number
     }
   }
 }

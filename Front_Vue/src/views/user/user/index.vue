@@ -49,7 +49,7 @@
             <ElFormItem label="工号" prop="jobNumber">
               <ElInput v-model="formData.jobNumber" />
             </ElFormItem>
-            <ElFormItem label="联系手机号" prop="phone">
+            <ElFormItem label="手机号" prop="phone">
               <ElInput v-model="formData.phone" />
             </ElFormItem>
             <ElFormItem label="邮箱" prop="email">
@@ -87,6 +87,12 @@
                 <ElOption label="休假" value="2" />
                 <ElOption label="离职" value="3" />
               </ElSelect>
+            </ElFormItem>
+            <ElFormItem label="密码" prop="password" v-if="dialogType === 'add'">
+              <ElInput v-model="formData.password" type="password" show-password />
+            </ElFormItem>
+            <ElFormItem label="头像URL" prop="avatar">
+              <ElInput v-model="formData.avatar" placeholder="请输入头像URL" />
             </ElFormItem>
           </ElForm>
           <template #footer>
@@ -296,19 +302,24 @@
     }
 
     if (type === 'edit' && row) {
-      formData.username = row.username
+      currentEditUserId.value = row.userId
+      formData.username = row.userName
       formData.jobNumber = row.jobNumber
       formData.phone = row.userPhone
       formData.email = row.userEmail
+      formData.avatar = row.avatar || ''
       formData.gender = row.userGender === 1 ? '男' : '女'
       formData.department = row.dep
       formData.position = row.position
       formData.status = row.status
+      formData.password = '' // 编辑时不显示密码
     } else {
       formData.username = ''
       formData.jobNumber = ''
       formData.phone = ''
       formData.email = ''
+      formData.password = ''
+      formData.avatar = ''
       formData.gender = '男'
       formData.department = ''
       formData.position = ''
@@ -317,14 +328,29 @@
   }
 
   // 删除员工
-  const deleteUser = () => {
+  const deleteUser = async (row: any) => {
     ElMessageBox.confirm('确定要删除该员工吗？', '删除员工', {
       confirmButtonText: '确定',
       cancelButtonText: '取消',
       type: 'error'
-    }).then(() => {
-      ElMessage.success('删除成功')
     })
+      .then(async () => {
+        try {
+          const response = await UserService.deleteUser(row.userId)
+          if (response.code === 200) {
+            ElMessage.success('删除成功')
+            getUserList() // 刷新列表
+          } else {
+            ElMessage.error(response.msg || '删除失败')
+          }
+        } catch (error) {
+          console.error('删除用户失败:', error)
+          ElMessage.error('删除失败，请重试')
+        }
+      })
+      .catch(() => {
+        // 用户取消删除
+      })
   }
 
   // 动态列配置
@@ -384,7 +410,7 @@
           }),
           h(ArtButtonTable, {
             type: 'delete',
-            onClick: () => deleteUser()
+            onClick: () => deleteUser(row)
           })
         ])
       }
@@ -400,6 +426,8 @@
     jobNumber: '',
     phone: '',
     email: '',
+    password: '',
+    avatar: '',
     gender: '',
     department: '',
     position: '',
@@ -481,20 +509,77 @@
     gender: [{ required: true, message: '请选择性别', trigger: 'change' }],
     department: [{ required: true, message: '请选择部门', trigger: 'change' }],
     position: [{ required: true, message: '请选择职务', trigger: 'change' }],
-    status: [{ required: true, message: '请选择状态', trigger: 'change' }]
+    status: [{ required: true, message: '请选择状态', trigger: 'change' }],
+    password: [
+      { required: true, message: '请输入密码', trigger: 'blur' },
+      { min: 6, max: 20, message: '密码长度在 6 到 20 个字符', trigger: 'blur' }
+    ],
+    avatar: [{ type: 'url', message: '请输入正确的URL格式', trigger: 'blur' }]
   })
 
   // 提交表单
   const handleSubmit = async () => {
     if (!formRef.value) return
 
-    await formRef.value.validate((valid) => {
+    await formRef.value.validate(async (valid) => {
       if (valid) {
-        ElMessage.success(dialogType.value === 'add' ? '添加成功' : '更新成功')
-        dialogVisible.value = false
+        try {
+          if (dialogType.value === 'add') {
+            // 新增用户
+            const createData = {
+              username: formData.username,
+              jobNumber: formData.jobNumber,
+              phone: formData.phone,
+              email: formData.email,
+              password: formData.password,
+              avatar: formData.avatar,
+              gender: formData.gender,
+              department: formData.department,
+              position: formData.position,
+              status: formData.status
+            }
+
+            const response = await UserService.createUser(createData)
+            if (response.code === 200) {
+              ElMessage.success('新增成功')
+              getUserList() // 刷新列表
+            } else {
+              ElMessage.error(response.msg || '新增失败')
+            }
+          } else {
+            // 更新用户信息
+            const updateData = {
+              userId: currentEditUserId.value,
+              username: formData.username,
+              jobNumber: formData.jobNumber,
+              phone: formData.phone,
+              email: formData.email,
+              avatar: formData.avatar,
+              gender: formData.gender,
+              department: formData.department,
+              position: formData.position,
+              status: formData.status
+            }
+
+            const response = await UserService.updateUserInfo(updateData)
+            if (response.code === 200) {
+              ElMessage.success('更新成功')
+              getUserList() // 刷新列表
+            } else {
+              ElMessage.error(response.msg || '更新失败')
+            }
+          }
+          dialogVisible.value = false
+        } catch (error) {
+          console.error('提交失败:', error)
+          ElMessage.error('操作失败，请重试')
+        }
       }
     })
   }
+
+  // 需要添加一个变量来存储当前编辑的用户ID
+  const currentEditUserId = ref(null)
 
   // 处理表格分页变化
   const handleSizeChange = (newPageSize: number) => {

@@ -143,10 +143,17 @@
       // 登录请求
       const { username, password } = formData
 
-      const { token, refreshToken } = await UserService.login({
+      const response = await UserService.login({
         userName: username,
         password
       })
+
+      // 检查响应状态
+      if (response.code !== 200) {
+        throw new Error(response.msg || 'Login failed')
+      }
+
+      const { token, refreshToken } = response.data
 
       // 验证token
       if (!token) {
@@ -155,8 +162,15 @@
 
       // 存储token和用户信息
       userStore.setToken(token, refreshToken)
-      const userInfo = await UserService.getUserInfo()
-      userStore.setUserInfo(userInfo)
+
+      // 修改这里：正确处理 getUserInfo 的响应
+      const userInfoResponse = await UserService.getUserInfo()
+      if (userInfoResponse.code === 200) {
+        userStore.setUserInfo(userInfoResponse.data)
+      } else {
+        throw new Error(userInfoResponse.msg || 'Failed to get user info')
+      }
+
       userStore.setLoginStatus(true)
 
       // 登录成功处理

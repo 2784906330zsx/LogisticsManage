@@ -19,11 +19,7 @@
       <template #default>
         <ElTableColumn label="角色名称" prop="roleName" />
         <ElTableColumn label="角色编码" prop="roleCode" />
-        <ElTableColumn label="所属部门" prop="departmentCode">
-          <template #default="scope">
-            {{ getDepartmentName(scope.row.departmentCode) }}
-          </template>
-        </ElTableColumn>
+        <ElTableColumn label="所属部门" prop="departmentName" />
         <ElTableColumn label="描述" prop="des" />
         <ElTableColumn label="启用" prop="enable">
           <template #default="scope">
@@ -72,9 +68,9 @@
           <ElSelect v-model="form.departmentCode" placeholder="请选择部门">
             <ElOption
               v-for="dept in departmentList"
-              :key="dept.departmentCode"
+              :key="dept.id || dept.departmentCode"
               :label="dept.departmentName"
-              :value="dept.departmentCode"
+              :value="dept.id || Number(dept.departmentCode)"
             />
           </ElSelect>
         </ElFormItem>
@@ -139,8 +135,9 @@
   import { ElMessage, ElMessageBox } from 'element-plus'
   import type { FormInstance, FormRules } from 'element-plus'
   import { formatMenuTitle } from '@/router/utils/utils'
-  import { Role, ROLE_LIST_DATA, Department, DEPARTMENT_LIST_DATA } from '@/mock/formData'
+  import { Role, Department, DEPARTMENT_LIST_DATA } from '@/mock/formData'
   import { ButtonMoreItem } from '@/components/core/forms/art-button-more/index.vue'
+  import { UserService } from '@/api/usersApi'
 
   defineOptions({ name: 'Role' })
 
@@ -194,68 +191,73 @@
   })
 
   const form = reactive<Role>({
+    id: undefined, // 添加id属性
     roleName: '',
     roleCode: '',
     des: '',
     date: '',
     enable: true,
-    departmentCode: ''
+    departmentCode: 0 // 改为number类型的默认值
   })
 
   const roleList = ref<Role[]>([])
   const departmentList = ref<Department[]>([])
+  const loading = ref(false)
+  const pagination = reactive({
+    current: 1,
+    size: 20,
+    total: 0
+  })
 
   onMounted(() => {
     getTableData()
     getDepartmentList()
   })
 
-  const getTableData = () => {
-    roleList.value = ROLE_LIST_DATA
+  const getTableData = async () => {
+    try {
+      loading.value = true
+      const response = await UserService.getRoleList({
+        current: pagination.current,
+        size: pagination.size
+      })
+
+      if (response.code === 200) {
+        roleList.value = response.data.records
+        pagination.total = response.data.total
+        pagination.current = response.data.current
+        pagination.size = response.data.size
+      } else {
+        ElMessage.error(response.msg || '获取角色列表失败')
+      }
+    } catch (error) {
+      ElMessage.error('获取角色列表失败')
+      console.error('获取角色列表错误:', error)
+    } finally {
+      loading.value = false
+    }
   }
 
-  const getDepartmentList = () => {
-    departmentList.value = DEPARTMENT_LIST_DATA
-  }
+  const getDepartmentList = async () => {
+    try {
+      const response = await UserService.getDepartmentList({
+        current: 1,
+        size: 100 // 获取所有部门用于下拉选择
+      })
 
-  // 根据部门编码获取部门名称
-  const getDepartmentName = (departmentCode: string) => {
-    const department = departmentList.value.find((dept) => dept.departmentCode === departmentCode)
-    return department ? department.departmentName : '未知部门'
+      if (response.code === 200) {
+        departmentList.value = response.data.records
+      } else {
+        ElMessage.error(response.msg || '获取部门列表失败')
+      }
+    } catch (error) {
+      console.error('获取部门列表错误:', error)
+      // 如果API调用失败，回退到mock数据
+      departmentList.value = DEPARTMENT_LIST_DATA
+    }
   }
 
   const dialogType = ref('add')
-
-  const showDialog = (type: string, row?: any) => {
-    dialogVisible.value = true
-    dialogType.value = type
-
-    if (type === 'edit' && row) {
-      form.roleName = row.roleName
-      form.roleCode = row.roleCode
-      form.des = row.des
-      form.date = row.date
-      form.enable = row.enable
-      form.departmentCode = row.departmentCode
-    } else {
-      form.roleName = ''
-      form.roleCode = ''
-      form.des = ''
-      form.date = ''
-      form.enable = true
-      form.departmentCode = ''
-    }
-  }
-
-  const buttonMoreClick = (item: ButtonMoreItem, row: any) => {
-    if (item.key === 'permission') {
-      showPermissionDialog()
-    } else if (item.key === 'edit') {
-      showDialog('edit', row)
-    } else if (item.key === 'delete') {
-      deleteRole()
-    }
-  }
 
   const showPermissionDialog = () => {
     permissionDialog.value = true
@@ -266,27 +268,101 @@
     label: (data: any) => formatMenuTitle(data.meta?.title) || ''
   }
 
-  const deleteRole = () => {
+  const deleteRole = (row: any) => {
     ElMessageBox.confirm('确定删除该角色吗？', '删除确认', {
       confirmButtonText: '确定',
       cancelButtonText: '取消',
       type: 'error'
-    }).then(() => {
-      ElMessage.success('删除成功')
+    }).then(async () => {
+      try {
+        const response = await UserService.deleteRole({ id: row.id })
+        if (response.code === 200) {
+          ElMessage.success('删除成功')
+          getTableData() // 刷新列表
+        } else {
+          ElMessage.error(response.msg || '删除失败')
+        }
+      } catch (error) {
+        ElMessage.error('删除失败')
+        console.error('删除角色错误:', error)
+      }
     })
   }
 
   const handleSubmit = async (formEl: FormInstance | undefined) => {
     if (!formEl) return
 
-    await formEl.validate((valid) => {
+    await formEl.validate(async (valid) => {
       if (valid) {
-        const message = dialogType.value === 'add' ? '新增成功' : '修改成功'
-        ElMessage.success(message)
-        dialogVisible.value = false
-        formEl.resetFields()
+        try {
+          let response
+          if (dialogType.value === 'add') {
+            response = await UserService.addRole({
+              roleName: form.roleName,
+              roleCode: form.roleCode,
+              des: form.des,
+              departmentCode: Number(form.departmentCode), // 确保转换为number
+              enable: form.enable
+            })
+          } else {
+            response = await UserService.updateRole({
+              id: form.id!,
+              roleName: form.roleName,
+              roleCode: form.roleCode,
+              des: form.des,
+              departmentCode: Number(form.departmentCode), // 确保转换为number
+              enable: form.enable
+            })
+          }
+
+          if (response.code === 200) {
+            const message = dialogType.value === 'add' ? '新增成功' : '修改成功'
+            ElMessage.success(message)
+            dialogVisible.value = false
+            formEl.resetFields()
+            getTableData() // 刷新列表
+          } else {
+            ElMessage.error(response.msg || '操作失败')
+          }
+        } catch (error) {
+          ElMessage.error('操作失败')
+          console.error('角色操作错误:', error)
+        }
       }
     })
+  }
+
+  const buttonMoreClick = (item: ButtonMoreItem, row: any) => {
+    if (item.key === 'permission') {
+      showPermissionDialog()
+    } else if (item.key === 'edit') {
+      showDialog('edit', row)
+    } else if (item.key === 'delete') {
+      deleteRole(row)
+    }
+  }
+
+  const showDialog = (type: string, row?: any) => {
+    dialogVisible.value = true
+    dialogType.value = type
+
+    if (type === 'edit' && row) {
+      form.id = row.id
+      form.roleName = row.roleName
+      form.roleCode = row.roleCode
+      form.des = row.des
+      form.date = row.date
+      form.enable = row.enable
+      form.departmentCode = Number(row.departmentCode) // 确保转换为number
+    } else {
+      form.id = undefined
+      form.roleName = ''
+      form.roleCode = ''
+      form.des = ''
+      form.date = ''
+      form.enable = true
+      form.departmentCode = 0 // 改为number类型的默认值
+    }
   }
 
   const savePermission = () => {

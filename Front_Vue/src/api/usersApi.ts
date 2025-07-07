@@ -33,18 +33,112 @@ export class UserService {
     })
   }
 
+  // 获取角色列表
+  static getRoleList(params: Api.Common.PaginatingParams) {
+    return request.get<Api.Http.BaseResponse<any>>({
+      url: '/api/role/list',
+      params
+    })
+  }
+
   //修改用户信息
-  static updateUserInfo(params: Api.User.UserInfo) {
+  static updateUserInfo(params: any) {
     return request.post<Api.Http.BaseResponse>({
       url: '/api/user/update',
       params
     })
   }
 
-  //获取角色列表
-  static getRoleList() {
-    return request.get<Api.Http.BaseResponse<Api.User.Role[]>>({
-      url: '/api/user/role/list'
+  //新增用户
+  static createUser(params: any) {
+    return request.post<Api.Http.BaseResponse>({
+      url: '/api/user/create',
+      params
+    })
+  }
+
+  //删除用户
+  static deleteUser(userId: number) {
+    return request.del<Api.Http.BaseResponse>({
+      url: `/api/user/delete?userId=${userId}`
+    })
+  }
+
+  // 获取部门列表
+  static getDepartmentList(params: Api.Common.PaginatingParams) {
+    return request.get<Api.Http.BaseResponse<any>>({
+      url: '/api/department/list',
+      params
+    })
+  }
+
+  // 新增部门
+  static addDepartment(data: {
+    departmentName: string
+    des: string
+    enable: boolean
+  }): Promise<Api.Http.BaseResponse<any>> {
+    return request.post<Api.Http.BaseResponse<any>>({
+      url: '/api/department/manage',
+      data
+    })
+  }
+
+  // 修改部门
+  static updateDepartment(data: {
+    id: number
+    departmentName: string
+    des: string
+    enable: boolean
+  }): Promise<Api.Http.BaseResponse<any>> {
+    return request.put<Api.Http.BaseResponse<any>>({
+      url: '/api/department/manage',
+      data
+    })
+  }
+
+  // 删除部门
+  static deleteDepartment(data: { id: number }): Promise<Api.Http.BaseResponse<any>> {
+    return request.del<Api.Http.BaseResponse<any>>({
+      url: '/api/department/manage',
+      data
+    })
+  }
+
+  // 新增角色
+  static addRole(data: {
+    roleName: string
+    roleCode: string
+    des: string
+    departmentCode: number
+    enable: boolean
+  }): Promise<Api.Http.BaseResponse<any>> {
+    return request.post<Api.Http.BaseResponse<any>>({
+      url: '/api/role/manage',
+      data
+    })
+  }
+
+  // 修改角色
+  static updateRole(data: {
+    id: number
+    roleName: string
+    roleCode: string
+    des: string
+    departmentCode: number
+    enable: boolean
+  }): Promise<Api.Http.BaseResponse<any>> {
+    return request.put<Api.Http.BaseResponse<any>>({
+      url: '/api/role/manage',
+      data
+    })
+  }
+
+  // 删除角色
+  static deleteRole(data: { id: number }): Promise<Api.Http.BaseResponse<any>> {
+    return request.del<Api.Http.BaseResponse<any>>({
+      url: '/api/role/manage',
+      data
     })
   }
 }

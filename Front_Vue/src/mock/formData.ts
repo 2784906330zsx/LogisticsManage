@@ -25,133 +25,22 @@ export interface User {
 export const ACCOUNT_TABLE_DATA: User[] = []
 
 export interface Role {
+  id?: number // 添加可选的id属性
   roleName: string
   roleCode: string
   des: string
   date: string
   enable: boolean
-  departmentCode: string // 所属部门编码
+  departmentCode: number // 修改为number类型
 }
 
 // 角色列表
-export const ROLE_LIST_DATA: Role[] = [
-  {
-    roleName: '超级管理员',
-    roleCode: 'R_SUPER',
-    des: '拥有系统最高权限',
-    date: '2025-07-01 12:34:56',
-    enable: true,
-    departmentCode: 'D_GENERAL' // 总经办
-  },
-  {
-    roleName: '人事管理员',
-    roleCode: 'R_USER_INFO',
-    des: '管理用户信息相关权限',
-    date: '2025-07-01 12:34:56',
-    enable: true,
-    departmentCode: 'D_HR' // 人事管理部
-  },
-  {
-    roleName: '订单管理员',
-    roleCode: 'R_ORDER',
-    des: '管理订单相关权限',
-    date: '2025-07-01 12:34:56',
-    enable: true,
-    departmentCode: 'D_ORDER' // 订单管理部
-  },
-  {
-    roleName: '配送运输管理员',
-    roleCode: 'R_DELIVERY',
-    des: '管理配送运输相关权限',
-    date: '2025-07-01 12:34:56',
-    enable: true,
-    departmentCode: 'D_DELIVERY' // 配送管理部
-  },
-  {
-    roleName: '仓储作业管理员',
-    roleCode: 'R_STORAGE',
-    des: '管理仓储作业权限',
-    date: '2025-07-01 12:34:56',
-    enable: true,
-    departmentCode: 'D_STORAGE' // 仓储管理部
-  },
-  {
-    roleName: '采购与供应商管理员',
-    roleCode: 'R_PURCHASE',
-    des: '管理采购与供应商相关权限',
-    date: '2025-07-01 12:34:56',
-    enable: true,
-    departmentCode: 'D_PURCHASE' // 采购管理部
-  },
-  {
-    roleName: '财务管理员',
-    roleCode: 'R_FINANCE',
-    des: '管理财务相关权限',
-    date: '2025-07-01 12:34:56',
-    enable: true,
-    departmentCode: 'D_FINANCE' // 财务管理部
-  },
-  {
-    roleName: '人事管理部员工',
-    roleCode: 'E_USER_INFO',
-    des: '拥有系统普通权限',
-    date: '2025-07-01 12:34:56',
-    enable: true,
-    departmentCode: 'D_HR'
-  },
-  {
-    roleName: '客服与售后员工',
-    roleCode: 'E_SERVICE',
-    des: '客服与售后员工权限',
-    date: '2025-07-01 12:34:56',
-    enable: true,
-    departmentCode: 'D_SERVICE' // 客服售后部
-  },
-  {
-    roleName: '财务员工',
-    roleCode: 'E_FINANCE',
-    des: '财务员工权限',
-    date: '2025-07-01 12:34:56',
-    enable: true,
-    departmentCode: 'D_FINANCE' // 财务管理部
-  },
-  {
-    roleName: '订单员',
-    roleCode: 'E_ORDER',
-    des: '订单员权限',
-    date: '2025-07-01 12:34:56',
-    enable: true,
-    departmentCode: 'D_ORDER' // 订单管理部
-  },
-  {
-    roleName: '配送员',
-    roleCode: 'E_DELIVERY',
-    des: '配送员权限',
-    date: '2025-07-01 12:34:56',
-    enable: true,
-    departmentCode: 'D_DELIVERY' // 配送管理部
-  },
-  {
-    roleName: '仓储员',
-    roleCode: 'E_STORAGE',
-    des: '仓储员权限',
-    date: '2025-07-01 12:34:56',
-    enable: true,
-    departmentCode: 'D_STORAGE' // 仓储管理部
-  },
-  {
-    roleName: '采购员',
-    roleCode: 'E_PURCHASE',
-    des: '采购员权限',
-    date: '2025-07-01 12:34:56',
-    enable: true,
-    departmentCode: 'D_PURCHASE' // 采购管理部
-  }
-]
+export const ROLE_LIST_DATA: Role[] = []
 
 export interface Department {
+  id?: number // 添加可选的id属性
   departmentName: string
-  departmentCode: string
+  departmentCode: number // 修改为number类型
   des: string
   date: string
   enable: boolean

@@ -109,7 +109,7 @@ function shouldRetry(statusCode: number): boolean {
 }
 
 // 请求函数
-async function request<T = any>(config: ExtendedAxiosRequestConfig): Promise<T> {
+async function request<T = any>(config: ExtendedAxiosRequestConfig): Promise<Api.Http.BaseResponse<T>> {
   // 对 POST | PUT 请求特殊处理
   if (config.method?.toUpperCase() === 'POST' || config.method?.toUpperCase() === 'PUT') {
     if (config.params && !config.data) {
@@ -120,7 +120,7 @@ async function request<T = any>(config: ExtendedAxiosRequestConfig): Promise<T> 
 
   try {
     const res = await axiosInstance.request<Api.Http.BaseResponse<T>>(config)
-    return res.data.data as T
+    return res.data // 返回完整的响应对象，而不是 res.data.data
   } catch (error) {
     if (error instanceof HttpError) {
       // 根据配置决定是否显示错误消息
