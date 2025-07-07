@@ -24,23 +24,32 @@ class LoginView(View):
         try:
             # 解析请求数据
             data = json.loads(request.body)
-            username = data.get('userName')
+            job_number = data.get('jobNumber')  # 改为获取工号
             password = data.get('password')
 
             # 参数验证
-            if not username or not password:
+            if not job_number or not password:
                 return JsonResponse({
                     'code': 400,
-                    'msg': '用户名和密码不能为空',
+                    'msg': '工号和密码不能为空',  # 修改提示信息
                     'data': None
                 }, status=400)
 
-            # 用户认证
-            user = authenticate(request, username=username, password=password)
-            if not user:
+            # 根据工号查找用户
+            try:
+                user = User.objects.get(job_number=job_number)
+            except User.DoesNotExist:
                 return JsonResponse({
                     'code': 401,
-                    'msg': '用户名或密码错误',
+                    'msg': '工号或密码错误',
+                    'data': None
+                }, status=401)
+
+            # 验证密码
+            if not user.check_password(password):
+                return JsonResponse({
+                    'code': 401,
+                    'msg': '工号或密码错误',
                     'data': None
                 }, status=401)
 
@@ -48,14 +57,16 @@ class LoginView(View):
             token_payload = {
                 'user_id': user.id,
                 'username': user.username,
-                'exp': datetime.utcnow() + timedelta(hours=24),  # 24小时过期
+                'job_number': user.job_number,  # 添加工号到token
+                'exp': datetime.utcnow() + timedelta(hours=24),
                 'iat': datetime.utcnow()
             }
 
             refresh_payload = {
                 'user_id': user.id,
                 'username': user.username,
-                'exp': datetime.utcnow() + timedelta(days=7),  # 7天过期
+                'job_number': user.job_number,  # 添加工号到refresh token
+                'exp': datetime.utcnow() + timedelta(days=7),
                 'iat': datetime.utcnow(),
                 'type': 'refresh'
             }

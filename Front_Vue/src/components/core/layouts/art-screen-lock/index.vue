@@ -239,10 +239,7 @@
       ) {
         if (!devtools.open) {
           devtools.open = true
-          // 检测到开发者工具打开，可以在这里添加额外的处理逻辑
           console.clear()
-          document.body.innerHTML =
-            '<div style="position:fixed;top:0;left:0;width:100%;height:100%;background:#000;color:#fff;display:flex;align-items:center;justify-content:center;font-size:24px;z-index:99999;">系统已锁定，请勿尝试打开开发者工具</div>'
         }
       } else {
         devtools.open = false

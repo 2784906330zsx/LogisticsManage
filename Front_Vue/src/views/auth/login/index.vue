@@ -43,8 +43,8 @@
             @keyup.enter="handleSubmit"
             style="margin-top: 25px"
           >
-            <ElFormItem prop="username">
-              <ElInput :placeholder="$t('login.placeholder[0]')" v-model.trim="formData.username" />
+            <ElFormItem prop="jobNumber">
+              <ElInput placeholder="请输入工号" v-model.trim="formData.jobNumber" />
             </ElFormItem>
             <ElFormItem prop="password">
               <ElInput
@@ -116,14 +116,16 @@
   const systemName = AppConfig.systemInfo.name
   const formRef = ref<FormInstance>()
 
+  // 修改表单数据
   const formData = reactive({
-    username: 'admin',
+    jobNumber: '100001',
     password: 'admin666',
     rememberPassword: true
   })
 
+  // 修改验证规则
   const rules = computed<FormRules>(() => ({
-    username: [{ required: true, message: t('login.placeholder[0]'), trigger: 'blur' }],
+    jobNumber: [{ required: true, message: '请输入工号', trigger: 'blur' }],
     password: [{ required: true, message: t('login.placeholder[1]'), trigger: 'blur' }]
   }))
 
@@ -141,10 +143,11 @@
       loading.value = true
 
       // 登录请求
-      const { username, password } = formData
+      // 在 handleSubmit 函数中
+      const { jobNumber, password } = formData
 
       const response = await UserService.login({
-        userName: username,
+        jobNumber: jobNumber, // 改为发送工号
         password
       })
 
@@ -193,12 +196,13 @@
   // 登录成功提示
   const showLoginSuccessNotice = () => {
     setTimeout(() => {
+      const userName = userStore.getUserInfo.userName || '用户'
       ElNotification({
         title: t('login.success.title'),
         type: 'success',
         duration: 2500,
         zIndex: 10000,
-        message: `${t('login.success.message')}, ${systemName}!`
+        message: `${t('login.success.message')}, ${userName}!`
       })
     }, 150)
   }

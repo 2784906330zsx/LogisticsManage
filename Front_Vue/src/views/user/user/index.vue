@@ -47,7 +47,7 @@
               <ElInput v-model="formData.username" />
             </ElFormItem>
             <ElFormItem label="工号" prop="jobNumber">
-              <ElInput v-model="formData.jobNumber" />
+              <ElInput v-model="formData.jobNumber" :disabled="dialogType === 'edit'" />
             </ElFormItem>
             <ElFormItem label="手机号" prop="phone">
               <ElInput v-model="formData.phone" />
@@ -682,7 +682,7 @@
             const updateData = {
               userId: currentEditUserId.value,
               username: formData.username,
-              jobNumber: formData.jobNumber,
+              // jobNumber: formData.jobNumber,
               phone: formData.phone,
               email: formData.email,
               avatar: formData.avatar,

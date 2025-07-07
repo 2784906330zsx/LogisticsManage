@@ -133,11 +133,8 @@ class UserUpdateView(View):
                     'data': None
                 })
 
-            # 更新用户基本信息
             if 'username' in data:
                 target_user.username = data['username']
-            if 'jobNumber' in data:
-                target_user.job_number = data['jobNumber']
             if 'phone' in data:
                 target_user.mobile = data['phone']
             if 'email' in data:
