@@ -25,6 +25,14 @@ CREATE TABLE `Commodity` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+-- 插入商品数据到 Commodity 表
+INSERT INTO `Commodity` (`name`, `image`, `brand`, `description`, `status`, `price`, `stock`, `total_inbound`, `total_outbound`, `supplier`, `create_time`, `last_update_time`, `storage_area`) VALUES
+('海尔冰箱', 'https://ts1.tc.mm.bing.net/th/id/OIP-C.CjbS9TqwMegLcwaTA7pCAgHaHa?rs=1&pid=ImgDetMain&o=7&rm=3', 'Haier', '海尔冰箱，遥遥领先', '1', 3999.00, 0, 0, 0, '海尔集团公司', '2025-01-15 10:30:00', '2025-01-20 14:30:00', 'A区-L1层-01号'),
+('海尔空调', 'https://imgservice.suning.cn/uimg1/b2c/image/ofgTnG1XQh9fdeaGhs0wnA.jpg_800w_800h_4e', 'Haier', '海尔空调，遥遥领先', '1', 2999.00, 0, 0, 0, '海尔集团公司', '2025-01-10 14:20:00', '2025-01-18 16:45:00', 'A区-L2层-03号'),
+('海尔电视', 'https://imgservice.suning.cn/uimg1/b2c/image/TJqCFOY9MhPSXJab_76Ceg.jpg_800w_800h_4e', 'Haier', '海尔电视，遥遥领先', '2', 3999.00, 0, 0, 0, '海尔集团公司', '2025-01-08 09:15:00', '2025-01-19 11:20:00', 'B区-L1层-05号'),
+('海尔洗衣机', 'https://imgservice.suning.cn/uimg1/b2c/image/2jOBNNCQdMN2C5VkFaPIjg.png_800w_800h_4e', 'Haier', '海尔洗衣机，遥遥领先', '3', 1999.00, 0, 0, 0, '海尔集团公司', '2025-02-01 16:45:00', '2025-02-05 09:30:00', 'B区-L2层-07号'),
+('海尔热水器', 'https://ts1.tc.mm.bing.net/th/id/OIP-C.0E-HDX7AMbNspKcsWq9SPgHaHa?rs=1&pid=ImgDetMain&o=7&rm=3', 'Haier', '海尔热水器，遥遥领先', '1', 999.00, 0, 0, 0, '海尔集团公司', '2025-01-20 11:30:00', '2025-01-22 13:15:00', 'C区-L1层-02号');
+
 -- ----------------------------
 -- Records of Commodity
 -- ----------------------------

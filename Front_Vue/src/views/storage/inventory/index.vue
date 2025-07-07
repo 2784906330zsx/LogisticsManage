@@ -101,7 +101,7 @@
 
 <script setup lang="ts">
   import { h } from 'vue'
-  import { COMMODITY_LIST_DATA } from '@/mock/formData'
+  import { StorageService } from '@/api/storageApi'
   import { ElDialog, FormInstance, ElImage, ElTag } from 'element-plus'
   import { ElMessage } from 'element-plus'
   import type { FormRules } from 'element-plus'
@@ -359,46 +359,23 @@
   const getInventoryList = async () => {
     loading.value = true
     try {
-      const { currentPage, pageSize } = pagination
-
-      // 模拟API调用
-      await new Promise((resolve) => setTimeout(resolve, 500))
-
-      // 过滤数据
-      let filteredData = [...COMMODITY_LIST_DATA]
-
-      if (formFilters.name) {
-        filteredData = filteredData.filter((item) =>
-          item.name.toLowerCase().includes(formFilters.name.toLowerCase())
-        )
+      const params = {
+        current: pagination.currentPage,
+        size: pagination.pageSize,
+        ...formFilters
       }
 
-      if (formFilters.brand) {
-        filteredData = filteredData.filter((item) =>
-          item.brand.toLowerCase().includes(formFilters.brand.toLowerCase())
-        )
+      const response = await StorageService.getInventoryList(params)
+
+      if (response.code === 200) {
+        tableData.value = response.data.list
+        pagination.total = response.data.total
+      } else {
+        ElMessage.error(response.msg || '获取库存列表失败')
       }
-
-      if (formFilters.supplier) {
-        filteredData = filteredData.filter((item) =>
-          item.supplier.toLowerCase().includes(formFilters.supplier.toLowerCase())
-        )
-      }
-
-      if (formFilters.storageArea) {
-        filteredData = filteredData.filter((item) =>
-          item.storageArea.toLowerCase().includes(formFilters.storageArea.toLowerCase())
-        )
-      }
-
-      const total = filteredData.length
-      const start = (currentPage - 1) * pageSize
-      const end = start + pageSize
-
-      tableData.value = filteredData.slice(start, end)
-      pagination.total = total
     } catch (error) {
       console.error('获取库存列表失败:', error)
+      ElMessage.error('获取库存列表失败')
     } finally {
       loading.value = false
     }

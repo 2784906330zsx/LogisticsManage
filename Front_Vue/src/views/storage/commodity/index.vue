@@ -62,6 +62,12 @@
             <ElFormItem label="库存" prop="stock">
               <ElInputNumber v-model="formData.stock" :min="0" />
             </ElFormItem>
+            <ElFormItem label="供应商" prop="supplier">
+              <ElInput v-model="formData.supplier" placeholder="请输入供应商名称" />
+            </ElFormItem>
+            <ElFormItem label="存储区域" prop="storageArea">
+              <ElInput v-model="formData.storageArea" placeholder="请输入存储区域" />
+            </ElFormItem>
             <ElFormItem label="商品状态" prop="status">
               <ElSelect v-model="formData.status">
                 <ElOption label="在售" value="1" />
@@ -85,7 +91,7 @@
 
 <script setup lang="ts">
   import { h } from 'vue'
-  import { COMMODITY_LIST_DATA } from '@/mock/formData'
+  import { StorageService } from '@/api/storageApi'
   import { ElDialog, FormInstance, ElTag, ElImage } from 'element-plus'
   import { ElMessageBox, ElMessage } from 'element-plus'
   import type { FormRules } from 'element-plus'
@@ -225,32 +231,44 @@
     }
 
     if (type === 'edit' && row) {
+      formData.id = row.id
       formData.name = row.name
       formData.image = row.image
       formData.brand = row.brand
       formData.description = row.description
       formData.price = row.price
       formData.stock = row.stock
+      formData.supplier = row.supplier
+      formData.storageArea = row.storageArea
       formData.status = row.status
     } else {
+      formData.id = undefined
       formData.name = ''
       formData.image = ''
       formData.brand = ''
       formData.description = ''
       formData.price = 0
       formData.stock = 0
+      formData.supplier = ''
+      formData.storageArea = ''
       formData.status = '1'
     }
   }
 
   // 删除商品
-  const deleteCommodity = () => {
-    ElMessageBox.confirm('确定要删除该商品吗？', '删除商品', {
+  const deleteCommodity = (row: any) => {
+    ElMessageBox.confirm(`确定要删除商品"${row.name}"吗？`, '删除商品', {
       confirmButtonText: '确定',
       cancelButtonText: '取消',
       type: 'error'
-    }).then(() => {
-      ElMessage.success('删除成功')
+    }).then(async () => {
+      try {
+        await StorageService.deleteCommodity({ id: row.id })
+        ElMessage.success('删除成功')
+        getCommodityList()
+      } catch (error) {
+        ElMessage.error('删除失败：' + error)
+      }
     })
   }
 
@@ -314,6 +332,16 @@
       sortable: true
     },
     {
+      prop: 'supplier',
+      label: '供应商',
+      width: 150
+    },
+    {
+      prop: 'storageArea',
+      label: '存储区域',
+      width: 150
+    },
+    {
       prop: 'status',
       label: '状态',
       formatter: (row) => {
@@ -337,7 +365,7 @@
           }),
           h(ArtButtonTable, {
             type: 'delete',
-            onClick: () => deleteCommodity()
+            onClick: () => deleteCommodity(row)
           })
         ])
       }
@@ -349,12 +377,15 @@
 
   // 表单数据
   const formData = reactive({
+    id: undefined as number | undefined,
     name: '',
     image: '',
     brand: '',
     description: '',
     price: 0,
     stock: 0,
+    supplier: '',
+    storageArea: '',
     status: '1'
   })
 
@@ -366,38 +397,23 @@
   const getCommodityList = async () => {
     loading.value = true
     try {
-      const { currentPage, pageSize } = pagination
-
-      // 模拟API调用
-      await new Promise((resolve) => setTimeout(resolve, 500))
-
-      // 过滤数据
-      let filteredData = [...COMMODITY_LIST_DATA]
-
-      if (formFilters.name) {
-        filteredData = filteredData.filter((item) =>
-          item.name.toLowerCase().includes(formFilters.name.toLowerCase())
-        )
+      const params = {
+        current: pagination.currentPage, // 修改：使用 current 而不是 page
+        size: pagination.pageSize, // 修改：使用 size 而不是 pageSize
+        ...formFilters
       }
 
-      if (formFilters.brand) {
-        filteredData = filteredData.filter((item) =>
-          item.brand.toLowerCase().includes(formFilters.brand.toLowerCase())
-        )
+      const response = await StorageService.getCommodityList(params)
+
+      if (response.code === 200) {
+        tableData.value = response.data.list
+        pagination.total = response.data.total
+      } else {
+        ElMessage.error(response.msg || '获取商品列表失败') // 修改：使用 msg 而不是 message
       }
-
-      if (formFilters.status) {
-        filteredData = filteredData.filter((item) => item.status === formFilters.status)
-      }
-
-      const total = filteredData.length
-      const start = (currentPage - 1) * pageSize
-      const end = start + pageSize
-
-      tableData.value = filteredData.slice(start, end)
-      pagination.total = total
     } catch (error) {
       console.error('获取商品列表失败:', error)
+      ElMessage.error('获取商品列表失败')
     } finally {
       loading.value = false
     }
@@ -426,6 +442,8 @@
     description: [{ required: true, message: '请输入商品介绍', trigger: 'blur' }],
     price: [{ required: true, message: '请输入价格', trigger: 'blur' }],
     stock: [{ required: true, message: '请输入库存', trigger: 'blur' }],
+    supplier: [{ required: true, message: '请输入供应商', trigger: 'blur' }],
+    storageArea: [{ required: true, message: '请输入存储区域', trigger: 'blur' }],
     status: [{ required: true, message: '请选择商品状态', trigger: 'change' }]
   })
 
@@ -433,11 +451,43 @@
   const handleSubmit = async () => {
     if (!formRef.value) return
 
-    await formRef.value.validate((valid) => {
+    await formRef.value.validate(async (valid) => {
       if (valid) {
-        ElMessage.success(dialogType.value === 'add' ? '添加成功' : '更新成功')
-        dialogVisible.value = false
-        getCommodityList()
+        try {
+          if (dialogType.value === 'add') {
+            await StorageService.addCommodity({
+              name: formData.name,
+              image: formData.image,
+              brand: formData.brand,
+              description: formData.description,
+              price: formData.price,
+              stock: formData.stock,
+              supplier: formData.supplier,
+              storageArea: formData.storageArea,
+              status: formData.status
+            })
+            ElMessage.success('添加成功')
+          } else {
+            await StorageService.updateCommodity({
+              id: formData.id!,
+              name: formData.name,
+              image: formData.image,
+              brand: formData.brand,
+              description: formData.description,
+              price: formData.price,
+              stock: formData.stock,
+              supplier: formData.supplier,
+              storageArea: formData.storageArea,
+              status: formData.status
+            })
+            ElMessage.success('更新成功')
+          }
+
+          dialogVisible.value = false
+          getCommodityList()
+        } catch (error) {
+          ElMessage.error(dialogType.value === 'add' ? '添加失败：' + error : '更新失败：' + error)
+        }
       }
     })
   }

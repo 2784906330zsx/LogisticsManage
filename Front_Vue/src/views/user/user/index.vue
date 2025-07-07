@@ -61,21 +61,24 @@
                 <ElOption label="女" value="女" />
               </ElSelect>
             </ElFormItem>
+            <!-- 部门下拉框 -->
             <ElFormItem label="部门" prop="department">
-              <ElSelect v-model="formData.department">
+              <ElSelect v-model="formData.department" @change="onDepartmentChange">
                 <ElOption
                   v-for="dept in departmentList"
-                  :key="dept.departmentCode"
+                  :key="dept.id || dept.departmentCode"
                   :value="dept.departmentName"
                   :label="dept.departmentName"
                 />
               </ElSelect>
             </ElFormItem>
+
+            <!-- 职务下拉框 -->
             <ElFormItem label="职务" prop="position">
-              <ElSelect v-model="formData.position">
+              <ElSelect v-model="formData.position" @change="onPositionChange">
                 <ElOption
-                  v-for="role in roleList"
-                  :key="role.roleCode"
+                  v-for="role in filteredRoleList"
+                  :key="role.id || role.roleCode"
                   :value="role.roleName"
                   :label="role.roleName"
                 />
@@ -109,8 +112,6 @@
 
 <script setup lang="ts">
   import { h } from 'vue'
-  import { ROLE_LIST_DATA, DEPARTMENT_LIST_DATA } from '@/mock/formData'
-
   import { ElDialog, FormInstance, ElTag } from 'element-plus'
   import { ElMessageBox, ElMessage } from 'element-plus'
   import type { FormRules } from 'element-plus'
@@ -157,6 +158,9 @@
 
   // 选中的行数据
   const selectedRows = ref<any[]>([])
+
+  // 需要添加一个变量来存储当前编辑的用户ID
+  const currentEditUserId = ref(null)
 
   // 重置表单
   const handleReset = () => {
@@ -240,11 +244,27 @@
       config: {
         clearable: true
       },
-      options: () =>
-        roleList.value.map((role) => ({
+      options: () => {
+        let roles = roleList.value
+        if (formFilters.department) {
+          const selectedDept = departmentList.value.find(
+            (dept) => dept.departmentName === formFilters.department
+          )
+          if (selectedDept) {
+            roles = roleList.value.filter((role) => {
+              return (
+                role.departmentCode === selectedDept.departmentCode ||
+                role.department === selectedDept.departmentName ||
+                role.departmentName === selectedDept.departmentName
+              )
+            })
+          }
+        }
+        return roles.map((role) => ({
           label: role.roleName,
           value: role.roleName
-        })),
+        }))
+      },
       onChange: handleFormChange
     },
     {
@@ -434,6 +454,85 @@
     status: '1'
   })
 
+  // 添加计算属性：根据选择的部门过滤职务列表
+  const filteredRoleList = computed(() => {
+    if (!formData.department || !departmentList.value.length || !roleList.value.length) {
+      return roleList.value
+    }
+
+    // 找到选中部门的信息
+    const selectedDept = departmentList.value.find(
+      (dept) => dept.departmentName === formData.department
+    )
+    if (!selectedDept) {
+      return roleList.value
+    }
+
+    // 根据部门过滤职务（假设roleList中有departmentCode或department字段）
+    return roleList.value.filter((role) => {
+      // 根据实际的数据结构调整这里的逻辑
+      return (
+        role.departmentCode === selectedDept.departmentCode ||
+        role.department === selectedDept.departmentName ||
+        role.departmentName === selectedDept.departmentName
+      )
+    })
+  })
+
+  // 部门选择变化处理
+  const onDepartmentChange = () => {
+    // 清空职务选择
+    formData.position = ''
+
+    // 如果当前选择的职务不属于新选择的部门，则清空职务
+    if (formData.position && filteredRoleList.value.length > 0) {
+      const isPositionInDepartment = filteredRoleList.value.some(
+        (role) => role.roleName === formData.position
+      )
+      if (!isPositionInDepartment) {
+        formData.position = ''
+      }
+    }
+  }
+
+  // 职务选择变化处理
+  const onPositionChange = (positionName: string) => {
+    console.log('选择的职务:', positionName)
+    console.log('当前角色列表:', roleList.value)
+    console.log('当前部门列表:', departmentList.value)
+
+    if (!positionName || !roleList.value.length || !departmentList.value.length) {
+      return
+    }
+
+    // 找到选中职务的信息
+    const selectedRole = roleList.value.find((role) => role.roleName === positionName)
+    console.log('找到的角色:', selectedRole)
+
+    if (!selectedRole) {
+      return
+    }
+
+    // 根据职务的departmentCode自动选择对应的部门
+    let targetDepartment = ''
+
+    if (selectedRole.departmentCode) {
+      const dept = departmentList.value.find(
+        (d) => d.departmentCode === selectedRole.departmentCode
+      )
+      console.log('匹配的部门:', dept)
+      targetDepartment = dept?.departmentName || ''
+    }
+
+    console.log('目标部门:', targetDepartment)
+    console.log('当前部门:', formData.department)
+
+    if (targetDepartment && targetDepartment !== formData.department) {
+      formData.department = targetDepartment
+      console.log('已设置部门为:', targetDepartment)
+    }
+  }
+
   onMounted(() => {
     getUserList()
     getRoleList()
@@ -474,12 +573,44 @@
     }
   }
 
-  const getRoleList = () => {
-    roleList.value = ROLE_LIST_DATA
+  // 获取角色列表数据
+  const getRoleList = async () => {
+    try {
+      const response = await UserService.getRoleList({
+        current: 1,
+        size: 1000 // 获取所有角色用于下拉框
+      })
+
+      if (response.code === 200) {
+        // 根据后端返回的数据结构调整
+        roleList.value = response.data.records || response.data || []
+      } else {
+        ElMessage.error(response.msg || '获取角色列表失败')
+      }
+    } catch (error) {
+      console.error('获取角色列表失败:', error)
+      ElMessage.error('获取角色列表失败')
+    }
   }
 
-  const getDepartmentList = () => {
-    departmentList.value = DEPARTMENT_LIST_DATA
+  // 获取部门列表数据
+  const getDepartmentList = async () => {
+    try {
+      const response = await UserService.getDepartmentList({
+        current: 1,
+        size: 1000 // 获取所有部门用于下拉框
+      })
+
+      if (response.code === 200) {
+        // 根据后端返回的数据结构调整
+        departmentList.value = response.data.records || response.data || []
+      } else {
+        ElMessage.error(response.msg || '获取部门列表失败')
+      }
+    } catch (error) {
+      console.error('获取部门列表失败:', error)
+      ElMessage.error('获取部门列表失败')
+    }
   }
 
   const handleRefresh = () => {
@@ -577,9 +708,6 @@
       }
     })
   }
-
-  // 需要添加一个变量来存储当前编辑的用户ID
-  const currentEditUserId = ref(null)
 
   // 处理表格分页变化
   const handleSizeChange = (newPageSize: number) => {
