@@ -412,6 +412,12 @@
       label: '职务'
     },
     {
+      prop: 'registerTime',
+      label: '注册时间',
+      width: 160,
+      sortable: true
+    },
+    {
       prop: 'status',
       label: '状态',
       formatter: (row) => {
@@ -545,10 +551,12 @@
     try {
       const { currentPage, pageSize } = pagination
 
-      // 构建请求参数，包含搜索条件
+      // 构建请求参数，包含搜索条件和排序参数
       const params = {
         current: currentPage,
         size: pageSize,
+        sortBy: 'jobNumber', // 添加排序字段
+        sortOrder: 'asc', // 添加排序方向：升序
         ...formFilters // 添加搜索条件
       }
 

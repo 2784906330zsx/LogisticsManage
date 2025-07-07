@@ -63,7 +63,7 @@ class UserListView(View):
                     role_filters['department__department_name__icontains'] = department
                 if position:
                     role_filters['role_name__icontains'] = position
-                
+
                 if role_filters:
                     role_ids = Role.objects.filter(**role_filters).values_list('id', flat=True)
                     queryset = queryset.filter(position__in=role_ids)
@@ -101,6 +101,7 @@ class UserListView(View):
                     'avatar': user.avatar or '',
                     'email': user.email or '',
                     'phone': user.mobile or '',
+                    'registerTime': user.date_joined.strftime('%Y-%m-%d %H:%M:%S') if user.date_joined else '',  # 添加注册时间
                     # 额外字段用于前端表格显示
                     'userEmail': user.email or '',
                     'userGender': user.gender or 1,
