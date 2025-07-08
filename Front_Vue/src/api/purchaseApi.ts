@@ -11,7 +11,23 @@ export class PurchaseService {
     }
   ) {
     return request.get<Api.Http.BaseResponse<any>>({
-      url: '/api/supplier/list',
+      url: '/api/purchase/supplier/list', // 修改：添加 purchase 前缀
+      params
+    })
+  }
+
+  // 获取采购订单列表
+  static getPurchaseOrderList(
+    params: Api.Common.PaginatingParams & {
+      orderNumber?: string
+      commodityName?: string
+      supplierName?: string
+      status?: string
+      purchaserName?: string
+    }
+  ) {
+    return request.get<Api.Http.BaseResponse<any>>({
+      url: '/api/purchase/order/list',
       params
     })
   }
@@ -25,9 +41,9 @@ export class PurchaseService {
     contactPhone: string
     contactEmail: string
     status?: string
-  }): Promise<Api.Http.BaseResponse<any>> {
+  }) {
     return request.post<Api.Http.BaseResponse<any>>({
-      url: '/api/supplier/manage/', // 添加尾部斜杠
+      url: '/api/purchase/supplier/manage', // 修改：添加 purchase 前缀
       data
     })
   }
@@ -42,17 +58,41 @@ export class PurchaseService {
     contactPhone?: string
     contactEmail?: string
     status?: string
-  }): Promise<Api.Http.BaseResponse<any>> {
+  }) {
     return request.put<Api.Http.BaseResponse<any>>({
-      url: '/api/supplier/manage/', // 添加尾部斜杠
+      url: '/api/purchase/supplier/manage', // 修改：添加 purchase 前缀
       data
     })
   }
 
   // 删除供应商
-  static deleteSupplier(data: { id: number }): Promise<Api.Http.BaseResponse<any>> {
+  static deleteSupplier(id: number) {
     return request.del<Api.Http.BaseResponse<any>>({
-      url: '/api/supplier/manage/', // 添加尾部斜杠
+      url: '/api/purchase/supplier/manage', // 修改：添加 purchase 前缀
+      data: { id }
+    })
+  }
+
+  // 获取商品列表（用于下拉选择）
+  static getCommodityList(params?: any) {
+    return request.get<Api.Http.BaseResponse<any>>({
+      url: '/api/storage/commodity/list',
+      params
+    })
+  }
+
+  // 根据商品ID获取商品信息
+  static getCommodityInfo(commodityId: number) {
+    return request.get<Api.Http.BaseResponse<any>>({
+      url: '/api/purchase/order/manage',
+      params: { commodityId }
+    })
+  }
+
+  // 新增采购订单
+  static addPurchaseOrder(data: any) {
+    return request.post<Api.Http.BaseResponse<any>>({
+      url: '/api/purchase/order/manage',
       data
     })
   }

@@ -193,6 +193,32 @@ CREATE TABLE `PurchaseOrder` (
   CONSTRAINT `PurchaseOrder_supplier_id_7bd6a9d5_fk_Supplier_id` FOREIGN KEY (`supplier_id`) REFERENCES `Supplier` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+-- 插入采购订单数据到 PurchaseOrder 表
+INSERT INTO `PurchaseOrder` (
+    `order_number`, 
+    `unit_price`, 
+    `quantity`, 
+    `total_amount`, 
+    `status`, 
+    `purchase_name`, 
+    `purchase_job_number`, 
+    `order_time`, 
+    `check_name`, 
+    `check_job_number`, 
+    `check_time`, 
+    `check_reason`, 
+    `inbound_name`, 
+    `inbound_job_number`, 
+    `inbound_time`, 
+    `commodity_id`, 
+    `supplier_id`
+) VALUES
+('PO202501150001', 8999.00, 50, 449950.00, '2', 'Isabella Moore', 'EMP011', '2025-01-15 09:30:00', NULL, NULL, NULL, NULL, 'Mia Clark', 'EMP009', '2025-01-16 14:20:00', 1, 1),
+('PO202501160002', 15999.00, 20, 319980.00, '1', 'Isabella Moore', 'EMP011', '2025-01-16 10:15:00', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 2, 1),
+('PO202501170003', 1899.00, 100, 189900.00, '2', 'Isabella Moore', 'EMP011', '2025-01-17 14:30:00', NULL, NULL, NULL, NULL, 'Mia Clark', 'EMP009', '2025-01-18 11:45:00', 3, 1),
+('PO202501180004', 5999.00, 30, 179970.00, '3', 'Isabella Moore', 'EMP011', '2025-01-18 16:20:00', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 4, 3),
+('PO202501190005', 7999.00, 15, 119985.00, '2', 'Isabella Moore', 'EMP011', '2025-01-19 09:45:00', NULL, NULL, NULL, NULL, 'Mia Clark', 'EMP009', '2025-01-20 15:30:00', 5, 4);
+
 -- ----------------------------
 -- Records of PurchaseOrder
 -- ----------------------------

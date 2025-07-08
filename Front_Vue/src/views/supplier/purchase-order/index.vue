@@ -67,10 +67,13 @@
                     v-model="formData.commodityId"
                     placeholder="请选择采购商品"
                     filterable
+                    remote
+                    :remote-method="searchCommodities"
+                    :loading="commodityLoading"
                     @change="handleCommodityChange"
                   >
                     <ElOption
-                      v-for="commodity in COMMODITY_LIST_DATA"
+                      v-for="commodity in commodityOptions"
                       :key="commodity.id"
                       :label="commodity.name"
                       :value="commodity.id"
@@ -87,15 +90,8 @@
             </ElRow>
             <ElRow :gutter="20">
               <ElCol :span="12">
-                <ElFormItem label="采购供应商" prop="supplierId">
-                  <ElSelect v-model="formData.supplierId" placeholder="请选择供应商" filterable>
-                    <ElOption
-                      v-for="supplier in SUPPLIER_LIST_DATA"
-                      :key="supplier.id"
-                      :label="supplier.name"
-                      :value="supplier.id"
-                    />
-                  </ElSelect>
+                <ElFormItem label="采购供应商">
+                  <ElInput v-model="formData.supplierName" readonly placeholder="自动填充" />
                 </ElFormItem>
               </ElCol>
               <ElCol :span="12">
@@ -106,6 +102,7 @@
                     :precision="2"
                     placeholder="请输入采购单价"
                     style="width: 100%"
+                    @change="calculateTotal"
                   />
                 </ElFormItem>
               </ElCol>
@@ -118,48 +115,17 @@
                     :min="1"
                     placeholder="请输入采购数量"
                     style="width: 100%"
+                    @change="calculateTotal"
                   />
                 </ElFormItem>
               </ElCol>
-            </ElRow>
-            <ElRow :gutter="20">
               <ElCol :span="12">
                 <ElFormItem label="总金额">
                   <ElInput
-                    :value="(formData.unitPrice * formData.quantity).toFixed(2)"
+                    :value="formData.totalAmount.toFixed(2)"
                     readonly
                     placeholder="自动计算"
                   />
-                </ElFormItem>
-              </ElCol>
-            </ElRow>
-            <ElRow :gutter="20" v-if="formData.status === '3'">
-              <ElCol :span="12">
-                <ElFormItem label="入库时间" prop="inboundTime">
-                  <ElDatePicker
-                    v-model="formData.inboundTime"
-                    type="datetime"
-                    placeholder="请选择入库时间"
-                    format="YYYY-MM-DD HH:mm:ss"
-                    value-format="YYYY-MM-DD HH:mm:ss"
-                    style="width: 100%"
-                  />
-                </ElFormItem>
-              </ElCol>
-              <ElCol :span="12">
-                <ElFormItem label="入库人" prop="warehouseKeeperId">
-                  <ElSelect
-                    v-model="formData.warehouseKeeperId"
-                    placeholder="请选择入库人"
-                    filterable
-                  >
-                    <ElOption
-                      v-for="user in ACCOUNT_TABLE_DATA"
-                      :key="user.id"
-                      :label="`${user.username} (${user.jobNumber})`"
-                      :value="user.id"
-                    />
-                  </ElSelect>
                 </ElFormItem>
               </ElCol>
             </ElRow>
@@ -167,7 +133,9 @@
           <template #footer>
             <div class="dialog-footer">
               <ElButton @click="dialogVisible = false">取消</ElButton>
-              <ElButton type="primary" @click="handleSubmit">提交</ElButton>
+              <ElButton type="primary" @click="handleSubmit" :loading="submitLoading"
+                >提交</ElButton
+              >
             </div>
           </template>
         </ElDialog>
@@ -178,24 +146,40 @@
 
 <script setup lang="ts">
   import { h } from 'vue'
-  import {
-    PURCHASE_ORDER_DATA,
-    COMMODITY_LIST_DATA,
-    SUPPLIER_LIST_DATA,
-    ACCOUNT_TABLE_DATA
-  } from '@/mock/formData'
+  import { PURCHASE_ORDER_DATA, COMMODITY_LIST_DATA, SUPPLIER_LIST_DATA } from '@/mock/formData'
   import { ElDialog, FormInstance, ElTag, ElImage } from 'element-plus'
   import { ElMessageBox, ElMessage } from 'element-plus'
   import type { FormRules } from 'element-plus'
   import { useCheckedColumns } from '@/composables/useCheckedColumns'
   import ArtButtonTable from '@/components/core/forms/art-button-table/index.vue'
   import { SearchChangeParams, SearchFormItem } from '@/types'
+  import { PurchaseService } from '@/api/purchaseApi'
+
+  // 定义商品类型接口
+  interface CommodityOption {
+    id: number
+    name: string
+    price: number
+    supplier?: string
+  }
+
+  // 定义API响应类型
+  interface ApiResponse<T = any> {
+    code: number
+    data: T
+    message?: string
+    msg?: string
+  }
 
   defineOptions({ name: 'PurchaseOrder' })
 
   const dialogType = ref('add')
   const dialogVisible = ref(false)
   const loading = ref(false)
+  const submitLoading = ref(false)
+  const commodityLoading = ref(false)
+  const commodityNotFound = ref(false)
+  const commodityOptions = ref<CommodityOption[]>([])
 
   // 定义表单搜索初始值
   const initialSearchState = {
@@ -335,25 +319,10 @@
     }
   }
 
-  // 生成订单编号
-  const generateOrderNumber = () => {
-    const now = new Date()
-    const year = now.getFullYear()
-    const month = String(now.getMonth() + 1).padStart(2, '0')
-    const day = String(now.getDate()).padStart(2, '0')
-    const hours = String(now.getHours()).padStart(2, '0')
-    const minutes = String(now.getMinutes()).padStart(2, '0')
-    const seconds = String(now.getSeconds()).padStart(2, '0')
-    const random = Math.floor(Math.random() * 1000)
-      .toString()
-      .padStart(3, '0')
-    return `PO${year}${month}${day}${hours}${minutes}${seconds}${random}`
-  }
-
   const showDialog = (type: string, row?: any) => {
     dialogVisible.value = true
     dialogType.value = type
-    commodityNotFound.value = false // 重置错误提示状态
+    commodityNotFound.value = false
 
     // 重置表单验证状态
     if (formRef.value) {
@@ -365,21 +334,27 @@
       formData.commodityCode = row.commodityCode || ''
       formData.commodityId = row.commodityId
       formData.supplierId = row.supplierId
+      formData.supplierName = row.supplierName
       formData.unitPrice = row.unitPrice
       formData.quantity = row.quantity
+      formData.totalAmount = row.totalAmount
       formData.orderTime = row.orderTime
-      formData.inboundTime = row.inboundTime
       formData.status = row.status
-      formData.warehouseKeeperId = row.warehouseKeeperId
     } else {
       formData.orderNumber = ''
+      formData.commodityCode = ''
       formData.commodityId = undefined
       formData.supplierId = undefined
+      formData.supplierName = ''
       formData.unitPrice = 0
       formData.quantity = 1
-      formData.inboundTime = ''
+      formData.totalAmount = 0
       formData.status = '1'
-      formData.warehouseKeeperId = undefined
+    }
+
+    // 初始化商品选项
+    if (type === 'add') {
+      searchCommodities('')
     }
   }
 
@@ -391,6 +366,7 @@
       type: 'error'
     }).then(() => {
       ElMessage.success('删除成功')
+      getPurchaseOrderList()
     })
   }
 
@@ -453,14 +429,6 @@
       sortable: true
     },
     {
-      prop: 'inboundTime',
-      label: '入库时间',
-      width: 160,
-      formatter: (row: any) => {
-        return row.inboundTime || '-'
-      }
-    },
-    {
       prop: 'status',
       label: '订单状态',
       width: 100,
@@ -477,20 +445,6 @@
           h('div', { style: 'font-weight: bold;' }, row.purchaserName),
           h('div', { style: 'font-size: 12px; color: #999;' }, row.purchaserJobNumber)
         ])
-      }
-    },
-    {
-      prop: 'warehouseKeeper',
-      label: '入库人',
-      width: 120,
-      formatter: (row: any) => {
-        if (row.warehouseKeeperName) {
-          return h('div', { style: 'line-height: 1.2;' }, [
-            h('div', { style: 'font-weight: bold;' }, row.warehouseKeeperName),
-            h('div', { style: 'font-size: 12px; color: #999;' }, row.warehouseKeeperJobNumber)
-          ])
-        }
-        return '-'
       }
     },
     {
@@ -516,23 +470,128 @@
   const formRef = ref<FormInstance>()
 
   // 表单数据
-  // 修改表单数据，添加commodityCode字段
   const formData = reactive({
     orderNumber: '',
-    commodityCode: '', // 新增商品ID字段
+    commodityCode: '',
     commodityId: undefined as number | undefined,
     supplierId: undefined as number | undefined,
+    supplierName: '',
     unitPrice: 0,
     quantity: 1,
+    totalAmount: 0,
     orderTime: '',
-    inboundTime: '',
-    status: '1',
-    warehouseKeeperId: undefined as number | undefined
+    status: '1'
   })
 
   onMounted(() => {
     getPurchaseOrderList()
   })
+
+  // 搜索商品
+  const searchCommodities = async (query: string) => {
+    commodityLoading.value = true
+    try {
+      const response = (await PurchaseService.getCommodityList({
+        name: query,
+        pageSize: 50
+      })) as ApiResponse<{ list: CommodityOption[] }>
+
+      if (response.code === 200) {
+        commodityOptions.value = response.data.list
+      }
+    } catch (error) {
+      console.error('搜索商品失败:', error)
+      // 使用模拟数据作为后备
+      let filteredData = [...COMMODITY_LIST_DATA] as CommodityOption[]
+      if (query) {
+        filteredData = filteredData.filter((item) =>
+          item.name.toLowerCase().includes(query.toLowerCase())
+        )
+      }
+      commodityOptions.value = filteredData
+    } finally {
+      commodityLoading.value = false
+    }
+  }
+
+  // 商品选择变化
+  const handleCommodityChange = async (commodityId: number) => {
+    if (commodityId) {
+      try {
+        const response = (await PurchaseService.getCommodityInfo(commodityId)) as ApiResponse<{
+          id: number
+          name: string
+          price: number
+          supplier?: { id: number; name: string }
+        }>
+
+        if (response.code === 200) {
+          const commodity = response.data
+          formData.commodityCode = commodity.id.toString()
+          formData.unitPrice = commodity.price
+          if (commodity.supplier) {
+            formData.supplierId = commodity.supplier.id
+            formData.supplierName = commodity.supplier.name
+          }
+          calculateTotal()
+        }
+      } catch (error) {
+        console.error('获取商品信息失败:', error)
+        // 使用模拟数据作为后备
+        const commodity = COMMODITY_LIST_DATA.find((item) => item.id === commodityId)
+        if (commodity) {
+          formData.commodityCode = commodity.id.toString()
+          formData.unitPrice = commodity.price
+          formData.supplierName = commodity.supplier || ''
+          // 查找供应商ID
+          const supplier = SUPPLIER_LIST_DATA.find((s) => s.name === commodity.supplier)
+          if (supplier) {
+            formData.supplierId = supplier.id
+          }
+          calculateTotal()
+        }
+      }
+    }
+  }
+
+  // 商品ID输入变化
+  const handleCommodityCodeChange = (value: string) => {
+    commodityNotFound.value = false
+
+    if (value) {
+      const commodityId = parseInt(value)
+      if (!isNaN(commodityId)) {
+        // 在商品选项中查找
+        const commodity = commodityOptions.value.find(
+          (item: CommodityOption) => item.id === commodityId
+        )
+        if (commodity) {
+          formData.commodityId = commodityId
+          handleCommodityChange(commodityId)
+        } else {
+          // 从模拟数据中查找
+          const mockCommodity = COMMODITY_LIST_DATA.find((item) => item.id === commodityId)
+          if (mockCommodity) {
+            formData.commodityId = commodityId
+            formData.unitPrice = mockCommodity.price
+            formData.supplierName = mockCommodity.supplier || ''
+            const supplier = SUPPLIER_LIST_DATA.find((s) => s.name === mockCommodity.supplier)
+            if (supplier) {
+              formData.supplierId = supplier.id
+            }
+            calculateTotal()
+          } else {
+            commodityNotFound.value = true
+          }
+        }
+      }
+    }
+  }
+
+  // 计算总金额
+  const calculateTotal = () => {
+    formData.totalAmount = formData.unitPrice * formData.quantity
+  }
 
   // 获取采购订单列表数据
   const getPurchaseOrderList = async () => {
@@ -540,10 +599,28 @@
     try {
       const { currentPage, pageSize } = pagination
 
-      // 模拟API调用
-      await new Promise((resolve) => setTimeout(resolve, 500))
+      // 调用真实API
+      const response = (await PurchaseService.getPurchaseOrderList({
+        current: currentPage,
+        size: pageSize,
+        orderNumber: formFilters.orderNumber || undefined,
+        commodityName: formFilters.commodityName || undefined,
+        supplierName: formFilters.supplierName || undefined,
+        status: formFilters.status || undefined,
+        purchaserName: formFilters.purchaserName || undefined
+      })) as ApiResponse<{ list: any[]; total: number }>
 
-      // 过滤数据
+      if (response.code === 200 && response.data) {
+        tableData.value = response.data.list
+        pagination.total = response.data.total
+      } else {
+        ElMessage.error(response.msg || '获取采购订单列表失败')
+      }
+    } catch (error) {
+      console.error('获取采购订单列表失败:', error)
+      ElMessage.error('获取采购订单列表失败')
+
+      // 如果API调用失败，使用模拟数据作为后备
       let filteredData = [...PURCHASE_ORDER_DATA]
 
       if (formFilters.orderNumber) {
@@ -575,13 +652,11 @@
       }
 
       const total = filteredData.length
-      const start = (currentPage - 1) * pageSize
-      const end = start + pageSize
+      const start = (pagination.currentPage - 1) * pagination.pageSize
+      const end = start + pagination.pageSize
 
       tableData.value = filteredData.slice(start, end)
       pagination.total = total
-    } catch (error) {
-      console.error('获取采购订单列表失败:', error)
     } finally {
       loading.value = false
     }
@@ -597,11 +672,9 @@
   }
 
   // 表单验证规则
-  // 修改表单验证规则，添加商品ID必填验证
   const rules = reactive<FormRules>({
     commodityCode: [{ required: true, message: '请输入商品ID', trigger: 'blur' }],
     commodityId: [{ required: true, message: '请选择采购商品', trigger: 'change' }],
-    supplierId: [{ required: true, message: '请选择供应商', trigger: 'change' }],
     unitPrice: [
       { required: true, message: '请输入采购单价', trigger: 'blur' },
       { type: 'number', min: 0.01, message: '采购单价必须大于0', trigger: 'blur' }
@@ -609,30 +682,6 @@
     quantity: [
       { required: true, message: '请输入采购数量', trigger: 'blur' },
       { type: 'number', min: 1, message: '采购数量必须大于0', trigger: 'blur' }
-    ],
-    inboundTime: [
-      {
-        validator: (rule: any, value: any, callback: any) => {
-          if (formData.status === '3' && !value) {
-            callback(new Error('已入库状态必须填写入库时间'))
-          } else {
-            callback()
-          }
-        },
-        trigger: 'change'
-      }
-    ],
-    warehouseKeeperId: [
-      {
-        validator: (rule: any, value: any, callback: any) => {
-          if (formData.status === '3' && !value) {
-            callback(new Error('已入库状态必须选择入库人'))
-          } else {
-            callback()
-          }
-        },
-        trigger: 'change'
-      }
     ]
   })
 
@@ -640,20 +689,39 @@
   const handleSubmit = async () => {
     if (!formRef.value) return
 
-    await formRef.value.validate((valid) => {
-      if (valid) {
-        // 如果是新增订单，自动生成订单编号和设置下单时间
-        if (dialogType.value === 'add') {
-          formData.orderNumber = generateOrderNumber()
-          formData.orderTime = new Date().toISOString().slice(0, 19).replace('T', ' ')
-          formData.status = '1'
-        }
+    try {
+      await formRef.value.validate()
 
-        ElMessage.success(dialogType.value === 'add' ? '添加成功' : '更新成功')
+      submitLoading.value = true
+
+      if (dialogType.value === 'add') {
+        // 新增采购订单
+        const response = (await PurchaseService.addPurchaseOrder({
+          commodityId: formData.commodityId,
+          supplierId: formData.supplierId,
+          unitPrice: formData.unitPrice,
+          quantity: formData.quantity
+        })) as ApiResponse<{ id: number; orderNumber: string }>
+
+        if (response.code === 200) {
+          ElMessage.success('采购订单创建成功')
+          dialogVisible.value = false
+          await getPurchaseOrderList()
+        } else {
+          ElMessage.error(response.msg || '创建失败')
+        }
+      } else {
+        // 编辑采购订单（如果需要的话）
+        ElMessage.success('更新成功')
         dialogVisible.value = false
         getPurchaseOrderList()
       }
-    })
+    } catch (error) {
+      console.error('提交失败:', error)
+      ElMessage.error('提交失败')
+    } finally {
+      submitLoading.value = false
+    }
   }
 
   // 处理表格分页变化
@@ -666,59 +734,4 @@
     pagination.currentPage = newCurrentPage
     getPurchaseOrderList()
   }
-
-  // 修改商品关联处理函数
-  // 当商品ID输入变化时，自动选择对应商品并填写供应商和单价
-  const handleCommodityCodeChange = (value: string) => {
-    commodityNotFound.value = false
-
-    if (value) {
-      const commodity = COMMODITY_LIST_DATA.find((item) => item.id.toString() === value)
-      if (commodity) {
-        formData.commodityId = commodity.id
-        // 自动填写供应商
-        const supplier = SUPPLIER_LIST_DATA.find((item) => item.name === commodity.supplier)
-        if (supplier) {
-          formData.supplierId = supplier.id
-        }
-        // 自动填写单价
-        formData.unitPrice = commodity.price
-      } else {
-        // 商品ID不存在时显示错误提示
-        commodityNotFound.value = true
-        formData.commodityId = undefined
-        formData.supplierId = undefined
-        formData.unitPrice = 0
-      }
-    } else {
-      formData.commodityId = undefined
-      formData.supplierId = undefined
-      formData.unitPrice = 0
-    }
-  }
-
-  // 当商品选择变化时，自动填入商品ID、供应商和单价
-  const handleCommodityChange = (value: number) => {
-    commodityNotFound.value = false
-
-    if (value) {
-      const commodity = COMMODITY_LIST_DATA.find((item) => item.id === value)
-      if (commodity) {
-        formData.commodityCode = commodity.id.toString()
-        // 自动填写供应商
-        const supplier = SUPPLIER_LIST_DATA.find((item) => item.name === commodity.supplier)
-        if (supplier) {
-          formData.supplierId = supplier.id
-        }
-        // 自动填写单价
-        formData.unitPrice = commodity.price
-      }
-    } else {
-      formData.commodityCode = ''
-      formData.supplierId = undefined
-      formData.unitPrice = 0
-    }
-  }
-  // 添加错误提示状态
-  const commodityNotFound = ref(false)
 </script>

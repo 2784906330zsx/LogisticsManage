@@ -271,7 +271,8 @@
       type: 'error'
     }).then(async () => {
       try {
-        const response = await PurchaseService.deleteSupplier({ id: row.id })
+        // 修复：直接传递 row.id 而不是对象
+        const response = await PurchaseService.deleteSupplier(row.id)
         if (response.code === 200) {
           ElMessage.success('删除成功')
           getSupplierList()
