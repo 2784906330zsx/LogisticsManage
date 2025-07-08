@@ -1,7 +1,7 @@
 <template>
   <div class="custom-card art-custom-card target-vs-reality">
     <div class="custom-card-header">
-      <span class="title">目标与实际</span>
+      <span class="title">配送目标达成</span>
     </div>
     <div class="custom-card-body">
       <ArtBarChart
@@ -17,8 +17,8 @@
         <div class="label">
           <i class="iconfont-sys">&#xe77f;</i>
           <div class="label-text">
-            <span>实际销售额</span>
-            <span>全球</span>
+            <span>实际配送量</span>
+            <span>全国</span>
           </div>
         </div>
         <div class="value text-color-green">8,823</div>
@@ -27,8 +27,8 @@
         <div class="label">
           <i class="iconfont-sys">&#xe77c;</i>
           <div class="label-text">
-            <span>目标销售额</span>
-            <span>商业</span>
+            <span>目标配送量</span>
+            <span>计划</span>
           </div>
         </div>
         <div class="value text-color-orange">12,122</div>
@@ -42,7 +42,7 @@
 
   const revenueData = ref([
     {
-      name: '线上销售',
+      name: '配送完成量',
       data: [12, 13, 5, 15, 10, 15, 18]
       // color: '#6E93FF'
     }

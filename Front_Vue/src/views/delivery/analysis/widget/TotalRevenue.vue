@@ -1,7 +1,7 @@
 <template>
   <div class="custom-card total-revenue-card art-custom-card">
     <div class="custom-card-header">
-      <span class="title">总收入</span>
+      <span class="title">配送量统计</span>
     </div>
     <div class="custom-card-body">
       <ArtBarChart
@@ -21,11 +21,11 @@
 
   const revenueData = ref([
     {
-      name: '线上销售',
+      name: '同城配送',
       data: [12, 13, 5, 15, 10, 15, 18]
     },
     {
-      name: '线下销售',
+      name: '跨城配送',
       data: [10, 11, 20, 5, 11, 13, 10]
     }
   ])

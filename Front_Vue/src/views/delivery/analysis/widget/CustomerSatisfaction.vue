@@ -1,7 +1,7 @@
 <template>
   <div class="custom-card art-custom-card customer-satisfaction">
     <div class="custom-card-header">
-      <span class="title">客户满意度</span>
+      <span class="title">配送及时率</span>
     </div>
     <div class="custom-card-body">
       <ArtLineChart

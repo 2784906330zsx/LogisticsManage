@@ -456,8 +456,6 @@ export const VEHICLE_LIST_DATA: Vehicle[] = [
   }
 ]
 
-// ... existing code ...
-
 // 固定线路接口
 export interface StaticRoute {
   id: number
@@ -471,85 +469,4 @@ export interface StaticRoute {
 }
 
 // 固定线路列表模拟数据
-export const STATIC_ROUTE_LIST_DATA: StaticRoute[] = [
-  {
-    id: 1,
-    departure: '上海市浦东新区总部',
-    destination: '北京市朝阳区分部',
-    totalDistance: 1213,
-    estimatedTime: 14,
-    scheduleInfo: '每日发车：08:00, 14:00, 20:00',
-    isActive: true,
-    createTime: '2025-01-15 10:30:00'
-  },
-  {
-    id: 2,
-    departure: '上海市浦东新区总部',
-    destination: '广东省广州市天河区分部',
-    totalDistance: 1456,
-    estimatedTime: 16,
-    scheduleInfo: '每日发车：09:00, 15:00',
-    isActive: true,
-    createTime: '2025-02-20 14:20:00'
-  },
-  {
-    id: 3,
-    departure: '上海市浦东新区总部',
-    destination: '广东省深圳市南山区分部',
-    totalDistance: 1478,
-    estimatedTime: 17,
-    scheduleInfo: '每日发车：10:00, 16:00, 22:00',
-    isActive: true,
-    createTime: '2025-03-10 11:15:00'
-  },
-  {
-    id: 4,
-    departure: '上海市浦东新区总部',
-    destination: '浙江省杭州市西湖区分部',
-    totalDistance: 175,
-    estimatedTime: 2,
-    scheduleInfo: '每小时发车：07:00-19:00',
-    isActive: true,
-    createTime: '2025-04-08 16:45:00'
-  },
-  {
-    id: 5,
-    departure: '上海市浦东新区总部',
-    destination: '江苏省南京市鼓楼区分部',
-    totalDistance: 295,
-    estimatedTime: 4,
-    scheduleInfo: '每日发车：08:30, 13:30, 18:30',
-    isActive: false,
-    createTime: '2025-05-25 10:30:00'
-  },
-  {
-    id: 6,
-    departure: '上海市浦东新区总部',
-    destination: '江苏省苏州市姑苏区分部',
-    totalDistance: 102,
-    estimatedTime: 1.5,
-    scheduleInfo: '每30分钟发车：06:00-22:00',
-    isActive: true,
-    createTime: '2025-06-12 13:20:00'
-  },
-  {
-    id: 7,
-    departure: '上海市浦东新区总部',
-    destination: '湖北省武汉市江汉区分部',
-    totalDistance: 695,
-    estimatedTime: 8,
-    scheduleInfo: '每日发车：07:00, 19:00',
-    isActive: true,
-    createTime: '2025-07-18 15:10:00'
-  },
-  {
-    id: 8,
-    departure: '上海市浦东新区总部',
-    destination: '四川省成都市高新区分部',
-    totalDistance: 1965,
-    estimatedTime: 22,
-    scheduleInfo: '每日发车：20:00',
-    isActive: true,
-    createTime: '2025-08-30 12:00:00'
-  }
-]
+export const STATIC_ROUTE_LIST_DATA: StaticRoute[] = []

@@ -1,7 +1,7 @@
 <template>
   <div class="custom-card art-custom-card visitor-insights">
     <div class="custom-card-header">
-      <span class="title">访客洞察</span>
+      <span class="title">配送趋势分析</span>
     </div>
     <div class="custom-card-body">
       <ArtLineChart
@@ -23,12 +23,12 @@
   // 图表数据配置
   const chartData = computed<LineDataItem[]>(() => [
     {
-      name: '老客户',
+      name: '已完成配送',
       data: [280, 350, 300, 250, 230, 210, 240, 280, 320, 350, 300, 200]
       // color: '#4ABEFF'
     },
     {
-      name: '新客户',
+      name: '配送中运单',
       data: [260, 200, 150, 130, 180, 270, 340, 380, 300, 220, 170, 130]
       // color: '#6E93FF'
     }

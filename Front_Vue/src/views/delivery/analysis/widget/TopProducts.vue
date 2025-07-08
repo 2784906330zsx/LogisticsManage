@@ -49,34 +49,29 @@
 
   const products = computed(() => [
     {
-      name: '智能手机',
+      name: '洗衣机',
       popularity: 10,
-      sales: '100'
+      sales: '10'
     },
     {
-      name: '笔记本电脑',
+      name: '冰箱',
       popularity: 29,
-      sales: '100'
+      sales: '29'
     },
     {
-      name: '平板电脑',
+      name: '电视',
       popularity: 65,
-      sales: '100'
+      sales: '65'
     },
     {
-      name: '智能手表',
+      name: '空调',
       popularity: 32,
-      sales: '100'
+      sales: '32'
     },
     {
-      name: '无线耳机',
+      name: '洗碗机',
       popularity: 78,
-      sales: '100'
-    },
-    {
-      name: '智能音箱',
-      popularity: 41,
-      sales: '100'
+      sales: '78'
     }
   ])
 

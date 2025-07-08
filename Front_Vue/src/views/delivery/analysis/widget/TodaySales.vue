@@ -1,12 +1,7 @@
 <template>
   <div class="custom-card art-custom-card today-sales">
     <div class="custom-card-header">
-      <span class="title">今日销售</span>
-      <span class="subtitle">销售总结</span>
-      <div class="export-btn">
-        <i class="iconfont-sys">&#xe6d1;</i>
-        <span>导出</span>
-      </div>
+      <span class="title">今日配送</span>
     </div>
     <div class="sales-summary">
       <el-row :gutter="20">
@@ -40,28 +35,28 @@
 
   const salesData = ref([
     {
-      label: '总销售额',
+      label: '总运单数',
       value: 999,
       change: '+10%',
       iconfont: '&#xe7d9',
       class: 'bg-primary'
     },
     {
-      label: '总订单量',
+      label: '已完成配送',
       value: 300,
       change: '+15%',
       iconfont: '&#xe70f',
       class: 'bg-warning'
     },
     {
-      label: '产品销售量',
+      label: '配送中运单',
       value: 56,
       change: '-5%',
       iconfont: '&#xe712',
       class: 'bg-error'
     },
     {
-      label: '新客户数',
+      label: '待配送运单',
       value: 68,
       change: '+8%',
       iconfont: '&#xe77f',
