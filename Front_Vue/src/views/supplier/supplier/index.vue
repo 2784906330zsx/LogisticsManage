@@ -53,13 +53,12 @@
               <ElCol :span="12">
                 <ElFormItem label="类型" prop="type">
                   <ElSelect v-model="formData.type" placeholder="请选择供应商类型">
-                    <ElOption label="个人或个体工商户" value="个人或个体工商户" />
                     <ElOption label="企业" value="企业" />
+                    <ElOption label="个人或个体工商户" value="个人或个体工商户" />
                     <ElOption label="事业单位" value="事业单位" />
                     <ElOption label="政府部门" value="政府部门" />
-                    <ElOption label="集体组织" value="集体组织" />
                     <ElOption label="社会团体" value="社会团体" />
-                    <ElOption label="其他" value="其他" />
+                    <ElOption label="集体组织" value="集体组织" />
                   </ElSelect>
                 </ElFormItem>
               </ElCol>
@@ -84,16 +83,18 @@
             </ElFormItem>
             <ElFormItem label="状态" prop="status">
               <ElSelect v-model="formData.status" placeholder="请选择状态">
-                <ElOption label="正常" value="1" />
-                <ElOption label="对方暂停合作" value="2" />
-                <ElOption label="黑名单" value="3" />
+                <ElOption label="正常" value="正常" />
+                <ElOption label="暂停合作" value="暂停合作" />
+                <ElOption label="黑名单" value="黑名单" />
               </ElSelect>
             </ElFormItem>
           </ElForm>
           <template #footer>
             <div class="dialog-footer">
               <ElButton @click="dialogVisible = false">取消</ElButton>
-              <ElButton type="primary" @click="handleSubmit">提交</ElButton>
+              <ElButton type="primary" @click="handleSubmit" :loading="submitLoading"
+                >提交</ElButton
+              >
             </div>
           </template>
         </ElDialog>
@@ -104,7 +105,7 @@
 
 <script setup lang="ts">
   import { h } from 'vue'
-  import { SUPPLIER_LIST_DATA } from '@/mock/formData'
+  import { PurchaseService } from '@/api/purchaseApi'
   import { ElDialog, FormInstance, ElTag } from 'element-plus'
   import { ElMessageBox, ElMessage } from 'element-plus'
   import type { FormRules } from 'element-plus'
@@ -117,6 +118,7 @@
   const dialogType = ref('add')
   const dialogVisible = ref(false)
   const loading = ref(false)
+  const submitLoading = ref(false)
 
   // 定义表单搜索初始值
   const initialSearchState = {
@@ -182,13 +184,12 @@
         clearable: true
       },
       options: () => [
-        { label: '个人或个体工商户', value: '个人或个体工商户' },
         { label: '企业', value: '企业' },
+        { label: '个人或个体工商户', value: '个人或个体工商户' },
         { label: '事业单位', value: '事业单位' },
         { label: '政府部门', value: '政府部门' },
-        { label: '集体组织', value: '集体组织' },
         { label: '社会团体', value: '社会团体' },
-        { label: '其他', value: '其他' }
+        { label: '集体组织', value: '集体组织' }
       ],
       onChange: handleFormChange
     },
@@ -209,9 +210,9 @@
         clearable: true
       },
       options: () => [
-        { label: '正常', value: '1' },
-        { label: '对方暂停合作', value: '2' },
-        { label: '黑名单', value: '3' }
+        { label: '正常', value: '正常' },
+        { label: '暂停合作', value: '暂停合作' },
+        { label: '黑名单', value: '黑名单' }
       ],
       onChange: handleFormChange
     }
@@ -220,28 +221,14 @@
   // 获取标签类型
   const getTagType = (status: string) => {
     switch (status) {
-      case '1':
+      case '正常':
         return 'success'
-      case '2':
+      case '暂停合作':
         return 'warning'
-      case '3':
+      case '黑名单':
         return 'danger'
       default:
         return 'info'
-    }
-  }
-
-  // 构建标签文本
-  const buildTagText = (status: string) => {
-    switch (status) {
-      case '1':
-        return '正常'
-      case '2':
-        return '对方暂停合作'
-      case '3':
-        return '黑名单'
-      default:
-        return '未知'
     }
   }
 
@@ -256,6 +243,7 @@
     }
 
     if (type === 'edit' && row) {
+      formData.id = row.id
       formData.name = row.name
       formData.type = row.type
       formData.address = row.address
@@ -264,24 +252,37 @@
       formData.contactEmail = row.contactEmail
       formData.status = row.status
     } else {
+      formData.id = undefined
       formData.name = ''
       formData.type = ''
       formData.address = ''
       formData.contactPerson = ''
       formData.contactPhone = ''
       formData.contactEmail = ''
-      formData.status = '1'
+      formData.status = '正常'
     }
   }
 
   // 删除供应商
-  const deleteSupplier = () => {
+  const deleteSupplier = (row: any) => {
     ElMessageBox.confirm('确定要删除该供应商吗？', '删除供应商', {
       confirmButtonText: '确定',
       cancelButtonText: '取消',
       type: 'error'
-    }).then(() => {
-      ElMessage.success('删除成功')
+    }).then(async () => {
+      try {
+        // 修复：直接传递 row.id 而不是对象
+        const response = await PurchaseService.deleteSupplier(row.id)
+        if (response.code === 200) {
+          ElMessage.success('删除成功')
+          getSupplierList()
+        } else {
+          ElMessage.error(response.msg || '删除失败')
+        }
+      } catch (error) {
+        console.error('删除供应商失败:', error)
+        ElMessage.error('删除失败')
+      }
     })
   }
 
@@ -342,12 +343,12 @@
       label: '状态',
       width: 100,
       formatter: (row) => {
-        return h(ElTag, { type: getTagType(row.status) }, () => buildTagText(row.status))
+        return h(ElTag, { type: getTagType(row.status) }, () => row.status)
       }
     },
     {
       prop: 'createTime',
-      label: '创建时间',
+      label: '添加时间',
       sortable: true,
       width: 160
     },
@@ -363,7 +364,7 @@
           }),
           h(ArtButtonTable, {
             type: 'delete',
-            onClick: () => deleteSupplier()
+            onClick: () => deleteSupplier(row)
           })
         ])
       }
@@ -375,13 +376,14 @@
 
   // 表单数据
   const formData = reactive({
+    id: undefined as number | undefined,
     name: '',
     type: '',
     address: '',
     contactPerson: '',
     contactPhone: '',
     contactEmail: '',
-    status: '1'
+    status: '正常'
   })
 
   onMounted(() => {
@@ -394,40 +396,26 @@
     try {
       const { currentPage, pageSize } = pagination
 
-      // 模拟API调用
-      await new Promise((resolve) => setTimeout(resolve, 500))
-
-      // 过滤数据
-      let filteredData = [...SUPPLIER_LIST_DATA]
-
-      if (formFilters.name) {
-        filteredData = filteredData.filter((item) =>
-          item.name.toLowerCase().includes(formFilters.name.toLowerCase())
-        )
+      const params = {
+        current: currentPage,
+        size: pageSize,
+        name: formFilters.name || undefined,
+        type: formFilters.type || undefined,
+        contactPerson: formFilters.contactPerson || undefined,
+        status: formFilters.status || undefined
       }
 
-      if (formFilters.type) {
-        filteredData = filteredData.filter((item) => item.type === formFilters.type)
+      const response = await PurchaseService.getSupplierList(params)
+
+      if (response.code === 200) {
+        tableData.value = response.data.list // 修改：results -> list
+        pagination.total = response.data.total // 修改：count -> total
+      } else {
+        ElMessage.error(response.msg || '获取供应商列表失败')
       }
-
-      if (formFilters.contactPerson) {
-        filteredData = filteredData.filter((item) =>
-          item.contactPerson.toLowerCase().includes(formFilters.contactPerson.toLowerCase())
-        )
-      }
-
-      if (formFilters.status) {
-        filteredData = filteredData.filter((item) => item.status === formFilters.status)
-      }
-
-      const total = filteredData.length
-      const start = (currentPage - 1) * pageSize
-      const end = start + pageSize
-
-      tableData.value = filteredData.slice(start, end)
-      pagination.total = total
     } catch (error) {
       console.error('获取供应商列表失败:', error)
+      ElMessage.error('获取供应商列表失败')
     } finally {
       loading.value = false
     }
@@ -476,11 +464,54 @@
   const handleSubmit = async () => {
     if (!formRef.value) return
 
-    await formRef.value.validate((valid) => {
+    await formRef.value.validate(async (valid) => {
       if (valid) {
-        ElMessage.success(dialogType.value === 'add' ? '添加成功' : '更新成功')
-        dialogVisible.value = false
-        getSupplierList()
+        submitLoading.value = true
+        try {
+          if (dialogType.value === 'add') {
+            const response = await PurchaseService.addSupplier({
+              name: formData.name,
+              type: formData.type,
+              address: formData.address,
+              contactPerson: formData.contactPerson,
+              contactPhone: formData.contactPhone,
+              contactEmail: formData.contactEmail,
+              status: formData.status
+            })
+
+            if (response.code === 200) {
+              ElMessage.success('添加成功')
+              dialogVisible.value = false
+              getSupplierList()
+            } else {
+              ElMessage.error(response.msg || '添加失败')
+            }
+          } else {
+            const response = await PurchaseService.updateSupplier({
+              id: formData.id!,
+              name: formData.name,
+              type: formData.type,
+              address: formData.address,
+              contactPerson: formData.contactPerson,
+              contactPhone: formData.contactPhone,
+              contactEmail: formData.contactEmail,
+              status: formData.status
+            })
+
+            if (response.code === 200) {
+              ElMessage.success('更新成功')
+              dialogVisible.value = false
+              getSupplierList()
+            } else {
+              ElMessage.error(response.msg || '更新失败')
+            }
+          }
+        } catch (error) {
+          console.error('提交失败:', error)
+          ElMessage.error('提交失败')
+        } finally {
+          submitLoading.value = false
+        }
       }
     })
   }

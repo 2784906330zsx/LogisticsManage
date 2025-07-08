@@ -59,14 +59,66 @@
             <ElFormItem label="价格" prop="price">
               <ElInputNumber v-model="formData.price" :min="0" :precision="2" />
             </ElFormItem>
-            <ElFormItem label="库存" prop="stock">
-              <ElInputNumber v-model="formData.stock" :min="0" />
-            </ElFormItem>
             <ElFormItem label="供应商" prop="supplier">
-              <ElInput v-model="formData.supplier" placeholder="请输入供应商名称" />
+              <ElSelect
+                v-model="formData.supplier"
+                placeholder="请选择供应商"
+                filterable
+                clearable
+                style="width: 100%"
+              >
+                <ElOption
+                  v-for="supplier in supplierList"
+                  :key="supplier.id"
+                  :label="supplier.name"
+                  :value="supplier.name"
+                />
+              </ElSelect>
             </ElFormItem>
             <ElFormItem label="存储区域" prop="storageArea">
-              <ElInput v-model="formData.storageArea" placeholder="请输入存储区域" />
+              <div style="display: flex; gap: 8px; width: 100%">
+                <ElSelect
+                  v-model="storageSelection.area"
+                  placeholder="选择区域"
+                  @change="handleAreaChange"
+                  style="flex: 1"
+                >
+                  <ElOption
+                    v-for="area in areaOptions"
+                    :key="area.value"
+                    :label="area.label"
+                    :value="area.value"
+                  />
+                </ElSelect>
+                <ElSelect
+                  v-model="storageSelection.level"
+                  placeholder="选择层级"
+                  @change="handleLevelChange"
+                  :disabled="!storageSelection.area"
+                  style="flex: 1"
+                >
+                  <ElOption
+                    v-for="level in levelOptions"
+                    :key="level.value"
+                    :label="level.label"
+                    :value="level.value"
+                  />
+                </ElSelect>
+                <ElSelect
+                  v-model="storageSelection.shelf"
+                  placeholder="选择货架"
+                  @change="handleShelfChange"
+                  :disabled="!storageSelection.level"
+                  style="flex: 1"
+                >
+                  <ElOption
+                    v-for="shelf in shelfOptions"
+                    :key="shelf.value"
+                    :label="shelf.label"
+                    :value="shelf.value"
+                  />
+                </ElSelect>
+              </div>
             </ElFormItem>
             <ElFormItem label="商品状态" prop="status">
               <ElSelect v-model="formData.status">
@@ -92,6 +144,7 @@
 <script setup lang="ts">
   import { h } from 'vue'
   import { StorageService } from '@/api/storageApi'
+  import { PurchaseService } from '@/api/purchaseApi'
   import { ElDialog, FormInstance, ElTag, ElImage } from 'element-plus'
   import { ElMessageBox, ElMessage } from 'element-plus'
   import type { FormRules } from 'element-plus'
@@ -99,13 +152,92 @@
   import ArtButtonTable from '@/components/core/forms/art-button-table/index.vue'
   import { SearchChangeParams, SearchFormItem } from '@/types'
 
-  const { width } = useWindowSize()
-
   defineOptions({ name: 'Commodity' })
 
   const dialogType = ref('add')
   const dialogVisible = ref(false)
   const loading = ref(false)
+
+  // 供应商列表
+  const supplierList = ref<any[]>([])
+
+  // 存储区域选择
+  const storageSelection = reactive({
+    area: '',
+    level: '',
+    shelf: ''
+  })
+
+  // 区域选项
+  const areaOptions = [
+    { label: 'A区', value: 'A' },
+    { label: 'B区', value: 'B' },
+    { label: 'C区', value: 'C' }
+  ]
+
+  // 层级选项
+  const levelOptions = [
+    { label: 'L1层', value: 'L1' },
+    { label: 'L2层', value: 'L2' },
+    { label: 'L3层', value: 'L3' }
+  ]
+
+  // 货架选项
+  const shelfOptions = computed(() => {
+    const options = []
+    for (let i = 1; i <= 10; i++) {
+      const shelfNumber = i.toString().padStart(2, '0')
+      options.push({
+        label: `${shelfNumber}号`,
+        value: shelfNumber
+      })
+    }
+    return options
+  })
+
+  // 处理区域变化
+  const handleAreaChange = () => {
+    storageSelection.level = ''
+    storageSelection.shelf = ''
+    updateStorageArea()
+  }
+
+  // 处理层级变化
+  const handleLevelChange = () => {
+    storageSelection.shelf = ''
+    updateStorageArea()
+  }
+
+  // 处理货架变化
+  const handleShelfChange = () => {
+    updateStorageArea()
+  }
+
+  // 更新存储区域字符串
+  const updateStorageArea = () => {
+    if (storageSelection.area && storageSelection.level && storageSelection.shelf) {
+      formData.storageArea = `${storageSelection.area}区-${storageSelection.level}层-${storageSelection.shelf}号`
+    } else {
+      formData.storageArea = ''
+    }
+  }
+
+  // 解析存储区域字符串
+  const parseStorageArea = (storageArea: string) => {
+    if (!storageArea) {
+      storageSelection.area = ''
+      storageSelection.level = ''
+      storageSelection.shelf = ''
+      return
+    }
+
+    const parts = storageArea.split('-')
+    if (parts.length === 3) {
+      storageSelection.area = parts[0].replace('区', '')
+      storageSelection.level = parts[1].replace('层', '')
+      storageSelection.shelf = parts[2].replace('号', '')
+    }
+  }
 
   // 定义表单搜索初始值
   const initialSearchState = {
@@ -220,6 +352,21 @@
     }
   }
 
+  // 获取供应商列表
+  const getSupplierList = async () => {
+    try {
+      const response = await PurchaseService.getSupplierList({
+        current: 1,
+        size: 1000 // 获取所有供应商
+      })
+      if (response.code === 200) {
+        supplierList.value = response.data.list || []
+      }
+    } catch (error) {
+      console.error('获取供应商列表失败:', error)
+    }
+  }
+
   // 显示对话框
   const showDialog = (type: string, row?: any) => {
     dialogVisible.value = true
@@ -241,6 +388,8 @@
       formData.supplier = row.supplier
       formData.storageArea = row.storageArea
       formData.status = row.status
+      // 解析存储区域
+      parseStorageArea(row.storageArea)
     } else {
       formData.id = undefined
       formData.name = ''
@@ -248,10 +397,13 @@
       formData.brand = ''
       formData.description = ''
       formData.price = 0
-      formData.stock = 0
+      formData.stock = 0 // 新增时自动设为0
       formData.supplier = ''
       formData.storageArea = ''
       formData.status = '1'
+      storageSelection.area = ''
+      storageSelection.level = ''
+      storageSelection.shelf = ''
     }
   }
 
@@ -278,12 +430,13 @@
     {
       prop: 'id',
       label: '商品ID',
-      width: 80
+      sortable: true,
+      width: 90
     },
     {
       prop: 'image',
       label: '商品名称',
-      minWidth: width.value < 500 ? 250 : 280,
+      width: 180,
       formatter: (row: any) => {
         return h('div', { class: 'commodity-info', style: 'display: flex; align-items: center' }, [
           h(ElImage, {
@@ -309,12 +462,12 @@
     {
       prop: 'brand',
       label: '品牌',
-      width: 120
+      width: 60
     },
     {
       prop: 'description',
       label: '商品介绍',
-      minWidth: 200,
+      width: 180,
       formatter: (row: any) => {
         const text = row.description || ''
         return text.length > 50 ? text.substring(0, 50) + '...' : text
@@ -322,24 +475,15 @@
     },
     {
       prop: 'price',
-      label: '进货价',
+      label: '进价',
+      width: 100,
       sortable: true,
       formatter: (row: any) => `¥${row.price}`
     },
     {
-      prop: 'stock',
-      label: '库存',
-      sortable: true
-    },
-    {
       prop: 'supplier',
       label: '供应商',
-      width: 150
-    },
-    {
-      prop: 'storageArea',
-      label: '存储区域',
-      width: 150
+      width: 120
     },
     {
       prop: 'status',
@@ -351,6 +495,7 @@
     {
       prop: 'createTime',
       label: '创建时间',
+      width: 180,
       sortable: true
     },
     {
@@ -391,6 +536,7 @@
 
   onMounted(() => {
     getCommodityList()
+    getSupplierList()
   })
 
   // 获取商品列表数据
@@ -398,8 +544,8 @@
     loading.value = true
     try {
       const params = {
-        current: pagination.currentPage, // 修改：使用 current 而不是 page
-        size: pagination.pageSize, // 修改：使用 size 而不是 pageSize
+        current: pagination.currentPage,
+        size: pagination.pageSize,
         ...formFilters
       }
 
@@ -409,7 +555,7 @@
         tableData.value = response.data.list
         pagination.total = response.data.total
       } else {
-        ElMessage.error(response.msg || '获取商品列表失败') // 修改：使用 msg 而不是 message
+        ElMessage.error(response.msg || '获取商品列表失败')
       }
     } catch (error) {
       console.error('获取商品列表失败:', error)
@@ -441,9 +587,8 @@
     ],
     description: [{ required: true, message: '请输入商品介绍', trigger: 'blur' }],
     price: [{ required: true, message: '请输入价格', trigger: 'blur' }],
-    stock: [{ required: true, message: '请输入库存', trigger: 'blur' }],
-    supplier: [{ required: true, message: '请输入供应商', trigger: 'blur' }],
-    storageArea: [{ required: true, message: '请输入存储区域', trigger: 'blur' }],
+    supplier: [{ required: true, message: '请选择供应商', trigger: 'change' }],
+    storageArea: [{ required: true, message: '请选择存储区域', trigger: 'blur' }],
     status: [{ required: true, message: '请选择商品状态', trigger: 'change' }]
   })
 

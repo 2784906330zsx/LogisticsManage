@@ -193,6 +193,32 @@ CREATE TABLE `PurchaseOrder` (
   CONSTRAINT `PurchaseOrder_supplier_id_7bd6a9d5_fk_Supplier_id` FOREIGN KEY (`supplier_id`) REFERENCES `Supplier` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+-- 插入采购订单数据到 PurchaseOrder 表
+INSERT INTO `PurchaseOrder` (
+    `order_number`, 
+    `unit_price`, 
+    `quantity`, 
+    `total_amount`, 
+    `status`, 
+    `purchase_name`, 
+    `purchase_job_number`, 
+    `order_time`, 
+    `check_name`, 
+    `check_job_number`, 
+    `check_time`, 
+    `check_reason`, 
+    `inbound_name`, 
+    `inbound_job_number`, 
+    `inbound_time`, 
+    `commodity_id`, 
+    `supplier_id`
+) VALUES
+('PO202501150001', 8999.00, 50, 449950.00, '2', 'Isabella Moore', 'EMP011', '2025-01-15 09:30:00', NULL, NULL, NULL, NULL, 'Mia Clark', 'EMP009', '2025-01-16 14:20:00', 1, 1),
+('PO202501160002', 15999.00, 20, 319980.00, '1', 'Isabella Moore', 'EMP011', '2025-01-16 10:15:00', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 2, 1),
+('PO202501170003', 1899.00, 100, 189900.00, '2', 'Isabella Moore', 'EMP011', '2025-01-17 14:30:00', NULL, NULL, NULL, NULL, 'Mia Clark', 'EMP009', '2025-01-18 11:45:00', 3, 1),
+('PO202501180004', 5999.00, 30, 179970.00, '3', 'Isabella Moore', 'EMP011', '2025-01-18 16:20:00', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 4, 3),
+('PO202501190005', 7999.00, 15, 119985.00, '2', 'Isabella Moore', 'EMP011', '2025-01-19 09:45:00', NULL, NULL, NULL, NULL, 'Mia Clark', 'EMP009', '2025-01-20 15:30:00', 5, 4);
+
 -- ----------------------------
 -- Records of PurchaseOrder
 -- ----------------------------
@@ -303,6 +329,13 @@ CREATE TABLE `Supplier` (
   `status` varchar(10) COLLATE utf8mb4_general_ci NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- 让数据库自动生成ID的版本
+INSERT INTO `Supplier` (`name`, `supplier_type`, `address`, `contact_person`, `contact_phone`, `contact_email`, `create_time`, `status`) VALUES
+('海尔集团公司', '企业', '北京市朝阳区中关村科技园区', '张经理', '010-85123456', 'zhang@Haier.com', '2025-01-15 10:30:00', '1'),
+('海尔集团上海分公司', '企业', '上海市浦东新区张江高科技园区', '李总监', '010-56781234', 'li.director@haier.com', '2025-02-20 14:20:00', '1'),
+('海尔集团江苏分公司', '企业', '江苏省南京市玄武区玄武大道123号', '王部长', '021-58901234', 'wang.minister@Haier.cn', '2025-03-10 09:15:00', '1'),
+('海尔集团浙江分公司', '企业', '浙江省杭州市西湖区西湖大道123号', '刘经理', '021-38123456', 'liu.manager@Haier.com.cn', '2025-04-05 16:45:00', '1');
 
 -- ----------------------------
 -- Records of Supplier

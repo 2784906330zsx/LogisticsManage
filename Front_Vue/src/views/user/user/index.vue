@@ -119,7 +119,7 @@
   import ArtButtonTable from '@/components/core/forms/art-button-table/index.vue'
   import { UserService } from '@/api/usersApi'
   import { SearchChangeParams, SearchFormItem } from '@/types'
-  const { width } = useWindowSize()
+  // const { width } = useWindowSize()
 
   defineOptions({ name: 'User' }) // 定义组件名称，用于 KeepAlive 缓存控制
 
@@ -382,7 +382,7 @@
     {
       prop: 'avatar',
       label: '姓名',
-      minWidth: width.value < 500 ? 220 : '',
+      width: 120,
       formatter: (row: any) => {
         return h('div', { class: 'user', style: 'display: flex; align-items: center' }, [
           h('img', { class: 'avatar', src: row.avatar }),
@@ -393,19 +393,22 @@
     {
       prop: 'jobNumber',
       label: '工号',
+      width: 80,
       sortable: true
     },
     {
-      prop: 'email', // 改为使用 email
-      label: '邮箱'
+      prop: 'gender',
+      label: '性别',
+      width: 80,
+      sortable: true,
+      formatter: (row) => (row.gender === 1 || row.gender === '1' ? '男' : '女')
     },
     {
-      prop: 'gender', // 改为使用 gender
-      label: '性别',
-      sortable: true,
-      formatter: (row) => (row.gender === 1 || row.gender === '1' ? '男' : '女') // 改为使用 row.gender
+      prop: 'email',
+      label: '邮箱',
+      width: 180
     },
-    { prop: 'phone', label: '手机号' }, // 改为使用 phone
+    { prop: 'phone', label: '手机号' },
     {
       prop: 'dep',
       label: '部门'

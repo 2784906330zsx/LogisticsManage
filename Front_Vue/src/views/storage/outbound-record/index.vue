@@ -10,13 +10,6 @@
       ></ArtSearchBar>
 
       <ElCard shadow="never" class="art-table-card">
-        <!-- 表格头部 -->
-        <ArtTableHeader v-model:columns="columnChecks" @refresh="handleRefresh">
-          <template #left>
-            <ElButton @click="showDialog('add')">新增出库记录</ElButton>
-          </template>
-        </ArtTableHeader>
-
         <!-- 表格 -->
         <ArtTable
           ref="tableRef"
@@ -35,53 +28,6 @@
             <ElTableColumn v-for="col in columns" :key="col.prop || col.type" v-bind="col" />
           </template>
         </ArtTable>
-
-        <!-- 新增/编辑对话框 -->
-        <ElDialog
-          v-model="dialogVisible"
-          :title="dialogType === 'add' ? '新增出库记录' : '编辑出库记录'"
-          width="40%"
-          align-center
-        >
-          <ElForm ref="formRef" :model="formData" :rules="rules" label-width="100px">
-            <ElFormItem label="商品" prop="commodityId">
-              <ElSelect
-                v-model="formData.commodityId"
-                placeholder="请选择商品"
-                @change="handleCommodityChange"
-              >
-                <ElOption
-                  v-for="commodity in COMMODITY_LIST_DATA"
-                  :key="commodity.id"
-                  :label="commodity.name"
-                  :value="commodity.id"
-                />
-              </ElSelect>
-            </ElFormItem>
-            <ElFormItem label="出库数量" prop="quantity">
-              <ElInputNumber v-model="formData.quantity" :min="1" />
-            </ElFormItem>
-            <ElFormItem label="出库原因" prop="reason">
-              <ElSelect v-model="formData.reason" placeholder="请选择出库原因">
-                <ElOption label="客户订单" value="客户订单" />
-                <ElOption label="批量订单" value="批量订单" />
-                <ElOption label="企业采购" value="企业采购" />
-                <ElOption label="产品损坏" value="产品损坏" />
-                <ElOption label="退货处理" value="退货处理" />
-                <ElOption label="其他" value="其他" />
-              </ElSelect>
-            </ElFormItem>
-            <ElFormItem label="关联订单" prop="relatedOrder">
-              <ElInput v-model="formData.relatedOrder" placeholder="请输入关联订单号" />
-            </ElFormItem>
-          </ElForm>
-          <template #footer>
-            <div class="dialog-footer">
-              <ElButton @click="dialogVisible = false">取消</ElButton>
-              <ElButton type="primary" @click="handleSubmit">提交</ElButton>
-            </div>
-          </template>
-        </ElDialog>
       </ElCard>
     </div>
   </ArtTableFullScreen>
@@ -89,20 +35,19 @@
 
 <script setup lang="ts">
   import { h } from 'vue'
-  import { OUTBOUND_RECORD_DATA, COMMODITY_LIST_DATA } from '@/mock/formData'
-  import { ElDialog, FormInstance, ElImage } from 'element-plus'
+  import { OUTBOUND_RECORD_DATA } from '@/mock/formData'
+  import { ElImage } from 'element-plus'
   import { ElMessageBox, ElMessage } from 'element-plus'
-  import type { FormRules } from 'element-plus'
   import { useCheckedColumns } from '@/composables/useCheckedColumns'
   import ArtButtonTable from '@/components/core/forms/art-button-table/index.vue'
   import { SearchChangeParams, SearchFormItem } from '@/types'
+  import { useUserStore } from '@/store/modules/user'
 
-  const { width } = useWindowSize()
+  // const { width } = useWindowSize()
+  const userStore = useUserStore()
 
   defineOptions({ name: 'OutboundRecord' })
 
-  const dialogType = ref('add')
-  const dialogVisible = ref(false)
   const loading = ref(false)
 
   // 定义表单搜索初始值
@@ -163,18 +108,10 @@
     {
       label: '出库原因',
       prop: 'reason',
-      type: 'select',
+      type: 'input',
       config: {
         clearable: true
       },
-      options: () => [
-        { label: '客户订单', value: '客户订单' },
-        { label: '批量订单', value: '批量订单' },
-        { label: '企业采购', value: '企业采购' },
-        { label: '产品损坏', value: '产品损坏' },
-        { label: '退货处理', value: '退货处理' },
-        { label: '其他', value: '其他' }
-      ],
       onChange: handleFormChange
     },
     {
@@ -188,60 +125,43 @@
     }
   ]
 
-  // 显示对话框
-  const showDialog = (type: string, row?: any) => {
-    dialogVisible.value = true
-    dialogType.value = type
-
-    // 重置表单验证状态
-    if (formRef.value) {
-      formRef.value.resetFields()
-    }
-
-    if (type === 'edit' && row) {
-      formData.commodityId = row.commodityId
-      formData.quantity = row.quantity
-      formData.reason = row.reason
-      formData.relatedOrder = row.relatedOrder
-    } else {
-      formData.commodityId = undefined // 改为undefined而不是null
-      formData.quantity = 1
-      formData.reason = ''
-      formData.relatedOrder = ''
-    }
-  }
-
-  // 处理商品选择变化
-  const handleCommodityChange = (commodityId: number) => {
-    const commodity = COMMODITY_LIST_DATA.find((item) => item.id === commodityId)
-    if (commodity) {
-      // 可以在这里设置一些默认值
-    }
-  }
-
   // 删除记录
-  const deleteRecord = () => {
-    ElMessageBox.confirm('确定要删除该出库记录吗？', '删除记录', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'error'
-    }).then(() => {
-      ElMessage.success('删除成功')
+  const deleteRecord = (row: any) => {
+    // 检查是否为超级管理员 - 基于roleCode判断
+    if (userStore.info?.roleCode !== 'R_SUPER') {
+      ElMessage.warning('只有超级管理员可以删除出库记录')
+      return
+    }
+
+    ElMessageBox.confirm(
+      `确定要删除商品"${row.commodityName}"的出库记录吗？\n出库数量：${row.quantity}\n出库时间：${row.outboundTime}`,
+      '删除记录',
+      {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'error'
+      }
+    ).then(() => {
+      // TODO: 调用实际的删除API
+      // await storageApi.deleteOutboundRecord(row.id)
+      console.log('删除出库记录:', row)
+      ElMessage.success(`已删除商品"${row.commodityName}"的出库记录`)
+      getOutboundRecordList()
     })
   }
 
   // 动态列配置
-  const { columnChecks, columns } = useCheckedColumns(() => [
+  const { columns } = useCheckedColumns(() => [
     { type: 'selection' },
     {
-      prop: 'commodityId',
-      label: '商品ID',
+      prop: 'id',
+      label: 'ID',
       width: 80
     },
     {
       prop: 'commodityImage',
       label: '商品信息',
-      minWidth: width.value < 500 ? 250 : 280,
+      width: 200,
       formatter: (row: any) => {
         return h('div', { class: 'commodity-info', style: 'display: flex; align-items: center' }, [
           h(ElImage, {
@@ -267,60 +187,47 @@
     {
       prop: 'quantity',
       label: '出库数量',
-      sortable: true,
-      formatter: (row: any) => `${row.quantity} 件`
+      sortable: true
     },
     {
       prop: 'reason',
       label: '出库原因',
+      minWidth: 150
+    },
+    {
+      prop: 'relatedOrder',
+      label: '关联订单',
       width: 120
+    },
+    {
+      prop: 'outboundName',
+      label: '出库人',
+      width: 100
     },
     {
       prop: 'outboundTime',
       label: '出库时间',
       sortable: true,
-      width: 160
-    },
-    {
-      prop: 'relatedOrder',
-      label: '关联订单',
-      width: 140
-    },
-    {
-      prop: 'operator',
-      label: '操作员',
-      width: 100
+      minWidth: 160
     },
     {
       prop: 'operation',
       label: '操作',
-      width: 150,
+      width: 100,
       formatter: (row: any) => {
-        return h('div', [
-          h(ArtButtonTable, {
-            type: 'edit',
-            onClick: () => showDialog('edit', row)
-          }),
-          h(ArtButtonTable, {
-            type: 'delete',
-            onClick: () => deleteRecord()
-          })
-        ])
+        // 只有超级管理员才显示删除按钮
+        if (userStore.info?.roleCode === 'R_SUPER') {
+          return h('div', [
+            h(ArtButtonTable, {
+              type: 'delete',
+              onClick: () => deleteRecord(row)
+            })
+          ])
+        }
+        return h('span', { style: 'color: #999' }, '无权限')
       }
     }
   ])
-
-  // 表单实例
-  const formRef = ref<FormInstance>()
-
-  // 表单数据
-  // 表单数据
-  const formData = reactive({
-    commodityId: undefined as number | undefined, // 改为undefined而不是null
-    quantity: 1,
-    reason: '',
-    relatedOrder: ''
-  })
 
   onMounted(() => {
     getOutboundRecordList()
@@ -354,46 +261,24 @@
         )
       }
 
-      const total = filteredData.length
-      const start = (currentPage - 1) * pageSize
-      const end = start + pageSize
+      // 分页
+      const startIndex = (currentPage - 1) * pageSize
+      const endIndex = startIndex + pageSize
+      const paginatedData = filteredData.slice(startIndex, endIndex)
 
-      tableData.value = filteredData.slice(start, end)
-      pagination.total = total
+      tableData.value = paginatedData
+      pagination.total = filteredData.length
     } catch (error) {
       console.error('获取出库记录列表失败:', error)
+      ElMessage.error('获取出库记录列表失败')
     } finally {
       loading.value = false
     }
   }
 
-  const handleRefresh = () => {
-    getOutboundRecordList()
-  }
-
   // 处理表格行选择变化
   const handleSelectionChange = (selection: any[]) => {
     selectedRows.value = selection
-  }
-
-  // 表单验证规则
-  const rules = reactive<FormRules>({
-    commodityId: [{ required: true, message: '请选择商品', trigger: 'change' }],
-    quantity: [{ required: true, message: '请输入出库数量', trigger: 'blur' }],
-    reason: [{ required: true, message: '请选择出库原因', trigger: 'change' }]
-  })
-
-  // 提交表单
-  const handleSubmit = async () => {
-    if (!formRef.value) return
-
-    await formRef.value.validate((valid) => {
-      if (valid) {
-        ElMessage.success(dialogType.value === 'add' ? '添加成功' : '更新成功')
-        dialogVisible.value = false
-        getOutboundRecordList()
-      }
-    })
   }
 
   // 处理表格分页变化

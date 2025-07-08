@@ -50,37 +50,40 @@ class UserInfoView(View):
             # 获取用户职务和部门信息
             position_name = ''
             department_name = ''
+            role_code = ''
             if user.position:
                 try:
                     role = Role.objects.select_related('department').get(id=user.position)
                     position_name = role.role_name
                     department_name = role.department.department_name
+                    role_code = role.role_code  # 添加role_code
                 except Role.DoesNotExist:
                     pass
 
             # 构造用户信息响应
             user_info = {
                 'userId': user.id,
-                'gender': user.gender or 1,  # 默认为1（男）
+                'gender': user.gender or 1,
                 'userName': user.username,
                 'jobNumber': user.job_number or '',
                 'position': position_name,
                 'department': department_name,
-                'roles': ['R_USER'],  # 默认角色，可根据实际业务调整
-                'buttons': [],  # 按钮权限，可根据实际业务调整
+                'roleCode': role_code,  # 添加roleCode字段
+                'roles': ['R_USER'],
+                'buttons': [],
                 'avatar': user.avatar or '',
                 'email': user.email or '',
                 'phone': user.mobile or ''
             }
 
-            # 根据用户状态设置角色
-            if user.is_superuser:
+            # 根据role_code设置角色和权限
+            if role_code == 'R_SUPER':
                 user_info['roles'] = ['R_SUPER']
                 user_info['buttons'] = ['add', 'edit', 'delete', 'view']
-            elif user.is_staff:
+            elif role_code.startswith('R_'):  # 管理员角色
                 user_info['roles'] = ['R_ADMIN']
                 user_info['buttons'] = ['add', 'edit', 'view']
-            else:
+            else:  # 普通员工
                 user_info['roles'] = ['R_USER']
                 user_info['buttons'] = ['view']
 

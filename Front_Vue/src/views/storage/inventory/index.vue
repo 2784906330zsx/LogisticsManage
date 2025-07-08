@@ -30,7 +30,7 @@
         </ArtTable>
 
         <!-- 库存调整对话框 -->
-        <ElDialog v-model="dialogVisible" title="库存调整" width="40%" align-center>
+        <ElDialog v-model="adjustDialogVisible" title="库存调整" width="500px" align-center>
           <ElForm ref="formRef" :model="formData" :rules="rules" label-width="120px">
             <ElFormItem label="商品名称" prop="name">
               <ElInput v-model="formData.name" disabled />
@@ -89,7 +89,7 @@
           </ElForm>
           <template #footer>
             <div class="dialog-footer">
-              <ElButton @click="dialogVisible = false">取消</ElButton>
+              <ElButton @click="adjustDialogVisible = false">取消</ElButton>
               <ElButton type="primary" @click="handleSubmit">确认调整</ElButton>
             </div>
           </template>
@@ -109,11 +109,9 @@
   import ArtButtonTable from '@/components/core/forms/art-button-table/index.vue'
   import { SearchChangeParams, SearchFormItem } from '@/types'
 
-  const { width } = useWindowSize()
-
   defineOptions({ name: 'Inventory' })
 
-  const dialogVisible = ref(false)
+  const adjustDialogVisible = ref(false)
   const loading = ref(false)
 
   // 定义表单搜索初始值
@@ -204,7 +202,7 @@
 
   // 显示对话框
   const showDialog = (type: string, row?: any) => {
-    dialogVisible.value = true
+    adjustDialogVisible.value = true
 
     // 重置表单验证状态
     if (formRef.value) {
@@ -238,13 +236,13 @@
     { type: 'selection' },
     {
       prop: 'id',
-      label: 'ID',
+      label: '商品ID',
       width: 80
     },
     {
       prop: 'image',
       label: '商品信息',
-      minWidth: width.value < 500 ? 250 : 280,
+      width: 200,
       formatter: (row: any) => {
         return h('div', { class: 'commodity-info', style: 'display: flex; align-items: center' }, [
           h(ElImage, {
@@ -286,11 +284,13 @@
     {
       prop: 'totalInbound',
       label: '总入库数量',
+      width: 120,
       sortable: true
     },
     {
       prop: 'totalOutbound',
       label: '总出库数量',
+      width: 120,
       sortable: true
     },
     {
@@ -405,7 +405,7 @@
         const newStorageArea = `${formData.selectedZone}区-${formData.selectedLevel}层-${formData.selectedShelf}号`
         console.log('新的存储区域:', newStorageArea)
         ElMessage.success('库存调整成功')
-        dialogVisible.value = false
+        adjustDialogVisible.value = false
         getInventoryList()
       }
     })
@@ -435,5 +435,16 @@
         color: var(--art-text-gray-800);
       }
     }
+  }
+</style>
+
+<style scoped>
+  .storage-selection {
+    display: flex;
+    gap: 10px;
+  }
+
+  .storage-selection .el-select {
+    flex: 1;
   }
 </style>
