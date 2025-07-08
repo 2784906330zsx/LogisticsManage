@@ -11,7 +11,7 @@ export class PurchaseService {
     }
   ) {
     return request.get<Api.Http.BaseResponse<any>>({
-      url: '/api/purchase/supplier/list', // 修改：添加 purchase 前缀
+      url: '/api/purchase/supplier/list/', // 添加结尾斜杠
       params
     })
   }
@@ -27,7 +27,7 @@ export class PurchaseService {
     }
   ) {
     return request.get<Api.Http.BaseResponse<any>>({
-      url: '/api/purchase/order/list',
+      url: '/api/purchase/order/list/', // 添加结尾斜杠
       params
     })
   }
@@ -43,7 +43,7 @@ export class PurchaseService {
     status?: string
   }) {
     return request.post<Api.Http.BaseResponse<any>>({
-      url: '/api/purchase/supplier/manage', // 修改：添加 purchase 前缀
+      url: '/api/purchase/supplier/manage/', // 添加结尾斜杠
       data
     })
   }
@@ -60,7 +60,7 @@ export class PurchaseService {
     status?: string
   }) {
     return request.put<Api.Http.BaseResponse<any>>({
-      url: '/api/purchase/supplier/manage', // 修改：添加 purchase 前缀
+      url: '/api/purchase/supplier/manage/', // 添加结尾斜杠
       data
     })
   }
@@ -68,7 +68,7 @@ export class PurchaseService {
   // 删除供应商
   static deleteSupplier(id: number) {
     return request.del<Api.Http.BaseResponse<any>>({
-      url: '/api/purchase/supplier/manage', // 修改：添加 purchase 前缀
+      url: '/api/purchase/supplier/manage/', // 添加结尾斜杠
       data: { id }
     })
   }
@@ -76,7 +76,7 @@ export class PurchaseService {
   // 获取商品列表（用于下拉选择）
   static getCommodityList(params?: any) {
     return request.get<Api.Http.BaseResponse<any>>({
-      url: '/api/storage/commodity/list',
+      url: '/api/storage/commodity/list', // 去掉结尾斜杠
       params
     })
   }
@@ -84,7 +84,7 @@ export class PurchaseService {
   // 根据商品ID获取商品信息
   static getCommodityInfo(commodityId: number) {
     return request.get<Api.Http.BaseResponse<any>>({
-      url: '/api/purchase/order/manage',
+      url: '/api/purchase/order/manage/', // 添加结尾斜杠
       params: { commodityId }
     })
   }
@@ -92,8 +92,16 @@ export class PurchaseService {
   // 新增采购订单
   static addPurchaseOrder(data: any) {
     return request.post<Api.Http.BaseResponse<any>>({
-      url: '/api/purchase/order/manage',
+      url: '/api/purchase/order/manage/', // 添加结尾斜杠
       data
+    })
+  }
+
+  // 删除采购订单
+  static deletePurchaseOrder(id: number) {
+    return request.del<Api.Http.BaseResponse<any>>({
+      url: '/api/purchase/order/manage/', // 添加结尾斜杠
+      data: { id }
     })
   }
 }

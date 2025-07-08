@@ -106,7 +106,8 @@
 
 <script setup lang="ts">
   import { h } from 'vue'
-  import { PURCHASE_ORDER_DATA } from '@/mock/formData'
+  import { FinanceService } from '@/api/financeApi' // 导入新的API服务
+  // import { PURCHASE_ORDER_DATA } from '@/mock/formData'
   import { ElDialog, FormInstance, ElTag, ElImage, ElButton } from 'element-plus'
   import { ElMessage } from 'element-plus'
   import type { FormRules } from 'element-plus'
@@ -240,26 +241,62 @@
     }
   }
 
+  // 获取待审核订单列表数据
+  // 获取待审核订单列表数据
+  const getPendingOrderList = async () => {
+    loading.value = true
+    try {
+      const { currentPage, pageSize } = pagination
+
+      // 调用真实API - 修改参数名称
+      const response = await FinanceService.getPendingOrderList({
+        current: currentPage, // 改为 current
+        size: pageSize, // 改为 size
+        orderNumber: formFilters.orderNumber,
+        commodityName: formFilters.commodityName,
+        supplierName: formFilters.supplierName,
+        purchaserName: formFilters.purchaserName
+      })
+
+      if (response.code === 200) {
+        tableData.value = response.data.list
+        pagination.total = response.data.total
+      } else {
+        ElMessage.error(response.data.message || '获取订单列表失败')
+      }
+    } catch (error) {
+      console.error('获取待审核订单列表失败:', error)
+      ElMessage.error('获取订单列表失败')
+    } finally {
+      loading.value = false
+    }
+  }
+
   // 提交审核
   const handleReviewSubmit = async () => {
     if (!reviewFormRef.value) return
 
-    await reviewFormRef.value.validate((valid) => {
+    await reviewFormRef.value.validate(async (valid) => {
       if (valid) {
-        const action = reviewType.value === 'approve' ? '通过' : '不通过'
-        const newStatus = reviewType.value === 'approve' ? '3' : '2' // 3: 待入库, 2: 审核未通过
+        try {
+          const response = await FinanceService.reviewOrder({
+            orderId: currentReviewOrder.value.id,
+            action: reviewType.value,
+            reviewComment: reviewForm.reviewComment
+          })
 
-        // 这里应该调用API更新订单状态
-        console.log('审核操作:', {
-          orderId: currentReviewOrder.value.id,
-          action,
-          newStatus,
-          comment: reviewForm.reviewComment
-        })
-
-        ElMessage.success(`${action}成功`)
-        reviewDialogVisible.value = false
-        getPendingOrderList() // 刷新列表
+          if (response.code === 200) {
+            const action = reviewType.value === 'approve' ? '通过' : '不通过'
+            ElMessage.success(`${action}成功`)
+            reviewDialogVisible.value = false
+            getPendingOrderList() // 刷新列表
+          } else {
+            ElMessage.error(response.data.message || '审核失败')
+          }
+        } catch (error) {
+          console.error('审核操作失败:', error)
+          ElMessage.error('审核操作失败')
+        }
       }
     })
   }
@@ -273,22 +310,30 @@
       width: 160
     },
     {
-      prop: 'commodityImage',
-      label: '商品图片',
-      width: 80,
+      prop: 'image',
+      label: '商品信息',
+      width: 180,
       formatter: (row: any) => {
-        return h(ElImage, {
-          src: row.commodityImage,
-          style: { width: '50px', height: '50px' },
-          fit: 'cover',
-          previewSrcList: [row.commodityImage]
-        })
+        return h('div', { class: 'commodity-info', style: 'display: flex; align-items: center' }, [
+          h(ElImage, {
+            class: 'commodity-image',
+            src: row.commodityImage,
+            style: 'width: 60px; height: 60px; border-radius: 6px; margin-right: 12px',
+            fit: 'cover',
+            lazy: true
+          }),
+          h('div', {}, [
+            h(
+              'p',
+              {
+                class: 'commodity-name',
+                style: 'margin: 0; font-weight: 500; color: var(--art-text-gray-800)'
+              },
+              row.commodityName
+            )
+          ])
+        ])
       }
-    },
-    {
-      prop: 'commodityName',
-      label: '商品名称',
-      minWidth: 180
     },
     {
       prop: 'supplierName',
@@ -365,56 +410,6 @@
   onMounted(() => {
     getPendingOrderList()
   })
-
-  // 获取待审核订单列表数据
-  const getPendingOrderList = async () => {
-    loading.value = true
-    try {
-      const { currentPage, pageSize } = pagination
-
-      // 模拟API调用
-      await new Promise((resolve) => setTimeout(resolve, 500))
-
-      // 只获取状态为'1'（财务审核中）的订单
-      let filteredData = PURCHASE_ORDER_DATA.filter((item) => item.status === '1')
-
-      // 应用搜索过滤
-      if (formFilters.orderNumber) {
-        filteredData = filteredData.filter((item) =>
-          item.orderNumber.toLowerCase().includes(formFilters.orderNumber.toLowerCase())
-        )
-      }
-
-      if (formFilters.commodityName) {
-        filteredData = filteredData.filter((item) =>
-          item.commodityName.toLowerCase().includes(formFilters.commodityName.toLowerCase())
-        )
-      }
-
-      if (formFilters.supplierName) {
-        filteredData = filteredData.filter((item) =>
-          item.supplierName.toLowerCase().includes(formFilters.supplierName.toLowerCase())
-        )
-      }
-
-      if (formFilters.purchaserName) {
-        filteredData = filteredData.filter((item) =>
-          item.purchaserName.toLowerCase().includes(formFilters.purchaserName.toLowerCase())
-        )
-      }
-
-      const total = filteredData.length
-      const start = (currentPage - 1) * pageSize
-      const end = start + pageSize
-
-      tableData.value = filteredData.slice(start, end)
-      pagination.total = total
-    } catch (error) {
-      console.error('获取待审核订单列表失败:', error)
-    } finally {
-      loading.value = false
-    }
-  }
 
   const handleRefresh = () => {
     getPendingOrderList()

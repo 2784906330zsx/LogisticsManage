@@ -359,14 +359,24 @@
   }
 
   // 删除采购订单
-  const deletePurchaseOrder = () => {
+  const deletePurchaseOrder = (row: any) => {
     ElMessageBox.confirm('确定要删除该采购订单吗？', '删除采购订单', {
       confirmButtonText: '确定',
       cancelButtonText: '取消',
       type: 'error'
-    }).then(() => {
-      ElMessage.success('删除成功')
-      getPurchaseOrderList()
+    }).then(async () => {
+      try {
+        const response = await PurchaseService.deletePurchaseOrder(row.id)
+        if (response.code === 200) {
+          ElMessage.success('删除成功')
+          getPurchaseOrderList()
+        } else {
+          ElMessage.error(response.msg || '删除失败')
+        }
+      } catch (error) {
+        console.error('删除采购订单失败:', error)
+        ElMessage.error('删除失败')
+      }
     })
   }
 
@@ -379,22 +389,30 @@
       width: 160
     },
     {
-      prop: 'commodityImage',
-      label: '商品图片',
-      width: 80,
+      prop: 'image',
+      label: '商品信息',
+      width: 180,
       formatter: (row: any) => {
-        return h(ElImage, {
-          src: row.commodityImage,
-          style: { width: '50px', height: '50px' },
-          fit: 'cover',
-          previewSrcList: [row.commodityImage]
-        })
+        return h('div', { class: 'commodity-info', style: 'display: flex; align-items: center' }, [
+          h(ElImage, {
+            class: 'commodity-image',
+            src: row.commodityImage,
+            style: 'width: 60px; height: 60px; border-radius: 6px; margin-right: 12px',
+            fit: 'cover',
+            lazy: true
+          }),
+          h('div', {}, [
+            h(
+              'p',
+              {
+                class: 'commodity-name',
+                style: 'margin: 0; font-weight: 500; color: var(--art-text-gray-800)'
+              },
+              row.commodityName
+            )
+          ])
+        ])
       }
-    },
-    {
-      prop: 'commodityName',
-      label: '商品名称',
-      minWidth: 180
     },
     {
       prop: 'supplierName',
@@ -459,7 +477,7 @@
           }),
           h(ArtButtonTable, {
             type: 'delete',
-            onClick: () => deletePurchaseOrder()
+            onClick: () => deletePurchaseOrder(row)
           })
         ])
       }

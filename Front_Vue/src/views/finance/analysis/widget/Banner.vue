@@ -23,15 +23,15 @@
   >
     <div class="banner-slot">
       <div class="item">
-        <p class="title">¥1,258,340<i class="iconfont-sys text-success">&#xe8d5;</i></p>
+        <p class="title">¥1,258,340</p>
         <p class="subtitle">账户总余额</p>
       </div>
       <div class="item">
-        <p class="title">¥45,680<i class="iconfont-sys text-success">&#xe8d5;</i></p>
+        <p class="title">¥45,680</p>
         <p class="subtitle">今日收入</p>
       </div>
       <div class="item">
-        <p class="title">¥12,450<i class="iconfont-sys text-error">&#xe8d6;</i></p>
+        <p class="title">¥12,450</p>
         <p class="subtitle">今日支出</p>
       </div>
     </div>

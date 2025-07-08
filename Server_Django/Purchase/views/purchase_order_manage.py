@@ -65,6 +65,7 @@ class PurchaseOrderManageView(View):
             order_number = self.generate_order_number()
 
             # 创建采购订单
+            # 创建采购订单
             with transaction.atomic():
                 purchase_order = PurchaseOrder.objects.create(
                     order_number=order_number,
@@ -74,7 +75,7 @@ class PurchaseOrderManageView(View):
                     quantity=quantity,
                     total_amount=total_amount,
                     status='1',  # 财务审核中
-                    purchase_name=user.name,
+                    purchase_name=user.username,  # 修改：user.name -> user.username
                     purchase_job_number=user.job_number,
                     order_time=datetime.now()
                 )
@@ -107,15 +108,15 @@ class PurchaseOrderManageView(View):
         """
         today = datetime.now().strftime('%Y%m%d')
         prefix = f'P{today}'
-        
+
         # 查询今天已有的订单数量
         today_orders = PurchaseOrder.objects.filter(
             order_number__startswith=prefix
         ).count()
-        
+
         # 生成四位计数
         count = str(today_orders + 1).zfill(4)
-        
+
         return f'{prefix}{count}'
 
     def get(self, request):
@@ -142,7 +143,7 @@ class PurchaseOrderManageView(View):
 
             try:
                 commodity = Commodity.objects.get(id=commodity_id)
-                
+
                 # 获取商品的供应商信息
                 supplier = None
                 if commodity.supplier:
@@ -175,5 +176,72 @@ class PurchaseOrderManageView(View):
             return JsonResponse({
                 'code': 500,
                 'message': f'获取商品信息失败: {str(e)}',
+                'data': None
+            }, status=500)
+
+    def delete(self, request):
+        """
+        删除采购订单
+        """
+        try:
+            # 验证用户身份
+            user = get_user_from_token(request)
+            if not user:
+                return JsonResponse({
+                    'code': 401,
+                    'message': '未授权访问',
+                    'data': None
+                }, status=401)
+
+            # 解析请求数据
+            data = json.loads(request.body)
+            order_id = data.get('id')
+
+            if not order_id:
+                return JsonResponse({
+                    'code': 400,
+                    'message': '请提供订单ID',
+                    'data': None
+                }, status=400)
+
+            # 查找并删除采购订单
+            try:
+                purchase_order = PurchaseOrder.objects.get(id=order_id)
+
+                # 检查订单状态，只有特定状态的订单才能删除
+                if purchase_order.status in ['3', '4']:  # 待入库、已入库状态不能删除
+                    return JsonResponse({
+                        'code': 400,
+                        'message': '该状态的订单不能删除',
+                        'data': None
+                    }, status=400)
+
+                # 执行删除
+                with transaction.atomic():
+                    purchase_order.delete()
+
+                return JsonResponse({
+                    'code': 200,
+                    'message': '采购订单删除成功',
+                    'data': None
+                })
+
+            except PurchaseOrder.DoesNotExist:
+                return JsonResponse({
+                    'code': 404,
+                    'message': '采购订单不存在',
+                    'data': None
+                }, status=404)
+
+        except json.JSONDecodeError:
+            return JsonResponse({
+                'code': 400,
+                'message': '请求数据格式错误',
+                'data': None
+            }, status=400)
+        except Exception as e:
+            return JsonResponse({
+                'code': 500,
+                'message': f'删除采购订单失败: {str(e)}',
                 'data': None
             }, status=500)

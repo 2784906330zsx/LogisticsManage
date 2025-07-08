@@ -1,0 +1,364 @@
+from django.http import JsonResponse
+from django.views import View
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
+from django.db import transaction
+import json
+from datetime import datetime
+
+from Core.models import IncomeRecord, Finance
+from User.views.user_info import get_user_from_token
+
+
+class IncomeRecordView(View):
+    """
+    财务收入记录视图
+    """
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request):
+        """
+        获取收入记录列表
+        """
+        try:
+            # 验证用户身份
+            user = get_user_from_token(request)
+            if not user:
+                return JsonResponse({
+                    'code': 401,
+                    'message': '用户未登录或token无效',
+                    'data': None
+                }, status=401)
+
+            # 获取查询参数
+            current = int(request.GET.get('current', 1))
+            size = int(request.GET.get('size', 20))
+            reason = request.GET.get('reason', '').strip()
+            related_order = request.GET.get('relatedOrder', '').strip()
+            operator_name = request.GET.get('operatorName', '').strip()
+
+            # 构建查询条件
+            queryset = IncomeRecord.objects.all()
+
+            # 应用搜索过滤
+            if reason:
+                queryset = queryset.filter(reason=reason)
+            if related_order:
+                queryset = queryset.filter(related_order__icontains=related_order)
+            if operator_name:
+                queryset = queryset.filter(operator_name__icontains=operator_name)
+
+            # 按收入时间倒序排列
+            queryset = queryset.order_by('-income_time')
+
+            # 分页
+            total = queryset.count()
+            start = (current - 1) * size
+            end = start + size
+            records = queryset[start:end]
+
+            # 构建返回数据
+            record_list = []
+            for record in records:
+                record_data = {
+                    'id': record.id,
+                    'amount': float(record.amount),
+                    'reason': record.reason,
+                    'relatedOrder': record.related_order,
+                    'incomeTime': record.income_time.strftime('%Y-%m-%d %H:%M:%S'),
+                    'operatorName': record.operator_name,
+                    'operatorJobNumber': record.operator_job_number,
+                    'remark': record.remark,
+                    'createTime': record.create_time.strftime('%Y-%m-%d %H:%M:%S')
+                }
+                record_list.append(record_data)
+
+            return JsonResponse({
+                'code': 200,
+                'message': '获取成功',
+                'data': {
+                    'list': record_list,
+                    'total': total,
+                    'current': current,
+                    'size': size
+                }
+            })
+
+        except Exception as e:
+            return JsonResponse({
+                'code': 500,
+                'message': f'服务器内部错误: {str(e)}',
+                'data': None
+            }, status=500)
+
+    def post(self, request):
+        """
+        创建收入记录
+        """
+        try:
+            # 验证用户身份
+            user = get_user_from_token(request)
+            if not user:
+                return JsonResponse({
+                    'code': 401,
+                    'message': '用户未登录或token无效',
+                    'data': None
+                }, status=401)
+
+            # 解析请求数据
+            try:
+                data = json.loads(request.body)
+            except json.JSONDecodeError:
+                return JsonResponse({
+                    'code': 400,
+                    'message': '请求数据格式错误',
+                    'data': None
+                }, status=400)
+
+            # 获取必要参数
+            amount = data.get('amount')
+            reason = data.get('reason')
+            related_order = data.get('relatedOrder', '')
+            remark = data.get('remark', '')
+
+            # 参数验证
+            if not amount or amount <= 0:
+                return JsonResponse({
+                    'code': 400,
+                    'message': '收入金额必须大于0',
+                    'data': None
+                }, status=400)
+
+            if not reason:
+                return JsonResponse({
+                    'code': 400,
+                    'message': '收入原因不能为空',
+                    'data': None
+                }, status=400)
+
+            # 创建收入记录并更新财务余额
+            with transaction.atomic():
+                # 获取或创建财务记录
+                finance, created = Finance.objects.get_or_create(
+                    id=1,
+                    defaults={
+                        'balance': 0,
+                        'income': 0,
+                        'expenditure': 0,
+                        'net_profit': 0
+                    }
+                )
+                
+                # 创建收入记录
+                record = IncomeRecord.objects.create(
+                    amount=amount,
+                    reason=reason,
+                    related_order=related_order,
+                    operator_name=user.username,
+                    operator_job_number=user.job_number,
+                    remark=remark
+                )
+                
+                # 更新财务数据（增加余额和收入）
+                finance.balance += amount
+                finance.income += amount
+                finance.net_profit = finance.income - finance.expenditure
+                finance.save()
+
+            return JsonResponse({
+                'code': 200,
+                'message': '创建成功',
+                'data': {
+                    'id': record.id
+                }
+            })
+
+        except Exception as e:
+            return JsonResponse({
+                'code': 500,
+                'message': f'服务器内部错误: {str(e)}',
+                'data': None
+            }, status=500)
+
+    def put(self, request):
+        """
+        更新收入记录
+        """
+        try:
+            # 验证用户身份
+            user = get_user_from_token(request)
+            if not user:
+                return JsonResponse({
+                    'code': 401,
+                    'message': '用户未登录或token无效',
+                    'data': None
+                }, status=401)
+
+            # 解析请求数据
+            try:
+                data = json.loads(request.body)
+            except json.JSONDecodeError:
+                return JsonResponse({
+                    'code': 400,
+                    'message': '请求数据格式错误',
+                    'data': None
+                }, status=400)
+
+            # 获取记录ID
+            record_id = data.get('id')
+            if not record_id:
+                return JsonResponse({
+                    'code': 400,
+                    'message': '记录ID不能为空',
+                    'data': None
+                }, status=400)
+
+            # 更新记录和财务数据
+            with transaction.atomic():
+                try:
+                    record = IncomeRecord.objects.get(id=record_id)
+                    old_amount = record.amount
+                    
+                    # 获取财务记录
+                    finance = Finance.objects.get(id=1)
+                    
+                    # 更新记录字段
+                    if 'amount' in data:
+                        new_amount = data['amount']
+                        if new_amount <= 0:
+                            return JsonResponse({
+                                'code': 400,
+                                'message': '收入金额必须大于0',
+                                'data': None
+                            }, status=400)
+                        
+                        # 更新财务数据（先减去旧金额，再加上新金额）
+                        amount_diff = new_amount - old_amount
+                        finance.balance += amount_diff
+                        finance.income += amount_diff
+                        finance.net_profit = finance.income - finance.expenditure
+                        
+                        record.amount = new_amount
+                    
+                    if 'reason' in data:
+                        if not data['reason']:
+                            return JsonResponse({
+                                'code': 400,
+                                'message': '收入原因不能为空',
+                                'data': None
+                            }, status=400)
+                        record.reason = data['reason']
+                    
+                    if 'relatedOrder' in data:
+                        record.related_order = data['relatedOrder']
+                    
+                    if 'remark' in data:
+                        record.remark = data['remark']
+                    
+                    record.save()
+                    finance.save()
+                    
+                except IncomeRecord.DoesNotExist:
+                    return JsonResponse({
+                        'code': 404,
+                        'message': '记录不存在',
+                        'data': None
+                    }, status=404)
+                except Finance.DoesNotExist:
+                    return JsonResponse({
+                        'code': 500,
+                        'message': '财务记录不存在',
+                        'data': None
+                    }, status=500)
+
+            return JsonResponse({
+                'code': 200,
+                'message': '更新成功',
+                'data': None
+            })
+
+        except Exception as e:
+            return JsonResponse({
+                'code': 500,
+                'message': f'服务器内部错误: {str(e)}',
+                'data': None
+            }, status=500)
+
+    def delete(self, request):
+        """
+        删除收入记录
+        """
+        try:
+            # 验证用户身份
+            user = get_user_from_token(request)
+            if not user:
+                return JsonResponse({
+                    'code': 401,
+                    'message': '用户未登录或token无效',
+                    'data': None
+                }, status=401)
+
+            # 解析请求数据
+            try:
+                data = json.loads(request.body)
+            except json.JSONDecodeError:
+                return JsonResponse({
+                    'code': 400,
+                    'message': '请求数据格式错误',
+                    'data': None
+                }, status=400)
+
+            # 获取记录ID
+            record_id = data.get('id')
+            if not record_id:
+                return JsonResponse({
+                    'code': 400,
+                    'message': '记录ID不能为空',
+                    'data': None
+                }, status=400)
+
+            # 查找并删除记录，同时更新财务余额
+            with transaction.atomic():
+                try:
+                    record = IncomeRecord.objects.get(id=record_id)
+                    
+                    # 获取财务记录
+                    finance = Finance.objects.get(id=1)
+                    
+                    # 更新财务数据（减去收入金额）
+                    finance.balance -= record.amount
+                    finance.income -= record.amount
+                    finance.net_profit = finance.income - finance.expenditure
+                    finance.save()
+                    
+                    # 删除收入记录
+                    record.delete()
+                    
+                except IncomeRecord.DoesNotExist:
+                    return JsonResponse({
+                        'code': 404,
+                        'message': '记录不存在',
+                        'data': None
+                    }, status=404)
+                except Finance.DoesNotExist:
+                    return JsonResponse({
+                        'code': 500,
+                        'message': '财务记录不存在',
+                        'data': None
+                    }, status=500)
+
+            return JsonResponse({
+                'code': 200,
+                'message': '删除成功',
+                'data': None
+            })
+
+        except Exception as e:
+            return JsonResponse({
+                'code': 500,
+                'message': f'服务器内部错误: {str(e)}',
+                'data': None
+            }, status=500)
