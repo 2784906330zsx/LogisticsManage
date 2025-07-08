@@ -104,8 +104,7 @@
 
 <script setup lang="ts">
   import { h } from 'vue'
-  import { SHIPPING_ORDER_DATA } from '@/mock/formData'
-  //   import { SHIPPING_ORDER_DATA, COMMODITY_LIST_DATA } from '@/mock/formData'
+  import { DeliveryService } from '@/api/orderApi'
   import { ElDialog, FormInstance, ElImage, ElTag, ElButton } from 'element-plus'
   import { ElMessage } from 'element-plus'
   import type { FormRules } from 'element-plus'
@@ -178,6 +177,9 @@
   // 搜索处理
   const handleSearch = () => {
     console.log('搜索参数:', formFilters)
+    if (formFilters.commodityName || formFilters.receiverName) {
+      ElMessage.warning('当前版本暂不支持按商品名称和收货人搜索，请使用运单号搜索')
+    }
     pagination.currentPage = 1
     getReturnOrderList()
   }
@@ -417,39 +419,36 @@
     try {
       const { currentPage, pageSize } = pagination
 
-      // 模拟API调用
-      await new Promise((resolve) => setTimeout(resolve, 500))
-
-      // 只获取状态为'7'（待退货审核）的订单
-      let filteredData = SHIPPING_ORDER_DATA.filter((item) => item.status === '7')
-
-      // 应用搜索过滤
-      if (formFilters.orderNumber) {
-        filteredData = filteredData.filter((item) =>
-          item.orderNumber.toLowerCase().includes(formFilters.orderNumber.toLowerCase())
-        )
+      const params = {
+        current: currentPage,
+        size: pageSize,
+        orderNumber: formFilters.orderNumber || undefined,
+        status: '7' // 固定为待退货审核状态
       }
 
-      if (formFilters.commodityName) {
-        filteredData = filteredData.filter((item) =>
-          item.commodityName.toLowerCase().includes(formFilters.commodityName.toLowerCase())
-        )
+      const response = await DeliveryService.getShippingOrderList(params)
+
+      if (response.code === 200) {
+        // 处理数据，补充缺失字段
+        tableData.value = response.data.list.map((item: any) => ({
+          ...item,
+          // 使用后端返回的图片或提供备用图片
+          commodityImage: item.commodityImage || '/default-commodity.png',
+          completeTime: item.complete_time || '-'
+        }))
+        pagination.total = response.data.total
+        pagination.currentPage = response.data.current
+        pagination.pageSize = response.data.size
+      } else {
+        ElMessage.error(response.msg || '获取退货审核订单列表失败')
+        tableData.value = []
+        pagination.total = 0
       }
-
-      if (formFilters.receiverName) {
-        filteredData = filteredData.filter((item) =>
-          item.receiverName.toLowerCase().includes(formFilters.receiverName.toLowerCase())
-        )
-      }
-
-      const total = filteredData.length
-      const start = (currentPage - 1) * pageSize
-      const end = start + pageSize
-
-      tableData.value = filteredData.slice(start, end)
-      pagination.total = total
     } catch (error) {
       console.error('获取退货审核订单列表失败:', error)
+      ElMessage.error('获取退货审核订单列表失败，请稍后重试')
+      tableData.value = []
+      pagination.total = 0
     } finally {
       loading.value = false
     }

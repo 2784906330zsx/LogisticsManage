@@ -164,6 +164,7 @@ class ShippingOrderView(View):
                     'orderNumber': order.order_number,
                     'commodityName': order.commodity.name,
                     'commodityId': order.commodity.id,
+                    'commodityImage': order.commodity.image,
                     'quantity': order.quantity,
                     'receiverName': order.receiver_name,
                     'receiverPhone': order.receiver_phone,
@@ -202,20 +203,20 @@ class ShippingOrderView(View):
         """
         import datetime
         from django.db.models import Q
-        
+
         now = datetime.datetime.now()
-        date_str = now.strftime('%Y-%m-%d')
-        
+        date_str = now.strftime('%Y%m%d')
+
         # 获取今天的日期范围
         today_start = datetime.datetime.combine(now.date(), datetime.time.min)
         today_end = datetime.datetime.combine(now.date(), datetime.time.max)
-        
+
         # 查询今天已创建的运单数量
         today_count = ShippingOrder.objects.filter(
             create_time__range=(today_start, today_end)
         ).count()
-        
+
         # 生成四位顺序号（从0001开始）
         sequence_number = str(today_count + 1).zfill(4)
-        
-        return f'D{date_str}-{sequence_number}'
+
+        return f'D{date_str}{sequence_number}'

@@ -106,7 +106,7 @@ export class StorageService {
   // 根据商品ID获取商品详情
   static getCommodityById(commodityId: number) {
     return request.get<Api.Http.BaseResponse<any>>({
-      url: '/api/delivery/commodity/info/',
+      url: '/api/order/commodity/info/', // 修改为正确的路径
       params: { commodityId }
     })
   }

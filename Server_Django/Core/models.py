@@ -216,13 +216,16 @@ class Vehicle(models.Model):
 
 class ShippingOrder(models.Model):
     STATUS_CHOICES = [
-        ('1', '待审核'),
-        ('2', '审核未通过'),
-        ('3', '审核通过/待配送'),
+        ('1', '待确认'),
+        ('2', '确认未通过'),
+        ('3', '已确认，待配送'),
         ('4', '配送中'),
         ('5', '已送达'),
         ('6', '已确认收货'),
-        ('7', '已取消'),
+        ('7', '待退货审核'),
+        ('8', '审核未通过'),
+        ('9', '退货运送中'),
+        ('10', '已退货'),
     ]
 
     order_number = models.CharField(max_length=50, unique=True, verbose_name='运单号')

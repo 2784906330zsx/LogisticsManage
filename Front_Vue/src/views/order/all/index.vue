@@ -120,7 +120,8 @@
 
 <script setup lang="ts">
   import { h } from 'vue'
-  import { SHIPPING_ORDER_DATA, COMMODITY_LIST_DATA } from '@/mock/formData'
+  import { DeliveryService } from '@/api/orderApi' // 添加这行
+  import { COMMODITY_LIST_DATA } from '@/mock/formData'
   import { ElDialog, FormInstance, ElImage, ElTag, ElButton } from 'element-plus'
   import { ElMessageBox, ElMessage } from 'element-plus'
   import type { FormRules } from 'element-plus'
@@ -171,6 +172,9 @@
   // 搜索处理
   const handleSearch = () => {
     console.log('搜索参数:', formFilters)
+    if (formFilters.commodityName || formFilters.receiverName) {
+      ElMessage.warning('当前版本暂不支持按商品名称和收货人搜索，请使用运单号和状态搜索')
+    }
     pagination.currentPage = 1
     getShippingOrderList()
   }
@@ -278,8 +282,9 @@
       '5': 'success', // 已送达
       '6': 'success', // 已确认收货
       '7': 'info', // 待退货审核
-      '8': 'info', // 审核未通过
-      '9': 'danger' // 已取消
+      '8': 'danger', // 审核未通过
+      '9': 'danger', // 已取消
+      '10': 'info' // 退货运送中
     }
     return statusMap[status] || 'info'
   }
@@ -289,13 +294,14 @@
     const statusMap: Record<string, string> = {
       '1': '待确认',
       '2': '确认未通过',
-      '3': '待配送',
+      '3': '已确认，待配送',
       '4': '配送中',
       '5': '已送达',
       '6': '已确认收货',
       '7': '待退货审核',
       '8': '审核未通过',
-      '9': '已取消'
+      '9': '退货运送中',
+      '10': '已退货'
     }
     return statusMap[status] || '未知状态'
   }
@@ -319,7 +325,14 @@
             src: row.commodityImage,
             style: 'width: 60px; height: 60px; border-radius: 6px; margin-right: 12px',
             fit: 'cover',
-            lazy: true
+            lazy: true,
+            // 添加错误处理
+            onError: () => {
+              // 图片加载失败时的处理
+              console.warn('商品图片加载失败:', row.commodityImage)
+            },
+            // 添加占位图片
+            placeholder: '/default-commodity.png'
           }),
           h('div', {}, [
             h(
@@ -438,42 +451,36 @@
     try {
       const { currentPage, pageSize } = pagination
 
-      // 模拟API调用
-      await new Promise((resolve) => setTimeout(resolve, 500))
-
-      // 过滤数据
-      let filteredData = [...SHIPPING_ORDER_DATA]
-
-      if (formFilters.orderNumber) {
-        filteredData = filteredData.filter((item) =>
-          item.orderNumber.toLowerCase().includes(formFilters.orderNumber.toLowerCase())
-        )
+      const params = {
+        current: currentPage,
+        size: pageSize,
+        orderNumber: formFilters.orderNumber || undefined,
+        status: formFilters.status || undefined
       }
 
-      if (formFilters.commodityName) {
-        filteredData = filteredData.filter((item) =>
-          item.commodityName.toLowerCase().includes(formFilters.commodityName.toLowerCase())
-        )
+      const response = await DeliveryService.getShippingOrderList(params)
+
+      if (response.code === 200) {
+        // 处理数据，补充缺失字段
+        tableData.value = response.data.list.map((item: any) => ({
+          ...item,
+          // 移除硬编码的默认图片，使用后端返回的图片或提供备用图片
+          commodityImage: item.commodityImage || '/default-commodity.png',
+          completeTime: item.complete_time || '-'
+        }))
+        pagination.total = response.data.total
+        pagination.currentPage = response.data.current
+        pagination.pageSize = response.data.size
+      } else {
+        ElMessage.error(response.msg || '获取运单列表失败')
+        tableData.value = []
+        pagination.total = 0
       }
-
-      if (formFilters.receiverName) {
-        filteredData = filteredData.filter((item) =>
-          item.receiverName.toLowerCase().includes(formFilters.receiverName.toLowerCase())
-        )
-      }
-
-      if (formFilters.status) {
-        filteredData = filteredData.filter((item) => item.status === formFilters.status)
-      }
-
-      const total = filteredData.length
-      const start = (currentPage - 1) * pageSize
-      const end = start + pageSize
-
-      tableData.value = filteredData.slice(start, end)
-      pagination.total = total
     } catch (error) {
       console.error('获取运单列表失败:', error)
+      ElMessage.error('获取运单列表失败，请稍后重试')
+      tableData.value = []
+      pagination.total = 0
     } finally {
       loading.value = false
     }
