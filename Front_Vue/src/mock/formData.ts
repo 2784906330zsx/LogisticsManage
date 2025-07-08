@@ -96,132 +96,10 @@ export interface OutboundRecord {
 }
 
 // 入库记录模拟数据
-export const INBOUND_RECORD_DATA: InboundRecord[] = [
-  {
-    inboundRecordId: 1,
-    commodityId: 1,
-    commodityName: '海尔冰箱',
-    commodityImage:
-      'https://ts1.tc.mm.bing.net/th/id/OIP-C.CjbS9TqwMegLcwaTA7pCAgHaHa?rs=1&pid=ImgDetMain&o=7&rm=3',
-    quantity: 50,
-    reason: '新品采购',
-    inboundTime: '2025-01-15 10:30:00',
-    relatedOrder: 'PO202501150001',
-    operator: 'alexmorgan'
-  },
-  {
-    inboundRecordId: 2,
-    commodityId: 2,
-    commodityName: '海尔空调',
-    commodityImage:
-      'https://imgservice.suning.cn/uimg1/b2c/image/ofgTnG1XQh9fdeaGhs0wnA.jpg_800w_800h_4e',
-    quantity: 30,
-    reason: '补充库存',
-    inboundTime: '2025-01-16 14:20:00',
-    relatedOrder: 'PO202501160002',
-    operator: 'miaclark'
-  },
-  {
-    inboundRecordId: 3,
-    commodityId: 3,
-    commodityName: '海尔电视',
-    commodityImage:
-      'https://imgservice.suning.cn/uimg1/b2c/image/TJqCFOY9MhPSXJab_76Ceg.jpg_800w_800h_4e',
-    quantity: 100,
-    reason: '季度采购',
-    inboundTime: '2025-01-18 09:15:00',
-    relatedOrder: 'PO202501180003',
-    operator: 'miaclark'
-  },
-  {
-    inboundRecordId: 4,
-    commodityId: 4,
-    commodityName: '海尔洗衣机',
-    commodityImage:
-      'https://imgservice.suning.cn/uimg1/b2c/image/2jOBNNCQdMN2C5VkFaPIjg.png_800w_800h_4e',
-    quantity: 80,
-    reason: '新品上市',
-    inboundTime: '2025-02-01 16:45:00',
-    relatedOrder: 'PO202502010004',
-    operator: 'alexmorgan'
-  },
-  {
-    inboundRecordId: 5,
-    commodityId: 5,
-    commodityName: '海尔热水器',
-    commodityImage:
-      'https://ts1.tc.mm.bing.net/th/id/OIP-C.0E-HDX7AMbNspKcsWq9SPgHaHa?rs=1&pid=ImgDetMain&o=7&rm=3',
-    quantity: 25,
-    reason: '客户预订',
-    inboundTime: '2025-01-20 11:30:00',
-    relatedOrder: 'PO202501200005',
-    operator: 'miaclark'
-  }
-]
+export const INBOUND_RECORD_DATA: InboundRecord[] = []
 
 // 出库记录模拟数据
-export const OUTBOUND_RECORD_DATA: OutboundRecord[] = [
-  {
-    outboundRecordId: 1,
-    commodityId: 1,
-    commodityName: '海尔冰箱',
-    commodityImage:
-      'https://ts1.tc.mm.bing.net/th/id/OIP-C.CjbS9TqwMegLcwaTA7pCAgHaHa?rs=1&pid=ImgDetMain&o=7&rm=3',
-    quantity: 2,
-    reason: '客户下单',
-    outboundTime: '2025-01-16 14:30:00',
-    relatedOrder: 'SO202501160001',
-    operator: 'HGF'
-  },
-  {
-    outboundRecordId: 2,
-    commodityId: 2,
-    commodityName: '海尔空调',
-    commodityImage:
-      'https://imgservice.suning.cn/uimg1/b2c/image/ofgTnG1XQh9fdeaGhs0wnA.jpg_800w_800h_4e',
-    quantity: 1,
-    reason: '客户订单',
-    outboundTime: '2025-01-17 10:15:00',
-    relatedOrder: 'SO202501170002',
-    operator: 'ethanharris'
-  },
-  {
-    outboundRecordId: 3,
-    commodityId: 3,
-    commodityName: '海尔电视',
-    commodityImage:
-      'https://imgservice.suning.cn/uimg1/b2c/image/TJqCFOY9MhPSXJab_76Ceg.jpg_800w_800h_4e',
-    quantity: 5,
-    reason: '批量订单',
-    outboundTime: '2025-01-19 15:20:00',
-    relatedOrder: 'SO202501190003',
-    operator: 'ethanharris'
-  },
-  {
-    outboundRecordId: 4,
-    commodityId: 1,
-    commodityName: '海尔冰箱',
-    commodityImage:
-      'https://ts1.tc.mm.bing.net/th/id/OIP-C.CjbS9TqwMegLcwaTA7pCAgHaHa?rs=1&pid=ImgDetMain&o=7&rm=3',
-    quantity: 3,
-    reason: '企业采购',
-    outboundTime: '2025-01-21 11:45:00',
-    relatedOrder: 'SO202501210004',
-    operator: 'ethanharris'
-  },
-  {
-    outboundRecordId: 5,
-    commodityId: 4,
-    commodityName: '海尔洗衣机',
-    commodityImage:
-      'https://imgservice.suning.cn/uimg1/b2c/image/2jOBNNCQdMN2C5VkFaPIjg.png_800w_800h_4e',
-    quantity: 1,
-    reason: '客户订单',
-    outboundTime: '2025-02-02 09:30:00',
-    relatedOrder: 'SO202502020005',
-    operator: 'ethanharris'
-  }
-]
+export const OUTBOUND_RECORD_DATA: OutboundRecord[] = []
 
 // 供应商接口
 export interface Supplier {
@@ -237,52 +115,7 @@ export interface Supplier {
 }
 
 // 供应商列表模拟数据
-export const SUPPLIER_LIST_DATA: Supplier[] = [
-  {
-    id: 1,
-    name: '海尔集团公司',
-    type: '企业',
-    address: '北京市朝阳区中关村科技园区',
-    contactPerson: '张经理',
-    contactPhone: '010-85123456',
-    contactEmail: 'zhang@Haier.com',
-    createTime: '2025-01-15 10:30:00',
-    status: '1'
-  },
-  {
-    id: 2,
-    name: '海尔集团上海分公司',
-    type: '企业',
-    address: '上海市浦东新区张江高科技园区',
-    contactPerson: '李总监',
-    contactPhone: '010-56781234',
-    contactEmail: 'li.director@haier.com',
-    createTime: '2025-02-20 14:20:00',
-    status: '1'
-  },
-  {
-    id: 3,
-    name: '海尔集团江苏分公司',
-    type: '企业',
-    address: '江苏省南京市玄武区玄武大道123号',
-    contactPerson: '王部长',
-    contactPhone: '021-58901234',
-    contactEmail: 'wang.minister@Haier.cn',
-    createTime: '2025-03-10 09:15:00',
-    status: '1'
-  },
-  {
-    id: 4,
-    name: '海尔集团浙江分公司',
-    type: '企业',
-    address: '浙江省杭州市西湖区西湖大道123号',
-    contactPerson: '刘经理',
-    contactPhone: '021-38123456',
-    contactEmail: 'liu.manager@Haier.com.cn',
-    createTime: '2025-04-05 16:45:00',
-    status: '1'
-  }
-]
+export const SUPPLIER_LIST_DATA: Supplier[] = []
 
 // 采购订单接口
 export interface PurchaseOrder {

@@ -11,13 +11,6 @@
       </ArtSearchBar>
 
       <ElCard shadow="never" class="art-table-card">
-        <!-- 表格头部 -->
-        <ArtTableHeader v-model:columns="columnChecks" @refresh="handleRefresh">
-          <template #left>
-            <ElButton @click="showDialog('add')">新增入库记录</ElButton>
-          </template>
-        </ArtTableHeader>
-
         <!-- 表格 -->
         <ArtTable
           ref="tableRef"
@@ -36,53 +29,6 @@
             <ElTableColumn v-for="col in columns" :key="col.prop || col.type" v-bind="col" />
           </template>
         </ArtTable>
-
-        <!-- 新增/编辑对话框 -->
-        <ElDialog
-          v-model="dialogVisible"
-          :title="dialogType === 'add' ? '新增入库记录' : '编辑入库记录'"
-          width="40%"
-          align-center
-        >
-          <ElForm ref="formRef" :model="formData" :rules="rules" label-width="100px">
-            <ElFormItem label="商品" prop="commodityId">
-              <ElSelect
-                v-model="formData.commodityId"
-                placeholder="请选择商品"
-                @change="handleCommodityChange"
-              >
-                <ElOption
-                  v-for="commodity in COMMODITY_LIST_DATA"
-                  :key="commodity.id"
-                  :label="commodity.name"
-                  :value="commodity.id"
-                />
-              </ElSelect>
-            </ElFormItem>
-            <ElFormItem label="入库数量" prop="quantity">
-              <ElInputNumber v-model="formData.quantity" :min="1" />
-            </ElFormItem>
-            <ElFormItem label="入库原因" prop="reason">
-              <ElSelect v-model="formData.reason" placeholder="请选择入库原因">
-                <ElOption label="新品采购" value="新品采购" />
-                <ElOption label="补充库存" value="补充库存" />
-                <ElOption label="季度采购" value="季度采购" />
-                <ElOption label="客户预订" value="客户预订" />
-                <ElOption label="退货入库" value="退货入库" />
-                <ElOption label="其他" value="其他" />
-              </ElSelect>
-            </ElFormItem>
-            <ElFormItem label="关联订单" prop="relatedOrder">
-              <ElInput v-model="formData.relatedOrder" placeholder="请输入关联订单号" />
-            </ElFormItem>
-          </ElForm>
-          <template #footer>
-            <div class="dialog-footer">
-              <ElButton @click="dialogVisible = false">取消</ElButton>
-              <ElButton type="primary" @click="handleSubmit">提交</ElButton>
-            </div>
-          </template>
-        </ElDialog>
       </ElCard>
     </div>
   </ArtTableFullScreen>
@@ -90,20 +36,19 @@
 
 <script setup lang="ts">
   import { h } from 'vue'
-  import { INBOUND_RECORD_DATA, COMMODITY_LIST_DATA } from '@/mock/formData'
-  import { ElDialog, FormInstance, ElImage } from 'element-plus'
+  import { INBOUND_RECORD_DATA } from '@/mock/formData'
+  import { ElImage } from 'element-plus'
   import { ElMessageBox, ElMessage } from 'element-plus'
-  import type { FormRules } from 'element-plus'
   import { useCheckedColumns } from '@/composables/useCheckedColumns'
   import ArtButtonTable from '@/components/core/forms/art-button-table/index.vue'
   import { SearchChangeParams, SearchFormItem } from '@/types'
+  import { useUserStore } from '@/store/modules/user'
 
-  const { width } = useWindowSize()
+  // const { width } = useWindowSize()
+  const userStore = useUserStore()
 
   defineOptions({ name: 'InboundRecord' })
 
-  const dialogType = ref('add')
-  const dialogVisible = ref(false)
   const loading = ref(false)
 
   // 定义表单搜索初始值
@@ -164,18 +109,10 @@
     {
       label: '入库原因',
       prop: 'reason',
-      type: 'select',
+      type: 'input',
       config: {
         clearable: true
       },
-      options: () => [
-        { label: '新品采购', value: '新品采购' },
-        { label: '补充库存', value: '补充库存' },
-        { label: '季度采购', value: '季度采购' },
-        { label: '客户预订', value: '客户预订' },
-        { label: '退货入库', value: '退货入库' },
-        { label: '其他', value: '其他' }
-      ],
       onChange: handleFormChange
     },
     {
@@ -189,60 +126,38 @@
     }
   ]
 
-  // 显示对话框
-  const showDialog = (type: string, row?: any) => {
-    dialogVisible.value = true
-    dialogType.value = type
-
-    // 重置表单验证状态
-    if (formRef.value) {
-      formRef.value.resetFields()
+  // 删除记录函数中的判断逻辑
+  const deleteRecord = (row: any) => {
+    // 检查是否为超级管理员 - 基于roleCode判断
+    if (userStore.info?.roleCode !== 'R_SUPER') {
+      ElMessage.warning('只有超级管理员可以删除入库记录')
+      return
     }
 
-    if (type === 'edit' && row) {
-      formData.commodityId = row.commodityId
-      formData.quantity = row.quantity
-      formData.reason = row.reason
-      formData.relatedOrder = row.relatedOrder
-    } else {
-      formData.commodityId = undefined
-      formData.quantity = 1
-      formData.reason = ''
-      formData.relatedOrder = ''
-    }
-  }
-
-  // 处理商品选择变化
-  const handleCommodityChange = (commodityId: number) => {
-    const commodity = COMMODITY_LIST_DATA.find((item) => item.id === commodityId)
-    if (commodity) {
-      // 可以在这里设置一些默认值
-    }
-  }
-
-  // 删除记录
-  const deleteRecord = () => {
-    ElMessageBox.confirm('确定要删除该入库记录吗？', '删除记录', {
+    ElMessageBox.confirm(`确定要删除ID为 ${row.id} 的入库记录吗？`, '删除记录', {
       confirmButtonText: '确定',
       cancelButtonText: '取消',
       type: 'error'
     }).then(() => {
-      ElMessage.success('删除成功')
+      // 这里应该调用实际的删除API，传入row.id
+      // await deleteInboundRecordApi(row.id)
+      ElMessage.success(`已删除入库记录 ${row.id}`)
+      getInboundRecordList()
     })
   }
 
   // 动态列配置
-  const { columnChecks, columns } = useCheckedColumns(() => [
+  const { columns } = useCheckedColumns(() => [
     { type: 'selection' },
     {
-      prop: 'commodityId',
-      label: '商品ID',
+      prop: 'id',
+      label: 'ID',
       width: 80
     },
     {
       prop: 'commodityImage',
       label: '商品信息',
-      minWidth: width.value < 500 ? 250 : 280,
+      width: 200,
       formatter: (row: any) => {
         return h('div', { class: 'commodity-info', style: 'display: flex; align-items: center' }, [
           h(ElImage, {
@@ -268,59 +183,48 @@
     {
       prop: 'quantity',
       label: '入库数量',
-      sortable: true,
-      formatter: (row: any) => `${row.quantity} 件`
+      sortable: true
     },
     {
       prop: 'reason',
       label: '入库原因',
+      minWidth: 150
+    },
+    {
+      prop: 'relatedOrder',
+      label: '关联订单',
       width: 120
+    },
+    {
+      prop: 'inboundName',
+      label: '入库人',
+      width: 100
     },
     {
       prop: 'inboundTime',
       label: '入库时间',
       sortable: true,
-      width: 160
-    },
-    {
-      prop: 'relatedOrder',
-      label: '关联订单',
-      width: 140
-    },
-    {
-      prop: 'operator',
-      label: '操作员',
-      width: 100
+      minWidth: 160
     },
     {
       prop: 'operation',
       label: '操作',
-      width: 150,
+      width: 100,
+      // 在操作列的formatter中
       formatter: (row: any) => {
-        return h('div', [
-          h(ArtButtonTable, {
-            type: 'edit',
-            onClick: () => showDialog('edit', row)
-          }),
-          h(ArtButtonTable, {
-            type: 'delete',
-            onClick: () => deleteRecord()
-          })
-        ])
+        // 只有超级管理员才显示删除按钮
+        if (userStore.info?.roleCode === 'R_SUPER') {
+          return h('div', [
+            h(ArtButtonTable, {
+              type: 'delete',
+              onClick: () => deleteRecord(row)
+            })
+          ])
+        }
+        return h('span', { style: 'color: #999' }, '无权限')
       }
     }
   ])
-
-  // 表单实例
-  const formRef = ref<FormInstance>()
-
-  // 表单数据
-  const formData = reactive({
-    commodityId: undefined as number | undefined,
-    quantity: 1,
-    reason: '',
-    relatedOrder: ''
-  })
 
   onMounted(() => {
     getInboundRecordList()
@@ -354,46 +258,24 @@
         )
       }
 
-      const total = filteredData.length
-      const start = (currentPage - 1) * pageSize
-      const end = start + pageSize
+      // 分页
+      const startIndex = (currentPage - 1) * pageSize
+      const endIndex = startIndex + pageSize
+      const paginatedData = filteredData.slice(startIndex, endIndex)
 
-      tableData.value = filteredData.slice(start, end)
-      pagination.total = total
+      tableData.value = paginatedData
+      pagination.total = filteredData.length
     } catch (error) {
       console.error('获取入库记录列表失败:', error)
+      ElMessage.error('获取入库记录列表失败')
     } finally {
       loading.value = false
     }
   }
 
-  const handleRefresh = () => {
-    getInboundRecordList()
-  }
-
   // 处理表格行选择变化
   const handleSelectionChange = (selection: any[]) => {
     selectedRows.value = selection
-  }
-
-  // 表单验证规则
-  const rules = reactive<FormRules>({
-    commodityId: [{ required: true, message: '请选择商品', trigger: 'change' }],
-    quantity: [{ required: true, message: '请输入入库数量', trigger: 'blur' }],
-    reason: [{ required: true, message: '请选择入库原因', trigger: 'change' }]
-  })
-
-  // 提交表单
-  const handleSubmit = async () => {
-    if (!formRef.value) return
-
-    await formRef.value.validate((valid) => {
-      if (valid) {
-        ElMessage.success(dialogType.value === 'add' ? '添加成功' : '更新成功')
-        dialogVisible.value = false
-        getInboundRecordList()
-      }
-    })
   }
 
   // 处理表格分页变化

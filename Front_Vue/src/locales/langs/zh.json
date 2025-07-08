@@ -214,8 +214,8 @@
       "title": "运单管理",
       "all": "所有运单",
       "create": "创建运单",
-      "toConfirm": "待确认运单",
-      "toCheck": "退货运单"
+      "toConfirm": "待确认新运单",
+      "toCheck": "待审核退货单"
     },
     "delivery": {
       "title": "配送管理",
@@ -236,7 +236,7 @@
     "storage": {
       "title": "仓储管理",
       "commodity": "商品管理",
-      "inventory": "查看库存",
+      "inventory": "库存管理",
       "inboundRecord": "入库记录",
       "outboundRecord": "出库记录"
     },

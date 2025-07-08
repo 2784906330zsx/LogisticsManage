@@ -4,14 +4,14 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django.core.paginator import Paginator
-from Core.models import Commodity
+from Core.models import Supplier
 from User.views.user_info import get_user_from_token
 import json
 
 
-class CommodityListView(View):
+class SupplierListView(View):
     """
-    获取商品列表视图
+    获取供应商列表视图
     """
 
     @method_decorator(csrf_exempt)
@@ -33,16 +33,19 @@ class CommodityListView(View):
             page = int(request.GET.get('page', 1))
             page_size = int(request.GET.get('pageSize', 10))
             name = request.GET.get('name', '').strip()
-            brand = request.GET.get('brand', '').strip()
+            supplier_type = request.GET.get('type', '').strip()
+            contact_person = request.GET.get('contactPerson', '').strip()
             status = request.GET.get('status', '').strip()
 
             # 构建查询条件
-            queryset = Commodity.objects.all()
+            queryset = Supplier.objects.all()
 
             if name:
                 queryset = queryset.filter(name__icontains=name)
-            if brand:
-                queryset = queryset.filter(brand__icontains=brand)
+            if supplier_type:
+                queryset = queryset.filter(supplier_type=supplier_type)
+            if contact_person:
+                queryset = queryset.filter(contact_person__icontains=contact_person)
             if status:
                 queryset = queryset.filter(status=status)
 
@@ -54,31 +57,33 @@ class CommodityListView(View):
             page_obj = paginator.get_page(page)
 
             # 构建返回数据
-            commodity_list = []
-            for commodity in page_obj:
-                commodity_data = {
-                    'id': commodity.id,
-                    'name': commodity.name,
-                    'image': commodity.image,
-                    'brand': commodity.brand,
-                    'description': commodity.description,
-                    'status': commodity.status,
-                    'price': float(commodity.price),
-                    'stock': commodity.stock,
-                    'totalInbound': commodity.total_inbound,
-                    'totalOutbound': commodity.total_outbound,
-                    'supplier': commodity.supplier,
-                    'createTime': commodity.create_time.strftime('%Y-%m-%d %H:%M:%S'),
-                    'lastUpdateTime': commodity.last_update_time.strftime('%Y-%m-%d %H:%M:%S'),
-                    'storageArea': commodity.storage_area
+            supplier_list = []
+            for supplier in page_obj:
+                # 状态映射
+                status_map = {
+                    '1': '正常',
+                    '2': '暂停合作',
+                    '3': '黑名单'
                 }
-                commodity_list.append(commodity_data)
+
+                supplier_data = {
+                    'id': supplier.id,
+                    'name': supplier.name,
+                    'type': supplier.supplier_type,
+                    'address': supplier.address,
+                    'contactPerson': supplier.contact_person,
+                    'contactPhone': supplier.contact_phone,
+                    'contactEmail': supplier.contact_email,
+                    'status': status_map.get(supplier.status, supplier.status),  # 转换状态显示
+                    'createTime': supplier.create_time.strftime('%Y-%m-%d %H:%M:%S')
+                }
+                supplier_list.append(supplier_data)
 
             return JsonResponse({
                 'code': 200,
-                'message': '获取商品列表成功',
+                'message': '获取供应商列表成功',
                 'data': {
-                    'list': commodity_list,
+                    'list': supplier_list,
                     'total': paginator.count,
                     'page': page,
                     'pageSize': page_size,
@@ -89,16 +94,16 @@ class CommodityListView(View):
         except Exception as e:
             return JsonResponse({
                 'code': 500,
-                'message': f'获取商品列表失败: {str(e)}',
+                'message': f'获取供应商列表失败: {str(e)}',
                 'data': None
             }, status=500)
 
 
 @csrf_exempt
 @require_http_methods(["GET"])
-def commodity_list_view(request):
+def supplier_list_view(request):
     """
-    函数式商品列表视图（备用）
+    函数式供应商列表视图（备用）
     """
-    view = CommodityListView()
+    view = SupplierListView()
     return view.get(request)

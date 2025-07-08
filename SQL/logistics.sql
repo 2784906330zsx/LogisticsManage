@@ -304,6 +304,13 @@ CREATE TABLE `Supplier` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+-- 让数据库自动生成ID的版本
+INSERT INTO `Supplier` (`name`, `supplier_type`, `address`, `contact_person`, `contact_phone`, `contact_email`, `create_time`, `status`) VALUES
+('海尔集团公司', '企业', '北京市朝阳区中关村科技园区', '张经理', '010-85123456', 'zhang@Haier.com', '2025-01-15 10:30:00', '1'),
+('海尔集团上海分公司', '企业', '上海市浦东新区张江高科技园区', '李总监', '010-56781234', 'li.director@haier.com', '2025-02-20 14:20:00', '1'),
+('海尔集团江苏分公司', '企业', '江苏省南京市玄武区玄武大道123号', '王部长', '021-58901234', 'wang.minister@Haier.cn', '2025-03-10 09:15:00', '1'),
+('海尔集团浙江分公司', '企业', '浙江省杭州市西湖区西湖大道123号', '刘经理', '021-38123456', 'liu.manager@Haier.com.cn', '2025-04-05 16:45:00', '1');
+
 -- ----------------------------
 -- Records of Supplier
 -- ----------------------------

@@ -56,6 +56,7 @@ declare namespace Api {
       jobNumber: string
       position: string
       department: string
+      roleCode: string // 添加roleCode字段
       roles: string[]
       buttons: string[]
       avatar: string

@@ -76,4 +76,18 @@ export class StorageService {
       data
     })
   }
+
+  // 调整库存
+  static adjustInventory(data: {
+    commodityId: number
+    adjustType: '入库' | '出库'
+    quantity: number
+    reason: string
+    relatedOrder?: string
+  }): Promise<Api.Http.BaseResponse<any>> {
+    return request.post<Api.Http.BaseResponse<any>>({
+      url: '/api/inventory/adjust/',
+      data
+    })
+  }
 }
