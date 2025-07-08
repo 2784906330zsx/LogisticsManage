@@ -36,7 +36,7 @@
 
 <script setup lang="ts">
   import { h } from 'vue'
-  import { INBOUND_RECORD_DATA } from '@/mock/formData'
+  import { StorageService } from '@/api/storageApi'
   import { ElImage } from 'element-plus'
   import { ElMessageBox, ElMessage } from 'element-plus'
   import { useCheckedColumns } from '@/composables/useCheckedColumns'
@@ -126,24 +126,34 @@
     }
   ]
 
-  // 删除记录函数中的判断逻辑
-  const deleteRecord = (row: any) => {
-    // 检查是否为超级管理员 - 基于roleCode判断
+  // 删除记录函数
+  const deleteRecord = async (row: any) => {
+    // 检查是否为超级管理员
     if (userStore.info?.roleCode !== 'R_SUPER') {
       ElMessage.warning('只有超级管理员可以删除入库记录')
       return
     }
 
-    ElMessageBox.confirm(`确定要删除ID为 ${row.id} 的入库记录吗？`, '删除记录', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'error'
-    }).then(() => {
-      // 这里应该调用实际的删除API，传入row.id
-      // await deleteInboundRecordApi(row.id)
-      ElMessage.success(`已删除入库记录 ${row.id}`)
-      getInboundRecordList()
-    })
+    try {
+      await ElMessageBox.confirm(`确定要删除ID为 ${row.id} 的入库记录吗？`, '删除记录', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'error'
+      })
+
+      const response = await StorageService.deleteInboundRecord(row.id)
+      if (response.code === 200) {
+        ElMessage.success('删除入库记录成功')
+        getInboundRecordList()
+      } else {
+        ElMessage.error(response.msg || '删除入库记录失败')
+      }
+    } catch (error) {
+      if (error !== 'cancel') {
+        console.error('删除入库记录失败:', error)
+        ElMessage.error('删除入库记录失败')
+      }
+    }
   }
 
   // 动态列配置
@@ -236,35 +246,22 @@
     try {
       const { currentPage, pageSize } = pagination
 
-      // 模拟API调用
-      await new Promise((resolve) => setTimeout(resolve, 500))
-
-      // 过滤数据
-      let filteredData = [...INBOUND_RECORD_DATA]
-
-      if (formFilters.commodityName) {
-        filteredData = filteredData.filter((item) =>
-          item.commodityName.toLowerCase().includes(formFilters.commodityName.toLowerCase())
-        )
+      const params = {
+        current: currentPage,
+        size: pageSize,
+        commodityName: formFilters.commodityName || undefined,
+        reason: formFilters.reason || undefined,
+        relatedOrder: formFilters.relatedOrder || undefined
       }
 
-      if (formFilters.reason) {
-        filteredData = filteredData.filter((item) => item.reason === formFilters.reason)
+      const response = await StorageService.getInboundRecordList(params)
+
+      if (response.code === 200) {
+        tableData.value = response.data.list
+        pagination.total = response.data.total
+      } else {
+        ElMessage.error(response.msg || '获取入库记录列表失败')
       }
-
-      if (formFilters.relatedOrder) {
-        filteredData = filteredData.filter((item) =>
-          item.relatedOrder.toLowerCase().includes(formFilters.relatedOrder.toLowerCase())
-        )
-      }
-
-      // 分页
-      const startIndex = (currentPage - 1) * pageSize
-      const endIndex = startIndex + pageSize
-      const paginatedData = filteredData.slice(startIndex, endIndex)
-
-      tableData.value = paginatedData
-      pagination.total = filteredData.length
     } catch (error) {
       console.error('获取入库记录列表失败:', error)
       ElMessage.error('获取入库记录列表失败')

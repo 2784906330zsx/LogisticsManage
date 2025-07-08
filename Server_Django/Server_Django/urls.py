@@ -7,5 +7,6 @@ urlpatterns = [
     path('api/', include('User.urls')),
     path('api/storage/', include('Storage.urls')),
     path('api/purchase/', include('Purchase.urls')),
-    path('api/finance/', include('Finance.urls')),  # 新增Finance模块路由
+    path('api/finance/', include('Finance.urls')),
+    path('api/delivery/', include('Delivery.urls')),
 ]

@@ -132,4 +132,20 @@ export class FinanceService {
       url: '/api/finance/overview/'
     })
   }
+
+  // 获取财务统计数据（新增）
+  static getFinanceStatistics() {
+    return request.get<
+      Api.Http.BaseResponse<{
+        balance: number
+        todayIncome: number
+        todayExpenditure: number
+        totalIncome: number
+        totalExpenditure: number
+        netProfit: number
+      }>
+    >({
+      url: '/api/finance/statistics/'
+    })
+  }
 }

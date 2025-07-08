@@ -97,6 +97,10 @@ CREATE TABLE `Finance` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+-- 初始化财务数据
+INSERT INTO `Finance` (`balance`, `income`, `expenditure`, `net_profit`) VALUES
+(0.00, 0.00, 0.00, 0.00);
+
 -- ----------------------------
 -- Records of Finance
 -- ----------------------------

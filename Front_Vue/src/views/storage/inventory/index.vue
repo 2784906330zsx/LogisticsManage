@@ -237,7 +237,8 @@
     {
       prop: 'id',
       label: '商品ID',
-      width: 80
+      sortable: true,
+      width: 100
     },
     {
       prop: 'image',
@@ -397,16 +398,44 @@
   })
 
   // 提交表单
+  // 提交表单
   const handleSubmit = async () => {
     if (!formRef.value) return
 
-    await formRef.value.validate((valid) => {
+    await formRef.value.validate(async (valid) => {
       if (valid) {
-        const newStorageArea = `${formData.selectedZone}区-${formData.selectedLevel}层-${formData.selectedShelf}号`
-        console.log('新的存储区域:', newStorageArea)
-        ElMessage.success('库存调整成功')
-        adjustDialogVisible.value = false
-        getInventoryList()
+        try {
+          loading.value = true
+
+          // 构建调整库存的请求数据
+          const adjustData: {
+            commodityId: number
+            adjustType: '入库' | '出库'
+            quantity: number
+            reason: string
+          } = {
+            commodityId: formData.id,
+            adjustType: formData.adjustType === 'in' ? '入库' : '出库',
+            quantity: formData.adjustQuantity,
+            reason: formData.reason
+          }
+
+          // 调用库存调整API
+          const response = await StorageService.adjustInventory(adjustData)
+
+          if (response.code === 200) {
+            ElMessage.success('库存调整成功')
+            adjustDialogVisible.value = false
+            getInventoryList() // 刷新列表
+          } else {
+            ElMessage.error(response.msg || '库存调整失败')
+          }
+        } catch (error) {
+          console.error('库存调整失败:', error)
+          ElMessage.error('库存调整失败')
+        } finally {
+          loading.value = false
+        }
       }
     })
   }

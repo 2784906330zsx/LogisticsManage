@@ -15,7 +15,6 @@
         label-width="120px"
         class="create-form"
       >
-        <!-- 在商品信息分割线之前添加运单信息部分 -->
         <!-- 运单信息 -->
         <ElDivider content-position="left">运单信息</ElDivider>
         <ElRow :gutter="20">
@@ -40,19 +39,21 @@
                 v-model="formData.commodityCode"
                 placeholder="请输入商品ID"
                 @input="handleCommodityCodeChange"
+                :loading="loadingCommodity"
               />
             </ElFormItem>
           </ElCol>
           <ElCol :span="12">
-            <ElFormItem label="商品名称" prop="commodityName">
+            <ElFormItem label="商品名称" prop="commodityId">
               <ElSelect
                 v-model="formData.commodityId"
                 placeholder="请选择商品名称"
                 filterable
                 @change="handleCommodityChange"
+                :loading="loadingCommodities"
               >
                 <ElOption
-                  v-for="commodity in COMMODITY_LIST_DATA"
+                  v-for="commodity in commodityList"
                   :key="commodity.id"
                   :label="commodity.name"
                   :value="commodity.id"
@@ -70,7 +71,18 @@
         <ElRow :gutter="20">
           <ElCol :span="12">
             <ElFormItem label="商品数量" prop="quantity">
-              <ElInputNumber v-model="formData.quantity" :min="1" style="width: 100%" />
+              <ElInputNumber
+                v-model="formData.quantity"
+                :min="1"
+                :max="selectedCommodity?.stock || 999999"
+                style="width: 100%"
+              />
+              <div
+                v-if="selectedCommodity && formData.quantity > selectedCommodity.stock"
+                style="color: #f56c6c; font-size: 12px; margin-top: 4px"
+              >
+                库存不足，当前库存：{{ selectedCommodity.stock }}
+              </div>
             </ElFormItem>
           </ElCol>
         </ElRow>
@@ -90,6 +102,8 @@
                   <p><strong>商品名称：</strong>{{ selectedCommodity.name }}</p>
                   <p><strong>品牌：</strong>{{ selectedCommodity.brand }}</p>
                   <p><strong>价格：</strong>¥{{ selectedCommodity.price }}</p>
+                  <p><strong>库存：</strong>{{ selectedCommodity.stock }}</p>
+                  <p><strong>供应商：</strong>{{ selectedCommodity.supplier }}</p>
                 </div>
               </div>
             </ElFormItem>
@@ -121,7 +135,14 @@
 
         <!-- 操作按钮 -->
         <ElFormItem>
-          <ElButton type="primary" @click="handleSubmit" :loading="submitting"> 创建运单 </ElButton>
+          <ElButton
+            type="primary"
+            @click="handleSubmit"
+            :loading="submitting"
+            :disabled="!canSubmit"
+          >
+            创建运单
+          </ElButton>
           <ElButton @click="handleReset">重置</ElButton>
           <ElButton @click="handleCancel">取消</ElButton>
         </ElFormItem>
@@ -132,24 +153,30 @@
 
 <script setup lang="ts">
   import { Plus } from '@element-plus/icons-vue'
-  import { COMMODITY_LIST_DATA } from '@/mock/formData'
   import { FormInstance, ElMessage } from 'element-plus'
   import type { FormRules } from 'element-plus'
   import { useRouter } from 'vue-router'
+  import { DeliveryService } from '@/api/deliveryApi'
+  import { StorageService } from '@/api/storageApi'
+  import { UserService } from '@/api/usersApi'
 
   defineOptions({ name: 'CreateShippingOrder' })
 
   const router = useRouter()
   const formRef = ref<FormInstance>()
   const submitting = ref(false)
+  const loadingCommodity = ref(false)
+  const loadingCommodities = ref(false)
   const selectedCommodity = ref<any>(null)
   const commodityNotFound = ref(false)
+  const commodityList = ref<any[]>([])
+  const userInfo = ref<any>(null)
 
   // 表单数据
   const formData = reactive({
-    creatorName: '', // 添加创建人字段
-    creatorJobNumber: '', // 添加创建人工号字段
-    commodityCode: '', // 商品ID输入框
+    creatorName: '',
+    creatorJobNumber: '',
+    commodityCode: '',
     commodityId: undefined as number | undefined,
     quantity: 1,
     receiverName: '',
@@ -157,68 +184,84 @@
     receiverAddress: ''
   })
 
-  // 生成运单号
-  const generateOrderNumber = () => {
-    const now = new Date()
-    const year = now.getFullYear()
-    const month = String(now.getMonth() + 1).padStart(2, '0')
-    const day = String(now.getDate()).padStart(2, '0')
-    const hours = String(now.getHours()).padStart(2, '0')
-    const minutes = String(now.getMinutes()).padStart(2, '0')
-    const seconds = String(now.getSeconds()).padStart(2, '0')
-    const random = Math.floor(Math.random() * 1000)
-      .toString()
-      .padStart(3, '0')
-    return `WD${year}${month}${day}${hours}${minutes}${seconds}${random}`
-  }
-
-  // 格式化时间
-  //   const formatDateTime = (date: Date) => {
-  //     const year = date.getFullYear()
-  //     const month = String(date.getMonth() + 1).padStart(2, '0')
-  //     const day = String(date.getDate()).padStart(2, '0')
-  //     const hours = String(date.getHours()).padStart(2, '0')
-  //     const minutes = String(date.getMinutes()).padStart(2, '0')
-  //     const seconds = String(date.getSeconds()).padStart(2, '0')
-  //     return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`
-  //   }
-
-  // 生成创建人信息（模拟从用户信息获取）
-  // 取消注释并修改生成创建人信息函数
-  const generateCreatorInfo = () => {
-    // 这里应该从实际的用户信息中获取
-    const creators = [
-      { name: '张三', jobNumber: 'EMP001' },
-      { name: '李四', jobNumber: 'EMP002' },
-      { name: '王五', jobNumber: 'EMP003' }
-    ]
-    const randomCreator = creators[Math.floor(Math.random() * creators.length)]
-    return randomCreator
-  }
-
-  // 初始化创建人信息
-  const initializeCreatorInfo = () => {
-    const creator = generateCreatorInfo()
-    formData.creatorName = creator.name
-    formData.creatorJobNumber = creator.jobNumber
-  }
-
-  // 在页面加载时初始化创建人信息
-  onMounted(() => {
-    initializeCreatorInfo()
+  // 计算属性：是否可以提交
+  const canSubmit = computed(() => {
+    return (
+      formData.commodityId &&
+      formData.quantity > 0 &&
+      selectedCommodity.value &&
+      formData.quantity <= selectedCommodity.value.stock &&
+      formData.receiverName &&
+      formData.receiverPhone &&
+      formData.receiverAddress
+    )
   })
 
+  // 获取用户信息
+  const fetchUserInfo = async () => {
+    try {
+      const response = await UserService.getUserInfo()
+      if (response.code === 200) {
+        userInfo.value = response.data
+        formData.creatorName = response.data.userName
+        formData.creatorJobNumber = response.data.jobNumber
+      }
+    } catch (error) {
+      console.error('获取用户信息失败:', error)
+      ElMessage.error('获取用户信息失败')
+    }
+  }
+
+  // 获取商品列表
+  const fetchCommodityList = async () => {
+    try {
+      loadingCommodities.value = true
+      const response = await StorageService.getAllCommodities()
+      if (response.code === 200) {
+        commodityList.value = response.data.list || []
+      }
+    } catch (error) {
+      console.error('获取商品列表失败:', error)
+      ElMessage.error('获取商品列表失败')
+    } finally {
+      loadingCommodities.value = false
+    }
+  }
+
+  // 根据商品ID获取商品详情
+  const fetchCommodityById = async (commodityId: number) => {
+    try {
+      loadingCommodity.value = true
+      const response = await StorageService.getCommodityById(commodityId)
+      if (response.code === 200) {
+        return response.data
+      }
+      return null
+    } catch (error) {
+      console.error('获取商品详情失败:', error)
+      return null
+    } finally {
+      loadingCommodity.value = false
+    }
+  }
+
   // 处理商品ID输入变化
-  const handleCommodityCodeChange = (value: string) => {
+  const handleCommodityCodeChange = async (value: string) => {
     commodityNotFound.value = false
 
     if (value) {
-      const commodity = COMMODITY_LIST_DATA.find((item) => item.id.toString() === value)
-      if (commodity) {
-        formData.commodityId = commodity.id
-        selectedCommodity.value = commodity
+      const commodityId = parseInt(value)
+      if (!isNaN(commodityId)) {
+        const commodity = await fetchCommodityById(commodityId)
+        if (commodity) {
+          formData.commodityId = commodity.id
+          selectedCommodity.value = commodity
+        } else {
+          commodityNotFound.value = true
+          formData.commodityId = undefined
+          selectedCommodity.value = null
+        }
       } else {
-        // 商品ID不存在时显示错误提示
         commodityNotFound.value = true
         formData.commodityId = undefined
         selectedCommodity.value = null
@@ -230,8 +273,8 @@
   }
 
   // 处理商品选择变化
-  const handleCommodityChange = (commodityId: number) => {
-    const commodity = COMMODITY_LIST_DATA.find((item) => item.id === commodityId)
+  const handleCommodityChange = async (commodityId: number) => {
+    const commodity = await fetchCommodityById(commodityId)
     if (commodity) {
       formData.commodityCode = commodity.id.toString()
       selectedCommodity.value = commodity
@@ -243,7 +286,19 @@
   const rules = reactive<FormRules>({
     commodityCode: [{ required: true, message: '请输入商品ID', trigger: 'blur' }],
     commodityId: [{ required: true, message: '请选择商品', trigger: 'change' }],
-    quantity: [{ required: true, message: '请输入商品数量', trigger: 'blur' }],
+    quantity: [
+      { required: true, message: '请输入商品数量', trigger: 'blur' },
+      {
+        validator: (rule, value, callback) => {
+          if (selectedCommodity.value && value > selectedCommodity.value.stock) {
+            callback(new Error('商品数量不能超过库存'))
+          } else {
+            callback()
+          }
+        },
+        trigger: 'blur'
+      }
+    ],
     receiverName: [{ required: true, message: '请输入收货人姓名', trigger: 'blur' }],
     receiverPhone: [
       { required: true, message: '请输入联系方式', trigger: 'blur' },
@@ -256,41 +311,55 @@
   const handleSubmit = async () => {
     if (!formRef.value) return
 
-    await formRef.value.validate((valid) => {
+    await formRef.value.validate(async (valid) => {
       if (valid) {
         submitting.value = true
 
-        // 模拟API调用
-        setTimeout(() => {
-          // 在创建成功后生成运单号和创建时间
-          const orderNumber = generateOrderNumber()
-          //   const createTime = formatDateTime(new Date())
-          //   const creator = generateCreatorInfo()
+        try {
+          const response = await DeliveryService.createShippingOrder({
+            commodityId: formData.commodityId!,
+            quantity: formData.quantity,
+            receiverName: formData.receiverName,
+            receiverPhone: formData.receiverPhone,
+            receiverAddress: formData.receiverAddress
+          })
 
-          ElMessage.success(`运单创建成功！运单号：${orderNumber}`)
+          if (response.code === 200) {
+            ElMessage.success(`运单创建成功！运单号：${response.data.orderNumber}`)
+            router.push('/order/all')
+          } else {
+            ElMessage.error(response.msg || '运单创建失败')
+          }
+        } catch (error) {
+          console.error('创建运单失败:', error)
+          ElMessage.error('创建运单失败')
+        } finally {
           submitting.value = false
-
-          // 跳转到运单管理页面
-          router.push('/order/all')
-        }, 1000)
+        }
       }
     })
   }
 
-  // 重置表单时重新初始化创建人信息
+  // 重置表单
   const handleReset = () => {
     if (formRef.value) {
       formRef.value.resetFields()
     }
     selectedCommodity.value = null
     commodityNotFound.value = false
-    initializeCreatorInfo() // 重新初始化创建人信息
+    fetchUserInfo() // 重新获取用户信息
   }
 
   // 取消操作
   const handleCancel = () => {
     router.push('/order/all')
   }
+
+  // 页面初始化
+  onMounted(() => {
+    fetchUserInfo()
+    fetchCommodityList()
+  })
 </script>
 
 <style scoped>
