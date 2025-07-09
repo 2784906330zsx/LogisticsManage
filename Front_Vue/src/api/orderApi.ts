@@ -59,4 +59,38 @@ export class DeliveryService {
       data
     })
   }
+
+  // 获取配送运单列表（按状态筛选）
+  static getDeliveryOrderList(
+    params: Api.Common.PaginatingParams & {
+      orderNumber?: string
+      deliveryStatus?: string // 配送状态：3-待配送，4-配送中，5-已送达，9-已取消
+    }
+  ) {
+    return request.get<Api.Http.BaseResponse<any>>({
+      url: '/api/delivery/order/list/',
+      params
+    })
+  }
+
+  // 分配配送员
+  static assignDeliveryPerson(data: {
+    orderId: number
+    deliveryPersonName: string
+    deliveryPersonPhone: string
+    deliveryCarNumber?: string
+  }) {
+    return request.post<Api.Http.BaseResponse<any>>({
+      url: '/api/delivery/order/assign/',
+      data
+    })
+  }
+
+  // 更新配送状态
+  static updateDeliveryStatus(data: { orderId: number; status: string; trackingInfo?: string }) {
+    return request.post<Api.Http.BaseResponse<any>>({
+      url: '/api/delivery/order/update-status/',
+      data
+    })
+  }
 }

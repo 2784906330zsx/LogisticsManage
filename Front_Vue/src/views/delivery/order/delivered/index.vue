@@ -76,15 +76,17 @@
             </ElFormItem>
             <ElFormItem label="配送信息">
               <div>
-                <div style="margin-bottom: 5px">配送员：{{ currentOrder.deliveryPersonName }}</div>
                 <div style="margin-bottom: 5px"
-                  >联系电话：{{ currentOrder.deliveryPersonPhone }}</div
+                  >配送员：{{ currentOrder.deliveryPersonName || '未知' }}</div
                 >
-                <div>配送车辆：{{ getVehicleInfo(currentOrder.orderNumber).plateNumber }}</div>
+                <div style="margin-bottom: 5px"
+                  >联系电话：{{ currentOrder.deliveryPersonPhone || '未知' }}</div
+                >
+                <div>配送车辆：{{ currentOrder.deliveryCarNumber || '未知' }}</div>
               </div>
             </ElFormItem>
             <ElFormItem label="配送线路">
-              <div>{{ getRouteInfo(currentOrder.orderNumber) }}</div>
+              <div>配送完成</div>
             </ElFormItem>
             <ElFormItem label="跟踪信息">
               <ElInput v-model="currentOrder.trackingInfo" type="textarea" :rows="3" disabled />
@@ -109,13 +111,12 @@
 
 <script setup lang="ts">
   import { h } from 'vue'
-  import { SHIPPING_ORDER_DATA } from '@/mock/formData'
+  // 修改导入：从 orderApi 改为 deliveryApi
+  import { DeliveryService } from '@/api/deliveryApi'
   import { ElDialog, ElImage, ElTag, ElButton } from 'element-plus'
   import { useCheckedColumns } from '@/composables/useCheckedColumns'
   import ArtButtonTable from '@/components/core/forms/art-button-table/index.vue'
   import { SearchChangeParams, SearchFormItem } from '@/types'
-
-  const { width } = useWindowSize()
 
   defineOptions({ name: 'DeliveryDelivered' })
 
@@ -210,22 +211,6 @@
     }
   ]
 
-  // 获取配送车辆信息
-  const getVehicleInfo = (orderNumber: string) => {
-    const vehicleMap: { [key: string]: any } = {
-      SO202501180004: { id: 4, plateNumber: '沪D22222' }
-    }
-    return vehicleMap[orderNumber] || { id: '', plateNumber: '' }
-  }
-
-  // 获取配送线路信息
-  const getRouteInfo = (orderNumber: string) => {
-    const routeMap: { [key: string]: string } = {
-      SO202501180004: '上海市浦东新区总部 → 北京市朝阳区分部'
-    }
-    return routeMap[orderNumber] || '短途配送无固定线路'
-  }
-
   // 显示详情对话框
   const showDetailDialog = (row: any) => {
     currentOrder.value = { ...row }
@@ -244,17 +229,40 @@
     {
       prop: 'commodityInfo',
       label: '商品信息',
-      width: 280,
+      width: 200,
       formatter: (row: any) => {
-        return h('div', { class: 'flex items-center' }, [
+        return h('div', { class: 'commodity-info', style: 'display: flex; align-items: center' }, [
           h(ElImage, {
+            class: 'commodity-image',
             src: row.commodityImage,
-            style: 'width: 40px; height: 40px; border-radius: 4px; margin-right: 10px',
-            fit: 'cover'
+            style: 'width: 60px; height: 60px; border-radius: 6px; margin-right: 12px',
+            fit: 'cover',
+            lazy: true,
+            // 添加错误处理
+            onError: () => {
+              // 图片加载失败时的处理
+              console.warn('商品图片加载失败:', row.commodityImage)
+            },
+            // 添加占位图片
+            placeholder: '/default-commodity.png'
           }),
-          h('div', [
-            h('div', { style: 'font-weight: 500; margin-bottom: 2px' }, row.commodityName),
-            h('div', { style: 'font-size: 12px; color: #666' }, `数量：${row.quantity} 件`)
+          h('div', {}, [
+            h(
+              'p',
+              {
+                class: 'commodity-name',
+                style: 'margin: 0; font-weight: 500; color: var(--art-text-gray-800)'
+              },
+              row.commodityName
+            ),
+            h(
+              'p',
+              {
+                class: 'commodity-quantity',
+                style: 'margin: 4px 0 0 0; font-size: 12px; color: var(--art-text-gray-500)'
+              },
+              `数量：${row.quantity} 件`
+            )
           ])
         ])
       }
@@ -278,40 +286,35 @@
     {
       prop: 'vehicleInfo',
       label: '配送车辆',
-      width: 150,
+      width: 180,
       formatter: (row: any) => {
-        const vehicle = getVehicleInfo(row.orderNumber)
         return h('div', [
-          h('div', { style: 'font-weight: 500; margin-bottom: 2px' }, `车辆ID: ${vehicle.id}`),
-          h('div', { style: 'font-size: 12px; color: #666' }, `车牌: ${vehicle.plateNumber}`)
+          h(
+            'div',
+            { style: 'font-weight: 500; margin-bottom: 2px' },
+            `车牌号: ${row.deliveryCarNumber || '未知'}`
+          ),
+          h(
+            'div',
+            { style: 'font-size: 12px; color: #666; margin-bottom: 2px' },
+            `配送员: ${row.deliveryPersonName || '未知'}`
+          ),
+          h(
+            'div',
+            { style: 'font-size: 12px; color: #999' },
+            `联系电话: ${row.deliveryPersonPhone || '未知'}`
+          )
         ])
       }
     },
     {
       prop: 'route',
       label: '配送线路',
-      width: 250,
+      width: 200,
       formatter: (row: any) => {
-        return getRouteInfo(row.orderNumber)
+        // 显示实际的配送线路信息
+        return row.deliveryRoute || '线路信息不可用'
       }
-    },
-    {
-      prop: 'status',
-      label: '订单状态',
-      width: 100,
-      formatter: (row: any) => {
-        return h(ElTag, { type: 'success' }, () => '已送达')
-      }
-    },
-    {
-      prop: 'deliveryPersonName',
-      label: '配送员',
-      width: 120
-    },
-    {
-      prop: 'trackingInfo',
-      label: '跟踪信息',
-      width: 200
     },
     {
       prop: 'createTime',
@@ -321,24 +324,9 @@
     },
     {
       prop: 'completeTime',
-      label: '完成时间',
+      label: '送达时间',
       sortable: true,
       width: 160
-    },
-    {
-      prop: 'operation',
-      label: '操作',
-      width: 100,
-      fixed: 'right',
-      formatter: (row: any) => {
-        return h('div', [
-          h(ArtButtonTable, {
-            type: 'view',
-            text: '查看详情',
-            onClick: () => showDetailDialog(row)
-          })
-        ])
-      }
     }
   ])
 
@@ -350,47 +338,36 @@
   const getDeliveredOrderList = async () => {
     loading.value = true
     try {
-      // 模拟API调用
-      await new Promise((resolve) => setTimeout(resolve, 500))
+      const { currentPage, pageSize } = pagination
 
-      // 过滤已送达的运单（status='5'）
-      let filteredData = SHIPPING_ORDER_DATA.filter((item) => item.status === '5')
-
-      // 应用搜索过滤
-      if (formFilters.orderNumber) {
-        filteredData = filteredData.filter((item) =>
-          item.orderNumber.toLowerCase().includes(formFilters.orderNumber.toLowerCase())
-        )
+      const params = {
+        current: currentPage,
+        size: pageSize,
+        orderNumber: formFilters.orderNumber || undefined,
+        deliveryStatus: '5' // 使用 deliveryStatus 参数查询已送达状态
       }
 
-      if (formFilters.commodityName) {
-        filteredData = filteredData.filter((item) =>
-          item.commodityName.toLowerCase().includes(formFilters.commodityName.toLowerCase())
-        )
+      // 调用配送系统的API
+      const response = await DeliveryService.getDeliveryOrderList(params)
+
+      if (response.code === 200) {
+        tableData.value = response.data.list.map((item: any) => ({
+          ...item,
+          commodityImage: item.commodityImage || '/default-commodity.png'
+        }))
+        pagination.total = response.data.total
+        pagination.currentPage = response.data.current
+        pagination.pageSize = response.data.size
+      } else {
+        ElMessage.error(response.msg || '获取已送达运单列表失败')
+        tableData.value = []
+        pagination.total = 0
       }
-
-      if (formFilters.receiverName) {
-        filteredData = filteredData.filter((item) =>
-          item.receiverName.toLowerCase().includes(formFilters.receiverName.toLowerCase())
-        )
-      }
-
-      if (formFilters.plateNumber) {
-        filteredData = filteredData.filter((item) => {
-          const vehicle = getVehicleInfo(item.orderNumber)
-          return vehicle.plateNumber.toLowerCase().includes(formFilters.plateNumber.toLowerCase())
-        })
-      }
-
-      // 分页处理
-      const startIndex = (pagination.currentPage - 1) * pagination.pageSize
-      const endIndex = startIndex + pagination.pageSize
-      tableData.value = filteredData.slice(startIndex, endIndex)
-      pagination.total = filteredData.length
-
-      console.log('已送达运单列表:', tableData.value)
     } catch (error) {
       console.error('获取已送达运单列表失败:', error)
+      ElMessage.error('获取已送达运单列表失败，请稍后重试')
+      tableData.value = []
+      pagination.total = 0
     } finally {
       loading.value = false
     }

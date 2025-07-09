@@ -22,13 +22,13 @@ export const asyncRoutes: AppRouteRecord[] = [
     meta: {
       title: 'menus.user.title',
       icon: '&#xe831;',
-      roles: ['R_SUPER', 'R_ADMIN']
+      roles: ['R_SUPER', 'R_ADMIN', 'E_DELIVERY']
     },
     children: [
       {
         path: 'person',
         name: 'Person',
-        component: RoutesAlias.User, // 指向 '/user/user'
+        component: RoutesAlias.User,
         meta: {
           title: 'menus.user.person',
           keepAlive: true,
@@ -75,7 +75,7 @@ export const asyncRoutes: AppRouteRecord[] = [
     meta: {
       title: 'menus.order.title',
       icon: '&#xe88c;',
-      roles: ['R_SUPER', 'R_ADMIN']
+      roles: ['R_SUPER', 'R_ADMIN', 'E_DELIVERY']
     },
     children: [
       {

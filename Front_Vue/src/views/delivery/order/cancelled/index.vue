@@ -100,13 +100,11 @@
 
 <script setup lang="ts">
   import { h } from 'vue'
-  import { SHIPPING_ORDER_DATA } from '@/mock/formData'
+  import { DeliveryService } from '@/api/orderApi' // 添加这行导入
   import { ElDialog, ElImage, ElTag, ElButton } from 'element-plus'
   import { useCheckedColumns } from '@/composables/useCheckedColumns'
   import ArtButtonTable from '@/components/core/forms/art-button-table/index.vue'
   import { SearchChangeParams, SearchFormItem } from '@/types'
-
-  const { width } = useWindowSize()
 
   defineOptions({ name: 'DeliveryCancelled' })
 
@@ -203,23 +201,46 @@
     {
       prop: 'orderNumber',
       label: '运单号',
-      width: 160,
+      width: 140,
       fixed: 'left'
     },
     {
       prop: 'commodityInfo',
       label: '商品信息',
-      width: 280,
+      width: 200,
       formatter: (row: any) => {
-        return h('div', { class: 'flex items-center' }, [
+        return h('div', { class: 'commodity-info', style: 'display: flex; align-items: center' }, [
           h(ElImage, {
+            class: 'commodity-image',
             src: row.commodityImage,
-            style: 'width: 40px; height: 40px; border-radius: 4px; margin-right: 10px',
-            fit: 'cover'
+            style: 'width: 60px; height: 60px; border-radius: 6px; margin-right: 12px',
+            fit: 'cover',
+            lazy: true,
+            // 添加错误处理
+            onError: () => {
+              // 图片加载失败时的处理
+              console.warn('商品图片加载失败:', row.commodityImage)
+            },
+            // 添加占位图片
+            placeholder: '/default-commodity.png'
           }),
-          h('div', [
-            h('div', { style: 'font-weight: 500; margin-bottom: 2px' }, row.commodityName),
-            h('div', { style: 'font-size: 12px; color: #666' }, `数量：${row.quantity} 件`)
+          h('div', {}, [
+            h(
+              'p',
+              {
+                class: 'commodity-name',
+                style: 'margin: 0; font-weight: 500; color: var(--art-text-gray-800)'
+              },
+              row.commodityName
+            ),
+            h(
+              'p',
+              {
+                class: 'commodity-quantity',
+                style: 'margin: 4px 0 0 0; font-size: 12px; color: var(--art-text-gray-500)'
+              },
+              `数量：${row.quantity} 件`
+            )
           ])
         ])
       }
@@ -227,7 +248,7 @@
     {
       prop: 'receiverInfo',
       label: '收货人信息',
-      width: 200,
+      width: 250,
       formatter: (row: any) => {
         return h('div', [
           h('div', { style: 'font-weight: 500; margin-bottom: 2px' }, row.receiverName),
@@ -243,26 +264,26 @@
     {
       prop: 'status',
       label: '订单状态',
-      width: 100,
+      width: 80,
       formatter: (row: any) => {
         return h(ElTag, { type: 'danger' }, () => '已取消')
       }
     },
+    // {
+    //   prop: 'trackingInfo',
+    //   label: '取消原因',
+    //   width: 200
+    // },
     {
-      prop: 'trackingInfo',
-      label: '取消原因',
-      width: 200
-    },
-    {
-      prop: 'creatorName',
-      label: '创建人',
-      width: 120
-    },
-    {
-      prop: 'createTime',
-      label: '创建时间',
-      sortable: true,
-      width: 160
+      prop: 'creatorInfo',
+      label: '创建信息',
+      width: 160,
+      formatter: (row: any) => {
+        return h('div', { style: 'line-height: 1.4;' }, [
+          h('div', { style: 'font-weight: 500; margin-bottom: 4px;' }, row.creatorName || '-'),
+          h('div', { style: 'font-size: 12px; color: #666;' }, row.createTime || '-')
+        ])
+      }
     },
     {
       prop: 'completeTime',
@@ -278,7 +299,7 @@
       formatter: (row: any) => {
         return h('div', [
           h(ArtButtonTable, {
-            type: 'view',
+            type: 'edit',
             text: '查看详情',
             onClick: () => showDetailDialog(row)
           })
@@ -295,40 +316,35 @@
   const getCancelledOrderList = async () => {
     loading.value = true
     try {
-      // 模拟API调用
-      await new Promise((resolve) => setTimeout(resolve, 500))
+      const { currentPage, pageSize } = pagination
 
-      // 过滤已取消的运单（status='7'）
-      let filteredData = SHIPPING_ORDER_DATA.filter((item) => item.status === '7')
-
-      // 应用搜索过滤
-      if (formFilters.orderNumber) {
-        filteredData = filteredData.filter((item) =>
-          item.orderNumber.toLowerCase().includes(formFilters.orderNumber.toLowerCase())
-        )
+      const params = {
+        current: currentPage,
+        size: pageSize,
+        orderNumber: formFilters.orderNumber || undefined,
+        status: '9' // 固定查询已取消状态
       }
 
-      if (formFilters.commodityName) {
-        filteredData = filteredData.filter((item) =>
-          item.commodityName.toLowerCase().includes(formFilters.commodityName.toLowerCase())
-        )
+      const response = await DeliveryService.getShippingOrderList(params)
+
+      if (response.code === 200) {
+        tableData.value = response.data.list.map((item: any) => ({
+          ...item,
+          commodityImage: item.commodityImage || '/default-commodity.png'
+        }))
+        pagination.total = response.data.total
+        pagination.currentPage = response.data.current
+        pagination.pageSize = response.data.size
+      } else {
+        ElMessage.error(response.msg || '获取已取消运单列表失败')
+        tableData.value = []
+        pagination.total = 0
       }
-
-      if (formFilters.receiverName) {
-        filteredData = filteredData.filter((item) =>
-          item.receiverName.toLowerCase().includes(formFilters.receiverName.toLowerCase())
-        )
-      }
-
-      // 分页处理
-      const startIndex = (pagination.currentPage - 1) * pagination.pageSize
-      const endIndex = startIndex + pagination.pageSize
-      tableData.value = filteredData.slice(startIndex, endIndex)
-      pagination.total = filteredData.length
-
-      console.log('已取消运单列表:', tableData.value)
     } catch (error) {
       console.error('获取已取消运单列表失败:', error)
+      ElMessage.error('获取已取消运单列表失败，请稍后重试')
+      tableData.value = []
+      pagination.total = 0
     } finally {
       loading.value = false
     }

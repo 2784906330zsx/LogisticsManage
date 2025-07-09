@@ -95,7 +95,6 @@
   import { RoutesAlias } from '@/router/routesAlias'
   import { ElNotification, ElMessage } from 'element-plus'
   import { useUserStore } from '@/store/modules/user'
-  // import { getCssVar } from '@/utils/ui'
   import { languageOptions } from '@/locales'
   import { LanguageEnum, SystemThemeEnum } from '@/enums/appEnum'
   import { useI18n } from 'vue-i18n'
@@ -147,7 +146,7 @@
       const { jobNumber, password } = formData
 
       const response = await UserService.login({
-        jobNumber: jobNumber, // 改为发送工号
+        jobNumber: jobNumber,
         password
       })
 
@@ -180,11 +179,9 @@
       showLoginSuccessNotice()
       router.push('/')
     } catch (error) {
-      // 处理 HttpError
       if (error instanceof HttpError) {
-        // console.log(error.code)
+        console.log(error.code)
       } else {
-        // 处理非 HttpError
         ElMessage.error('登录失败，请稍后重试')
         console.error('[Login] Unexpected error:', error)
       }

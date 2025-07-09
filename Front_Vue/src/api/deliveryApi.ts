@@ -56,11 +56,21 @@ export interface VehicleListParams {
   isEnabled?: string
 }
 
+export interface OrderAssignParams {
+  orderId: string
+  vehicleId: string
+  routeInfo?: {
+    departure: string
+    destination: string
+  }
+  // 移除 driverName 和 driverPhone，因为后端会自动获取
+}
+
 export class DeliveryService {
   // 获取固定线路列表
   static getStaticRouteList(params: StaticRouteListParams) {
     return request.get<Api.Http.BaseResponse<any>>({
-      url: '/api/delivery/static-routes/',
+      url: '/api/delivery/static-route/list/',
       params: {
         current: params.current,
         size: params.size,
@@ -81,7 +91,7 @@ export class DeliveryService {
     isActive?: boolean
   }): Promise<Api.Http.BaseResponse<any>> {
     return request.post<Api.Http.BaseResponse<any>>({
-      url: '/api/delivery/static-routes/manage/',
+      url: '/api/delivery/static-route/manage/',
       data
     })
   }
@@ -97,7 +107,7 @@ export class DeliveryService {
     isActive?: boolean
   }): Promise<Api.Http.BaseResponse<any>> {
     return request.put<Api.Http.BaseResponse<any>>({
-      url: '/api/delivery/static-routes/manage/',
+      url: '/api/delivery/static-route/manage/',
       data
     })
   }
@@ -105,7 +115,7 @@ export class DeliveryService {
   // 删除固定线路
   static deleteStaticRoute(data: { id: number }): Promise<Api.Http.BaseResponse<any>> {
     return request.del<Api.Http.BaseResponse<any>>({
-      url: '/api/delivery/static-routes/manage/',
+      url: '/api/delivery/static-route/manage/',
       data
     })
   }
@@ -113,7 +123,7 @@ export class DeliveryService {
   // 获取车辆列表
   static getVehicleList(params: VehicleListParams) {
     return request.get<Api.Http.BaseResponse<any>>({
-      url: '/api/delivery/vehicles/',
+      url: '/api/delivery/vehicle/list/',
       params: {
         current: params.current,
         size: params.size,
@@ -140,7 +150,7 @@ export class DeliveryService {
     isEnabled?: boolean
   }): Promise<Api.Http.BaseResponse<any>> {
     return request.post<Api.Http.BaseResponse<any>>({
-      url: '/api/delivery/vehicles/manage/',
+      url: '/api/delivery/vehicle/manage/',
       data
     })
   }
@@ -160,7 +170,7 @@ export class DeliveryService {
     isEnabled?: boolean
   }): Promise<Api.Http.BaseResponse<any>> {
     return request.put<Api.Http.BaseResponse<any>>({
-      url: '/api/delivery/vehicles/manage/',
+      url: '/api/delivery/vehicle/manage/',
       data
     })
   }
@@ -168,8 +178,29 @@ export class DeliveryService {
   // 删除车辆
   static deleteVehicle(data: { id: number }): Promise<Api.Http.BaseResponse<any>> {
     return request.del<Api.Http.BaseResponse<any>>({
-      url: '/api/delivery/vehicles/manage/',
+      url: '/api/delivery/vehicle/manage/',
       data
+    })
+  }
+
+  //分配运单给配送车辆
+  static assignOrder(params: OrderAssignParams): Promise<Api.Http.BaseResponse<any>> {
+    return request.post<Api.Http.BaseResponse<any>>({
+      url: '/api/delivery/order/assign/',
+      data: params
+    })
+  }
+
+  // 获取配送运单列表（按状态筛选）
+  static getDeliveryOrderList(
+    params: Api.Common.PaginatingParams & {
+      orderNumber?: string
+      deliveryStatus?: string // 配送状态：3-待配送，4-配送中，5-已送达，9-已取消
+    }
+  ) {
+    return request.get<Api.Http.BaseResponse<any>>({
+      url: '/api/delivery/order/list/',
+      params
     })
   }
 }
