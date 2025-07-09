@@ -376,8 +376,8 @@ class RoleManageView(View):
                     'data': None
                 })
 
-            # 检查是否有用户关联此角色
-            if User.objects.filter(role=role).exists():
+            # 检查是否有用户关联此角色 - 修复这里的字段名
+            if User.objects.filter(position=role.id).exists():
                 return JsonResponse({
                     'code': 400,
                     'msg': '该角色下还有用户，无法删除',

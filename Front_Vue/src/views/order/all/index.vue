@@ -120,7 +120,7 @@
 
 <script setup lang="ts">
   import { h } from 'vue'
-  import { DeliveryService } from '@/api/orderApi' // 添加这行
+  import { DeliveryService } from '@/api/orderApi'
   import { COMMODITY_LIST_DATA } from '@/mock/formData'
   import { ElDialog, FormInstance, ElImage, ElTag, ElButton } from 'element-plus'
   import { ElMessageBox, ElMessage } from 'element-plus'
@@ -128,8 +128,6 @@
   import { useCheckedColumns } from '@/composables/useCheckedColumns'
   import ArtButtonTable from '@/components/core/forms/art-button-table/index.vue'
   import { SearchChangeParams, SearchFormItem } from '@/types'
-
-  const { width } = useWindowSize()
 
   defineOptions({ name: 'ShippingOrderAll' })
 
@@ -173,7 +171,7 @@
   const handleSearch = () => {
     console.log('搜索参数:', formFilters)
     if (formFilters.commodityName || formFilters.receiverName) {
-      ElMessage.warning('当前版本暂不支持按商品名称和收货人搜索，请使用运单号和状态搜索')
+      ElMessage.warning('请使用运单号和状态搜索')
     }
     pagination.currentPage = 1
     getShippingOrderList()
@@ -223,11 +221,13 @@
       options: () => [
         { label: '待确认', value: '1' },
         { label: '确认未通过', value: '2' },
-        { label: '待配送', value: '3' },
+        { label: '已确认，待配送', value: '3' },
         { label: '配送中', value: '4' },
         { label: '已送达', value: '5' },
         { label: '已确认收货', value: '6' },
-        { label: '已取消', value: '7' }
+        { label: '退货待审核', value: '7' },
+        { label: '审核未通过', value: '8' },
+        { label: '已退货', value: '9' }
       ],
       onChange: handleFormChange
     }
@@ -283,7 +283,7 @@
       '6': 'success', // 已确认收货
       '7': 'info', // 待退货审核
       '8': 'info', // 审核未通过
-      '9': 'danger' // 已取消
+      '9': 'danger' // 已退货
     }
     return statusMap[status] || 'info'
   }
@@ -293,13 +293,13 @@
     const statusMap: Record<string, string> = {
       '1': '待确认',
       '2': '确认未通过',
-      '3': '待配送',
+      '3': '已确认，待配送',
       '4': '配送中',
       '5': '已送达',
       '6': '已确认收货',
-      '7': '待退货审核',
+      '7': '退货待审核',
       '8': '审核未通过',
-      '9': '已取消'
+      '9': '已退货'
     }
     return statusMap[status] || '未知状态'
   }
@@ -310,12 +310,12 @@
     {
       prop: 'orderNumber',
       label: '运单号',
-      width: 160
+      width: 140
     },
     {
       prop: 'commodityImage',
       label: '商品信息',
-      minWidth: width.value < 500 ? 250 : 280,
+      width: 200,
       formatter: (row: any) => {
         return h('div', { class: 'commodity-info', style: 'display: flex; align-items: center' }, [
           h(ElImage, {
@@ -378,7 +378,7 @@
     {
       prop: 'status',
       label: '订单状态',
-      width: 140,
+      width: 120,
       formatter: (row: any) => {
         return h(ElTag, { type: getStatusTagType(row.status) }, () => getStatusText(row.status))
       }

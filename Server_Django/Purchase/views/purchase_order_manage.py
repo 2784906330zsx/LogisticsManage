@@ -65,7 +65,6 @@ class PurchaseOrderManageView(View):
             order_number = self.generate_order_number()
 
             # 创建采购订单
-            # 创建采购订单
             with transaction.atomic():
                 purchase_order = PurchaseOrder.objects.create(
                     order_number=order_number,
@@ -75,7 +74,7 @@ class PurchaseOrderManageView(View):
                     quantity=quantity,
                     total_amount=total_amount,
                     status='1',  # 财务审核中
-                    purchase_name=user.username,  # 修改：user.name -> user.username
+                    purchase_name=user.username,
                     purchase_job_number=user.job_number,
                     order_time=datetime.now()
                 )
@@ -90,12 +89,14 @@ class PurchaseOrderManageView(View):
             })
 
         except json.JSONDecodeError:
+            print('请求数据格式错误')
             return JsonResponse({
                 'code': 400,
                 'message': '请求数据格式错误',
                 'data': None
             }, status=400)
         except Exception as e:
+            print(f'创建采购订单失败: {str(e)}')
             return JsonResponse({
                 'code': 500,
                 'message': f'创建采购订单失败: {str(e)}',

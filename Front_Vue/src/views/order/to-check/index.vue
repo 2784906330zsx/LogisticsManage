@@ -234,25 +234,31 @@
   }
 
   // 提交审核
+  // 提交审核
   const handleReviewSubmit = async () => {
     if (!reviewFormRef.value) return
 
-    await reviewFormRef.value.validate((valid) => {
+    await reviewFormRef.value.validate(async (valid) => {
       if (valid) {
-        const action = reviewType.value === 'approve' ? '退货审核通过' : '退货审核不通过'
-        const newStatus = reviewType.value === 'approve' ? '9' : '8' // 9: 已取消, 8: 审核未通过
+        try {
+          const response = await DeliveryService.reviewReturnOrder({
+            orderId: currentReviewOrder.value.id,
+            action: reviewType.value,
+            reviewComment: reviewForm.reviewComment
+          })
 
-        // 这里应该调用API更新订单状态
-        console.log('审核操作:', {
-          orderId: currentReviewOrder.value.id,
-          action,
-          newStatus,
-          comment: reviewForm.reviewComment
-        })
-
-        ElMessage.success(`${action}成功`)
-        reviewDialogVisible.value = false
-        getReturnOrderList() // 刷新列表
+          if (response.code === 200) {
+            const action = reviewType.value === 'approve' ? '退货审核通过' : '退货审核不通过'
+            ElMessage.success(`${action}成功`)
+            reviewDialogVisible.value = false
+            getReturnOrderList() // 刷新列表
+          } else {
+            ElMessage.error(response.msg || '审核失败')
+          }
+        } catch (error) {
+          console.error('审核失败:', error)
+          ElMessage.error('审核失败，请稍后重试')
+        }
       }
     })
   }

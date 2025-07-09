@@ -222,10 +222,9 @@ class ShippingOrder(models.Model):
         ('4', '配送中'),
         ('5', '已送达'),
         ('6', '已确认收货'),
-        ('7', '待退货审核'),
+        ('7', '退货待审核'),
         ('8', '审核未通过'),
-        ('9', '退货运送中'),
-        ('10', '已退货'),
+        ('9', '已退货')
     ]
 
     order_number = models.CharField(max_length=50, unique=True, verbose_name='运单号')

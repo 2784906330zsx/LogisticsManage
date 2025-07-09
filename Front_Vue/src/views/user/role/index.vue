@@ -39,7 +39,6 @@
               <!-- 可以在 list 中添加 auth 属性来控制按钮的权限, auth 属性值为权限标识 -->
               <ArtButtonMore
                 :list="[
-                  { key: 'permission', label: '菜单权限' },
                   { key: 'edit', label: '编辑角色' },
                   { key: 'delete', label: '删除角色' }
                 ]"

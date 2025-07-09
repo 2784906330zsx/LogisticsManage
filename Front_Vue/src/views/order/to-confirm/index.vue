@@ -148,6 +148,7 @@
   // 审核表单
   const reviewFormRef = ref<FormInstance>()
   const reviewForm = reactive({
+    reviewType: '',
     reviewComment: ''
   })
 
@@ -224,6 +225,7 @@
   const showReviewDialog = (type: 'approve' | 'reject', row: any) => {
     reviewType.value = type
     currentReviewOrder.value = row
+    reviewForm.reviewType = type
     reviewForm.reviewComment = ''
     reviewDialogVisible.value = true
 
@@ -235,26 +237,44 @@
 
   // 提交审核
   const handleReviewSubmit = async () => {
+    // 验证表单
     if (!reviewFormRef.value) return
 
-    await reviewFormRef.value.validate((valid) => {
-      if (valid) {
-        const action = reviewType.value === 'approve' ? '确认通过' : '确认不通过'
-        const newStatus = reviewType.value === 'approve' ? '3' : '2' // 3: 待配送, 2: 确认未通过
+    try {
+      await reviewFormRef.value.validate()
+    } catch (error) {
+      console.error('验证失败:', error)
+      return
+    }
 
-        // 这里应该调用API更新订单状态
-        console.log('审核操作:', {
-          orderId: currentReviewOrder.value.id,
-          action,
-          newStatus,
-          comment: reviewForm.reviewComment
-        })
+    try {
+      loading.value = true
 
-        ElMessage.success(`${action}成功`)
+      const response = await DeliveryService.confirmShippingOrder({
+        orderId: currentReviewOrder.value.id,
+        action: reviewType.value,
+        reviewComment: reviewForm.reviewComment
+      })
+
+      if (response.code === 200) {
+        ElMessage.success('审核完成')
         reviewDialogVisible.value = false
-        getPendingOrderList() // 刷新列表
+
+        // 重置表单
+        reviewForm.reviewType = ''
+        reviewForm.reviewComment = ''
+
+        // 刷新列表
+        await getPendingOrderList()
+      } else {
+        ElMessage.error(response.msg || '审核失败')
       }
-    })
+    } catch (error) {
+      console.error('审核失败:', error)
+      ElMessage.error('审核失败，请稍后重试')
+    } finally {
+      loading.value = false
+    }
   }
 
   // 获取状态标签类型

@@ -35,4 +35,28 @@ export class DeliveryService {
       params: { commodityId }
     })
   }
+
+  // 运单确认
+  static confirmShippingOrder(data: {
+    orderId: number
+    action: 'approve' | 'reject'
+    reviewComment?: string
+  }) {
+    return request.post<Api.Http.BaseResponse<any>>({
+      url: '/api/order/confirm/',
+      data
+    })
+  }
+
+  // 退货审核
+  static reviewReturnOrder(data: {
+    orderId: number
+    action: 'approve' | 'reject'
+    reviewComment?: string
+  }) {
+    return request.post<Api.Http.BaseResponse<any>>({
+      url: '/api/order/return-review/',
+      data
+    })
+  }
 }
