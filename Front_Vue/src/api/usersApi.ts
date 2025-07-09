@@ -60,7 +60,8 @@ export class UserService {
   //删除用户
   static deleteUser(userId: number) {
     return request.del<Api.Http.BaseResponse>({
-      url: `/api/user/delete?userId=${userId}`
+      url: '/api/user/delete',
+      data: { userId }
     })
   }
 

@@ -89,9 +89,6 @@ async function handleRouteGuard(
     await handleDynamicRoutes(to, router, next)
     return
   }
-
-  // 如果以上都不匹配，跳转到404
-  next(RoutesAlias.Exception404)
 }
 
 /**
