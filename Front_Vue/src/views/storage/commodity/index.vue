@@ -436,7 +436,7 @@
     {
       prop: 'image',
       label: '商品名称',
-      width: 180,
+      width: 200,
       formatter: (row: any) => {
         return h('div', { class: 'commodity-info', style: 'display: flex; align-items: center' }, [
           h(ElImage, {
@@ -467,7 +467,7 @@
     {
       prop: 'description',
       label: '商品介绍',
-      width: 180,
+      width: 200,
       formatter: (row: any) => {
         const text = row.description || ''
         return text.length > 50 ? text.substring(0, 50) + '...' : text
@@ -483,11 +483,12 @@
     {
       prop: 'supplier',
       label: '供应商',
-      width: 120
+      width: 180
     },
     {
       prop: 'status',
       label: '状态',
+      width: 80,
       formatter: (row) => {
         return h(ElTag, { type: getTagType(row.status) }, () => buildTagText(row.status))
       }
