@@ -48,6 +48,16 @@ declare namespace Api {
 
   /** 用户类型 */
   namespace User {
+    /** 用户查询参数 */
+    interface UserQueryParams extends Api.Common.PaginatingParams {
+      name?: string
+      phone?: string
+      email?: string
+      gender?: string
+      department?: string
+      position?: string
+      status?: string
+    }
     /** 用户信息 */
     interface UserInfo {
       userId: number

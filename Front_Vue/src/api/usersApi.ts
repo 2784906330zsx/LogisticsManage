@@ -26,7 +26,7 @@ export class UserService {
   }
 
   // 获取用户列表 - 修正返回类型
-  static getUserList(params: Api.Common.PaginatingParams) {
+  static getUserList(params: Api.User.UserQueryParams) {
     return request.get<Api.Http.BaseResponse<Api.User.UserListData>>({
       url: '/api/user/list',
       params
