@@ -26,21 +26,35 @@
 3. 修改后端的.env 文件，配置数据库连接地址
    注意：不需要创建数据表，Django 支持自动建表
 4. 前端运行
+
    ```
    pnpm install
    pnpm dev
    ```
+
 5. 后端运行
    - 安装依赖：
+
    ```
    pip install -r requirements.txt
    ```
+
    - 使用 Django 创建数据表
+
    ```
    python manage.py makemigrations Core
    python manage.py migrate
    ```
+
    - 启动后端
+
    ```
    python manage.py runserver
    ```
+
+## 图片展示
+
+![财务大屏](./Front_Vue/src/assets/img/demo/财务大屏.png)
+![配送大屏](./Front_Vue/src/assets/img/demo/配送大屏.png)
+![员工管理](./Front_Vue/src/assets/img/demo/员工管理.png)
+![运单管理](./Front_Vue/src/assets/img/demo/运单管理.png)
